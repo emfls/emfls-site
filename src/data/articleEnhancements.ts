@@ -531,6 +531,259 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       { name: 'Google helpful content guidance', url: 'https://developers.google.com/search/docs/fundamentals/creating-helpful-content' },
     ],
   },
+  'cloudflare-dns-setup-for-beginners': {
+    example: {
+      title: '가비아에서 Cloudflare로 기준 화면이 바뀌는 순간',
+      paragraphs: [
+        '가비아에서 Cloudflare 네임서버로 변경한 뒤 Cloudflare Overview에 `Your domain is now protected by Cloudflare`가 표시되면 DNS 기준은 Cloudflare입니다. 이후 가비아의 개별 DNS 레코드 수정 화면은 실제 서비스 기준이 아닐 수 있습니다.',
+        '이 상태에서 Pages의 Custom domains에 `emfls.com`을 추가하면 Cloudflare가 필요한 연결을 안내합니다. 기존 GitHub Pages 레코드가 남아 있으면 충돌을 정리한 뒤 Pages 대상 레코드로 맞춥니다.',
+      ],
+    },
+    screenshot: {
+      title: '준비할 스크린샷',
+      caption: 'Cloudflare 도메인 Active 화면, DNS 레코드 목록, Pages Custom domains 연결 상태를 순서대로 캡처합니다.',
+    },
+    checklist: [
+      'Cloudflare Overview에서 도메인이 Active인지 확인한다.',
+      'DNS 메뉴에서 예전 GitHub Pages 레코드가 남아 있는지 본다.',
+      'Pages 프로젝트의 Custom domains에서 루트 도메인을 추가한다.',
+      '`www` 주소도 사용할지 결정하고 별도로 연결한다.',
+    ],
+    mistakes: [
+      'Cloudflare 활성화 후에도 가비아 DNS 레코드를 계속 수정하는 것.',
+      '예전 GitHub Pages A 레코드와 Cloudflare Pages 연결을 동시에 유지하는 것.',
+      '도메인 전파 중에 설정을 여러 번 바꿔 원인을 추적하기 어렵게 만드는 것.',
+    ],
+    faqs: [
+      {
+        question: 'Cloudflare를 쓰면 가비아는 더 이상 필요 없나요?',
+        answer: '도메인 등록기관은 여전히 가비아입니다. 다만 네임서버를 Cloudflare로 바꾸면 DNS 관리는 Cloudflare에서 합니다.',
+      },
+      {
+        question: '주황색 구름은 켜야 하나요?',
+        answer: 'Pages 연결에서는 Cloudflare 안내를 따르는 것이 좋습니다. 일반적으로 프록시를 통해 HTTPS, 캐시, 보안 기능을 함께 사용할 수 있습니다.',
+      },
+      {
+        question: 'DNS 변경 후 바로 AdSense 확인을 눌러도 되나요?',
+        answer: '대표 도메인이 실제 사이트로 열리고 최신 배포가 반영된 뒤 확인하는 것이 안전합니다.',
+      },
+    ],
+    sources: [
+      { name: 'Cloudflare DNS documentation', url: 'https://developers.cloudflare.com/dns/' },
+      { name: 'Cloudflare Pages custom domains', url: 'https://developers.cloudflare.com/pages/configuration/custom-domains/' },
+    ],
+  },
+  'google-search-console-domain-property-guide': {
+    example: {
+      title: 'HTML 사이트맵 오류를 XML 사이트맵 제출로 고친 사례',
+      paragraphs: [
+        'Search Console에 `/site-map/`을 제출하면 HTML 페이지라서 오류가 납니다. 이 사이트는 사람이 보는 사이트맵과 검색 엔진용 XML 사이트맵을 분리했고, Search Console에는 `/sitemap-index.xml`을 제출하는 방식으로 정리했습니다.',
+        '사이트맵 인덱스에는 실제 글 URL이 바로 보이지 않을 수 있습니다. 대신 `sitemap-0.xml` 같은 하위 사이트맵 위치가 들어 있고, Google은 그 파일을 따라가 URL 목록을 읽습니다.',
+      ],
+    },
+    screenshot: {
+      title: '준비할 스크린샷',
+      caption: 'Search Console의 사이트맵 제출 화면, HTML 사이트맵 오류, XML 사이트맵 정상 제출 화면을 비교합니다.',
+    },
+    checklist: [
+      '도메인 속성 또는 URL 접두어 속성을 목적에 맞게 선택한다.',
+      '소유권 확인이 완료되었는지 확인한다.',
+      '`sitemap-index.xml`을 제출한다.',
+      '홈과 대표 글을 URL 검사로 확인한다.',
+    ],
+    mistakes: [
+      'HTML 사이트맵 페이지를 XML 사이트맵으로 제출하는 것.',
+      '도메인 활성화 전 Search Console 검증을 반복하는 것.',
+      '색인 상태가 즉시 바뀌지 않는다고 사이트 구조를 계속 바꾸는 것.',
+    ],
+    faqs: [
+      {
+        question: '도메인 속성과 URL 접두어 중 무엇이 좋나요?',
+        answer: 'Cloudflare DNS를 관리한다면 도메인 속성이 전체 도메인을 보기 좋습니다. 특정 HTTPS 주소만 빠르게 확인하려면 URL 접두어도 사용할 수 있습니다.',
+      },
+      {
+        question: '사이트맵 제출 성공이면 바로 색인되나요?',
+        answer: '아닙니다. 사이트맵 제출은 URL 발견을 돕는 단계이며, 색인 여부는 콘텐츠 품질과 Google 판단에 따라 달라집니다.',
+      },
+      {
+        question: '발견된 페이지가 0이면 실패인가요?',
+        answer: '제출 직후에는 0일 수 있습니다. 형식이 맞고 URL이 열리면 시간을 두고 다시 확인하세요.',
+      },
+    ],
+    sources: [
+      { name: 'Search Console Help', url: 'https://support.google.com/webmasters/' },
+      { name: 'Google sitemaps documentation', url: 'https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview' },
+    ],
+  },
+  'adsense-review-final-checklist': {
+    example: {
+      title: '심사 직전 emfls.com에서 확인한 기준',
+      paragraphs: [
+        '이 사이트는 AdSense 확인 코드를 공통 head에 넣고, Cloudflare Pages 배포가 끝난 뒤 확인을 진행하는 흐름으로 구성했습니다. 코드가 저장소에 들어갔더라도 실제 배포가 끝나기 전에는 AdSense가 확인하지 못할 수 있습니다.',
+        '또한 소개, 문의, 개인정보처리방침, 편집 정책, 작성 기준, 면책 고지를 푸터와 사이트맵에서 접근 가능하게 배치했습니다. 심사자는 한 페이지가 아니라 사이트 전체 완성도를 볼 수 있기 때문입니다.',
+      ],
+    },
+    screenshot: {
+      title: '준비할 스크린샷',
+      caption: 'AdSense 확인 코드 화면, 실제 HTML head에 코드가 들어간 화면, Cloudflare Pages 최신 배포 성공 화면을 함께 보관합니다.',
+    },
+    checklist: [
+      '대표 도메인 HTTPS 접속이 정상인지 확인한다.',
+      'AdSense 코드가 최신 배포 HTML head에 들어갔는지 확인한다.',
+      '정책/신뢰 페이지가 푸터에서 접근 가능한지 확인한다.',
+      '글마다 고유한 예시, FAQ, 출처가 있는지 확인한다.',
+      'Search Console에 XML 사이트맵을 제출한다.',
+    ],
+    mistakes: [
+      '광고 코드만 넣고 콘텐츠와 정책 페이지를 보강하지 않는 것.',
+      '임시 배포 주소와 심사 도메인을 섞어 쓰는 것.',
+      '짧은 글을 많이 만들어 콘텐츠 수만 늘리는 것.',
+    ],
+    faqs: [
+      {
+        question: 'AdSense 신청 후에도 글을 수정해도 되나요?',
+        answer: '가능합니다. 심사 중에는 사이트 안정성을 유지하면서 품질 보강, 오타 수정, 내부 링크 개선 위주로 수정하는 것이 좋습니다.',
+      },
+      {
+        question: '승인 전 광고 자리를 만들어야 하나요?',
+        answer: '필수는 아닙니다. 승인 전에는 광고 배치보다 콘텐츠 품질과 사이트 신뢰도를 먼저 갖추는 것이 안전합니다.',
+      },
+      {
+        question: 'Search Console 색인이 부족하면 무조건 거절되나요?',
+        answer: '무조건은 아니지만, 주요 페이지 접근과 사이트맵 제출은 심사 전 기본 점검으로 처리하는 것이 좋습니다.',
+      },
+    ],
+    sources: [
+      { name: 'AdSense site readiness guide', url: 'https://support.google.com/adsense/answer/7299563' },
+      { name: 'AdSense Program policies', url: 'https://support.google.com/adsense/answer/48182' },
+    ],
+  },
+  'connect-custom-domain-to-github-pages': {
+    example: {
+      title: 'GitHub Pages 기준에서 Cloudflare Pages 기준으로 바꾼 이유',
+      paragraphs: [
+        '처음에는 GitHub Pages용 A 레코드와 CNAME 파일을 준비했지만, 최종 운영은 Cloudflare Pages로 정리했습니다. 이유는 도메인, DNS, HTTPS, 배포 상태를 Cloudflare에서 한 번에 관리하는 편이 초보자에게 더 명확했기 때문입니다.',
+        '이런 변경을 할 때는 예전 GitHub Pages용 설정을 계속 남겨두지 않는 것이 중요합니다. 배포 기준이 바뀌면 README, DNS, AdSense 등록 주소, sitemap 기준 URL도 함께 맞춰야 합니다.',
+      ],
+    },
+    screenshot: {
+      title: '준비할 스크린샷',
+      caption: 'GitHub Pages custom domain 화면과 Cloudflare Pages custom domain 화면을 비교하면 두 방식의 차이를 설명하기 좋습니다.',
+    },
+    checklist: [
+      '어떤 서비스가 실제 배포를 담당하는지 먼저 정한다.',
+      'GitHub Pages를 쓰면 CNAME 파일과 GitHub Pages 설정을 확인한다.',
+      'Cloudflare Pages를 쓰면 GitHub Pages 전용 설정을 제거한다.',
+      '대표 도메인 기준으로 canonical과 sitemap을 맞춘다.',
+    ],
+    mistakes: [
+      'GitHub Pages와 Cloudflare Pages 설정을 동시에 활성화해 충돌을 만드는 것.',
+      'CNAME 파일이 필요 없는 배포 방식에서도 계속 유지하는 것.',
+      '심사 도메인과 실제 공개 도메인을 다르게 두는 것.',
+    ],
+    faqs: [
+      {
+        question: 'GitHub Pages와 Cloudflare Pages를 같이 써도 되나요?',
+        answer: '코드 저장소는 GitHub, 배포는 Cloudflare Pages로 역할을 나누는 것은 좋습니다. 다만 두 서비스가 동시에 같은 도메인을 배포 대상으로 잡으면 혼란이 생깁니다.',
+      },
+      {
+        question: 'CNAME 파일은 언제 필요한가요?',
+        answer: 'GitHub Pages에서 사용자 지정 도메인을 직접 쓸 때 필요합니다. Cloudflare Pages 배포만 쓴다면 필수는 아닙니다.',
+      },
+      {
+        question: '기존 emfls.github.io 주소는 어떻게 하나요?',
+        answer: '심사 도메인을 `emfls.com`으로 정했다면 공개 링크와 SEO 설정은 `emfls.com` 기준으로 통일하는 것이 좋습니다.',
+      },
+    ],
+    sources: [
+      { name: 'GitHub Pages custom domains', url: 'https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site' },
+      { name: 'Cloudflare Pages custom domains', url: 'https://developers.cloudflare.com/pages/configuration/custom-domains/' },
+    ],
+  },
+  'how-to-check-https-on-custom-domain': {
+    example: {
+      title: 'AdSense 확인 전 HTTPS를 확인한 순서',
+      paragraphs: [
+        'AdSense 확인 코드를 넣은 뒤 바로 확인 버튼을 누르기보다 먼저 `https://emfls.com`에서 실제 최신 사이트가 열리는지 확인했습니다. 이어서 사이트맵과 주요 글 URL이 모두 HTTPS로 열리는지 봤습니다.',
+        'HTTPS가 정상이어도 Cloudflare 배포가 아직 이전 버전이면 head에 새 코드가 없을 수 있습니다. 그래서 배포 성공 로그와 실제 페이지 소스 확인을 함께 보는 것이 좋습니다.',
+      ],
+    },
+    screenshot: {
+      title: '준비할 스크린샷',
+      caption: '주소창의 HTTPS 표시, Cloudflare SSL/TLS 상태, 실제 페이지 소스의 AdSense 코드 위치를 캡처합니다.',
+    },
+    checklist: [
+      '`https://emfls.com`이 경고 없이 열리는지 확인한다.',
+      '`http://emfls.com`이 HTTPS로 이동하는지 확인한다.',
+      '`www` 주소 처리 방식을 확인한다.',
+      '브라우저 콘솔에 혼합 콘텐츠 경고가 없는지 본다.',
+    ],
+    mistakes: [
+      'HTTP 주소를 Search Console이나 AdSense 기준 주소로 쓰는 것.',
+      '인증서 발급 중인데 설정을 반복 변경하는 것.',
+      '외부 이미지나 스크립트를 HTTP로 불러오는 것.',
+    ],
+    faqs: [
+      {
+        question: 'HTTPS 자물쇠만 보이면 충분한가요?',
+        answer: '기본 조건은 충족하지만 http 리디렉션, www 주소, 사이트맵 URL, canonical URL도 같은 기준인지 확인해야 합니다.',
+      },
+      {
+        question: '인증서 발급은 얼마나 걸리나요?',
+        answer: '서비스와 DNS 상태에 따라 다르지만 보통 몇 분에서 몇 시간 걸릴 수 있습니다. 도메인 인증 상태를 함께 확인하세요.',
+      },
+      {
+        question: '혼합 콘텐츠는 왜 문제인가요?',
+        answer: 'HTTPS 페이지 안에서 HTTP 리소스를 불러오면 보안 경고가 생기고 사용자 신뢰와 브라우저 동작에 영향을 줄 수 있습니다.',
+      },
+    ],
+    sources: [
+      { name: 'Cloudflare SSL/TLS documentation', url: 'https://developers.cloudflare.com/ssl/' },
+      { name: 'Google HTTPS documentation', url: 'https://developers.google.com/search/docs/advanced/security/https' },
+    ],
+  },
+  'github-pages-vs-wordpress-for-beginners': {
+    example: {
+      title: 'emfls.com이 정적 사이트를 선택한 이유',
+      paragraphs: [
+        '이 사이트는 회원 기능이나 복잡한 관리자 화면보다 빠른 정적 HTML, 명확한 URL, Git 기반 변경 이력이 더 중요했습니다. 그래서 WordPress 대신 Astro와 Cloudflare Pages 조합을 선택했습니다.',
+        '반대로 글을 자주 쓰지만 코드 수정이 부담스럽고, 관리자 화면에서 미디어와 플러그인을 다루고 싶다면 WordPress가 더 현실적일 수 있습니다. 애드센스 관점에서는 도구보다 콘텐츠 완성도가 우선입니다.',
+      ],
+    },
+    screenshot: {
+      title: '준비할 스크린샷',
+      caption: '정적 사이트의 GitHub 저장소 구조와 WordPress 관리자 글쓰기 화면을 비교하면 운영 방식 차이를 설명하기 좋습니다.',
+    },
+    checklist: [
+      '코드 기반 관리가 가능한지 판단한다.',
+      '관리자 화면과 플러그인이 필요한지 확인한다.',
+      '호스팅 비용과 유지보수 부담을 비교한다.',
+      'AdSense 심사용 필수 페이지를 직접 구성할 수 있는지 본다.',
+    ],
+    mistakes: [
+      '도구만 바꾸면 AdSense 승인이 쉬워진다고 생각하는 것.',
+      'WordPress 플러그인을 많이 설치해 성능과 보안을 망치는 것.',
+      '정적 사이트를 선택하고도 글 관리 방식을 정하지 않는 것.',
+    ],
+    faqs: [
+      {
+        question: '초보자는 WordPress가 더 낫나요?',
+        answer: '관리자 화면으로 글을 쓰고 싶다면 WordPress가 편합니다. 도메인, Git, 배포를 배우고 싶다면 정적 사이트도 좋은 선택입니다.',
+      },
+      {
+        question: 'AdSense는 WordPress가 더 잘 승인되나요?',
+        answer: '도구 자체보다 콘텐츠 품질, 정책 준수, 사이트 완성도가 중요합니다. 어떤 도구든 얕은 콘텐츠는 위험합니다.',
+      },
+      {
+        question: '나중에 WordPress로 옮길 수 있나요?',
+        answer: '가능하지만 URL 구조와 리디렉션, 이미지, 메타데이터 이전을 고려해야 합니다. 초기에 URL 정책을 안정적으로 잡아두는 것이 좋습니다.',
+      },
+    ],
+    sources: [
+      { name: 'GitHub Pages documentation', url: 'https://docs.github.com/pages' },
+      { name: 'WordPress documentation', url: 'https://wordpress.org/documentation/' },
+    ],
+  },
 };
 
 export function getArticleEnhancement(slug: string): ArticleEnhancement {

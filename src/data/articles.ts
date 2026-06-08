@@ -383,6 +383,240 @@ export const articles: Article[] = [
       },
     ],
   },
+  {
+    title: 'Cloudflare DNS 설정을 처음 할 때 확인할 순서',
+    slug: 'cloudflare-dns-setup-for-beginners',
+    description: '가비아 같은 등록기관에서 Cloudflare로 네임서버를 옮긴 뒤 DNS를 어디서 관리해야 하는지 정리합니다.',
+    category: '도메인과 DNS',
+    date: '2026-06-09',
+    readingTime: '8분',
+    hero: 'Cloudflare를 쓰기 시작하면 DNS의 기준 화면이 도메인 구매처가 아니라 Cloudflare로 바뀝니다.',
+    sections: [
+      {
+        heading: '네임서버 변경과 DNS 레코드 수정은 다르다',
+        body: [
+          '도메인 등록기관에서 A 레코드나 CNAME을 수정하는 것과 네임서버를 Cloudflare로 바꾸는 것은 다른 작업입니다. 네임서버를 Cloudflare로 바꾸면 이후 실제 DNS 응답은 Cloudflare DNS 설정을 기준으로 나갑니다.',
+          '초보자가 자주 헷갈리는 지점은 가비아 DNS 화면에 예전 레코드가 보인다는 이유로 그 화면을 계속 수정하는 것입니다. Cloudflare 활성화가 끝났다면 기준은 Cloudflare의 DNS 메뉴입니다.',
+        ],
+      },
+      {
+        heading: 'Pages 프로젝트와 연결하기',
+        body: [
+          'Cloudflare Pages에서 커스텀 도메인을 추가하면 필요한 DNS 레코드를 자동으로 만들거나 기존 레코드 충돌을 알려줍니다. 이때 예전 GitHub Pages A 레코드나 `www -> emfls.github.io` CNAME이 남아 있으면 충돌이 생길 수 있습니다.',
+          '루트 도메인과 www 주소를 모두 쓸 계획이라면 Cloudflare Pages의 Custom domains에서 각각 추가하고, 실제 접속이 어느 주소로 정리되는지 확인합니다.',
+        ],
+      },
+      {
+        heading: 'Proxy 상태를 이해하기',
+        body: [
+          'Cloudflare DNS의 주황색 구름은 트래픽이 Cloudflare 프록시를 거친다는 뜻입니다. Pages 연결에서는 Cloudflare가 자동으로 적절한 설정을 만들기 때문에 처음에는 임의로 켜고 끄기보다 안내를 따르는 것이 좋습니다.',
+          'DNS만 확인해야 하는 특수 상황에서는 프록시를 끄는 경우도 있지만, 일반적인 정적 사이트 운영에서는 HTTPS, 캐시, 보안 기능을 함께 쓰기 위해 프록시 상태를 유지하는 경우가 많습니다.',
+        ],
+      },
+      {
+        heading: '반영 확인 방법',
+        body: [
+          'Cloudflare Overview에서 도메인이 Active 상태인지 확인하고, Pages 프로젝트에서 배포가 성공했는지 봅니다. 그 다음 `https://emfls.com`, `https://www.emfls.com`, `https://emfls.com/sitemap-index.xml`을 차례대로 열어봅니다.',
+          'DNS 전파 중에는 일부 네트워크에서 예전 주소가 보일 수 있습니다. 브라우저 캐시를 지우거나 다른 네트워크에서 확인하되, 변경 직후에 여러 설정을 반복 수정하지 않는 것이 중요합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Google Search Console에 새 도메인을 등록하는 방법',
+    slug: 'google-search-console-domain-property-guide',
+    description: '도메인 속성과 URL 접두어 속성의 차이, 사이트맵 제출, 색인 확인 순서를 설명합니다.',
+    category: 'SEO',
+    date: '2026-06-09',
+    readingTime: '8분',
+    hero: 'Search Console은 검색 노출을 보장하는 도구가 아니라 Google이 사이트를 어떻게 보는지 확인하는 도구입니다.',
+    sections: [
+      {
+        heading: '도메인 속성과 URL 접두어 속성',
+        body: [
+          'Search Console에서 도메인 속성은 `emfls.com` 전체를 기준으로 루트 도메인과 하위 도메인을 함께 다룹니다. 반면 URL 접두어 속성은 `https://emfls.com/`처럼 특정 프로토콜과 주소 조합을 기준으로 합니다.',
+          'Cloudflare로 DNS를 관리한다면 도메인 속성을 등록하고 DNS TXT 레코드로 소유권을 확인하는 방식이 깔끔합니다. 다만 이미 AdSense 확인 코드를 넣은 상태라도 Search Console 소유권 확인은 별도로 처리될 수 있습니다.',
+        ],
+      },
+      {
+        heading: '사이트맵 제출',
+        body: [
+          'Astro sitemap 통합을 사용하면 `sitemap-index.xml`과 하위 사이트맵이 생성됩니다. Search Console에는 사람이 보는 `/site-map/` 페이지가 아니라 `/sitemap-index.xml`을 제출해야 합니다.',
+          '제출 직후 발견된 페이지 수가 0으로 보여도 바로 실패라고 판단하지 않습니다. Google이 사이트맵을 다시 읽고 색인 후보 URL을 처리하는 데 시간이 걸릴 수 있습니다.',
+        ],
+      },
+      {
+        heading: 'URL 검사로 먼저 확인할 페이지',
+        body: [
+          '홈, 글 목록, 대표 글 2~3개, 개인정보처리방침, 문의 페이지를 URL 검사에 넣어 접근 가능 여부를 확인합니다. 색인 요청은 남발하기보다 중요한 페이지만 우선 진행하는 편이 좋습니다.',
+          '페이지가 `크롤링됨 - 현재 색인이 생성되지 않음`으로 표시될 수 있습니다. 새 사이트에서는 흔한 상태이며, 콘텐츠 품질과 내부 링크를 보강하면서 기다려야 합니다.',
+        ],
+      },
+      {
+        heading: 'AdSense와 함께 볼 때의 기준',
+        body: [
+          'AdSense 심사 전에는 Search Console에서 모든 페이지가 색인되어 있어야만 하는 것은 아닙니다. 하지만 사이트맵이 읽히고, 주요 페이지가 접근 가능하며, robots.txt가 막고 있지 않은 상태가 되어야 합니다.',
+          'Search Console 오류가 있으면 AdSense 심사에서도 사이트가 미완성처럼 보일 수 있으므로, HTML 사이트맵 제출 오류처럼 명확한 실수는 먼저 정리합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'AdSense 심사 전 최종 체크리스트',
+    slug: 'adsense-review-final-checklist',
+    description: '사이트 공개 상태, 필수 페이지, 콘텐츠 깊이, 정책 위험, 검색 접근성을 심사 전 한 번에 점검합니다.',
+    category: '운영 기준',
+    date: '2026-06-09',
+    readingTime: '9분',
+    hero: 'AdSense 심사 전에는 광고 코드보다 사이트가 독립적인 정보 사이트로 보이는지가 더 중요합니다.',
+    sections: [
+      {
+        heading: '사이트 접근성 확인',
+        body: [
+          '대표 도메인 `https://emfls.com`으로 접속했을 때 홈이 열리고, 주요 메뉴와 푸터 링크가 모두 작동해야 합니다. `pages.dev` 임시 주소가 아니라 실제 신청 도메인 기준으로 확인하는 것이 중요합니다.',
+          'HTTPS 인증서가 활성화되어 있고, 모바일 화면에서 메뉴와 본문이 겹치지 않아야 합니다. 심사자는 데스크톱만 보는 것이 아니므로 작은 화면에서도 글을 읽을 수 있어야 합니다.',
+        ],
+      },
+      {
+        heading: '필수 신뢰 페이지',
+        body: [
+          '소개, 문의, 개인정보처리방침, 이용약관, 면책 고지, 편집 정책, 콘텐츠 작성 기준은 사이트가 누가 어떤 기준으로 운영되는지 보여주는 장치입니다. 이 페이지들이 푸터나 사이트맵에서 접근 가능해야 합니다.',
+          '문의 이메일은 실제 수신 가능한 주소여야 하며, 개인정보처리방침은 문의 이메일, 광고 스크립트, 외부 서비스 사용 가능성을 실제 운영 방식에 맞게 설명해야 합니다.',
+        ],
+      },
+      {
+        heading: '콘텐츠 품질 확인',
+        body: [
+          '짧은 설명만 있는 글은 낮은 가치 콘텐츠로 보일 수 있습니다. 각 글에는 실제 예시, 흔한 실수, 점검표, FAQ, 공식 출처, 관련 글 링크가 포함되어야 합니다.',
+          'AI 생성 흔적을 줄이려면 일반론을 반복하기보다 실제 사이트 운영 중 겪는 상황을 구체적으로 설명해야 합니다. 예를 들어 Cloudflare 네임서버 변경, Search Console 사이트맵 오류, AdSense 확인 코드 배포 지연 같은 맥락이 도움이 됩니다.',
+        ],
+      },
+      {
+        heading: '정책 위험 제거',
+        body: [
+          '광고 클릭 유도 문구, 트래픽 구매, 자동 새로고침, 저작권 침해 자료, 불법 다운로드, 성인·도박·혐오 콘텐츠는 심사 전 반드시 제거해야 합니다.',
+          '광고가 들어갈 자리도 콘텐츠와 혼동되면 안 됩니다. 승인 전에는 광고 배치보다 콘텐츠와 신뢰 페이지를 먼저 완성하는 것이 안전합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'GitHub Pages에 개인 도메인을 연결하는 기본 흐름',
+    slug: 'connect-custom-domain-to-github-pages',
+    description: 'GitHub Pages에서 루트 도메인과 www 주소를 연결할 때 필요한 CNAME, A 레코드, HTTPS 확인 흐름을 설명합니다.',
+    category: 'GitHub Pages',
+    date: '2026-06-09',
+    readingTime: '8분',
+    hero: '개인 도메인 연결은 GitHub 설정과 DNS 설정이 서로 맞아야 완성됩니다.',
+    sections: [
+      {
+        heading: 'GitHub Pages의 사용자 지정 도메인',
+        body: [
+          'GitHub Pages 저장소 설정에서 Custom domain에 대표 도메인을 입력하면 저장소에 CNAME 파일이 생기거나 유지됩니다. 이 파일은 GitHub Pages가 어떤 도메인으로 사이트를 제공할지 기억하는 역할을 합니다.',
+          '루트 도메인과 www 주소를 모두 사용할 경우 DNS 레코드도 함께 맞춰야 합니다. 루트 도메인은 GitHub가 안내하는 A 레코드, www는 보통 GitHub Pages 기본 도메인을 가리키는 CNAME을 사용합니다.',
+        ],
+      },
+      {
+        heading: 'Cloudflare Pages와의 차이',
+        body: [
+          'Cloudflare Pages를 사용할 경우 GitHub Pages용 CNAME 파일이나 GitHub Actions 배포 워크플로가 필요하지 않을 수 있습니다. GitHub는 코드 저장소 역할을 하고, Cloudflare가 빌드와 배포를 담당합니다.',
+          '이 사이트도 처음에는 GitHub Pages 기준으로 준비했지만, 최종 배포는 Cloudflare Pages로 정리했습니다. 그래서 CNAME 파일을 제거하고 Cloudflare Custom domains를 기준으로 도메인을 연결했습니다.',
+        ],
+      },
+      {
+        heading: 'HTTPS 확인',
+        body: [
+          'GitHub Pages에서는 사용자 지정 도메인을 연결한 뒤 HTTPS 인증서 발급까지 시간이 걸릴 수 있습니다. 설정 화면의 Enforce HTTPS 옵션이 활성화되는지 확인합니다.',
+          'Cloudflare Pages에서는 Cloudflare가 인증서를 발급하고 프록시/SSL 설정을 관리합니다. 어느 방식을 쓰든 최종 확인은 브라우저에서 실제 대표 도메인으로 접속해 자물쇠 표시와 리디렉션을 보는 것입니다.',
+        ],
+      },
+      {
+        heading: '언제 GitHub Pages를 선택할까',
+        body: [
+          '간단한 문서 사이트이고 도메인 관리가 복잡하지 않다면 GitHub Pages만으로 충분합니다. 반면 도메인, DNS, 캐시, 보안 설정을 한 화면에서 다루고 싶다면 Cloudflare Pages가 더 편할 수 있습니다.',
+          '중요한 것은 심사 도메인과 실제 공개 도메인이 일치하는 것입니다. `emfls.github.io`가 아니라 `emfls.com`으로 심사받을 계획이라면 모든 SEO와 정책 링크도 `emfls.com` 기준이어야 합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'HTTPS 적용이 제대로 되었는지 확인하는 방법',
+    slug: 'how-to-check-https-on-custom-domain',
+    description: '커스텀 도메인 연결 후 HTTPS 인증서, http 리디렉션, www 주소 처리 상태를 점검하는 방법입니다.',
+    category: '배포와 점검',
+    date: '2026-06-09',
+    readingTime: '7분',
+    hero: 'HTTPS는 단순한 자물쇠 표시가 아니라 검색, 광고 심사, 사용자 신뢰의 기본 조건입니다.',
+    sections: [
+      {
+        heading: '브라우저에서 먼저 확인하기',
+        body: [
+          '`https://emfls.com`을 열었을 때 경고 없이 사이트가 보이고 주소창에 보안 연결 표시가 있어야 합니다. `http://emfls.com`으로 접속했을 때도 HTTPS로 이동하는지 확인합니다.',
+          'www 주소를 함께 운영한다면 `https://www.emfls.com`도 확인합니다. 두 주소가 모두 같은 콘텐츠를 보여준다면 canonical URL과 대표 주소 정책이 일관적인지 함께 봅니다.',
+        ],
+      },
+      {
+        heading: 'Cloudflare SSL/TLS 설정',
+        body: [
+          'Cloudflare를 사용하는 경우 SSL/TLS 모드가 사이트 구성과 맞아야 합니다. Pages 프로젝트는 Cloudflare가 배포와 인증서를 관리하므로 일반적인 정적 사이트에서는 자동으로 처리되는 부분이 많습니다.',
+          '다만 도메인을 막 연결한 직후에는 인증서 발급과 DNS 전파가 끝나지 않았을 수 있습니다. 이때는 설정을 계속 바꾸기보다 상태가 Active인지, Pages 커스텀 도메인이 검증되었는지 확인합니다.',
+        ],
+      },
+      {
+        heading: 'Search Console과 AdSense에서 보는 관점',
+        body: [
+          'Search Console 속성, 사이트맵 URL, AdSense 신청 도메인은 모두 HTTPS 대표 도메인을 기준으로 맞추는 것이 좋습니다. 도메인 속성을 쓰더라도 실제 사이트맵 주소는 HTTPS로 제출해야 합니다.',
+          'AdSense 확인 코드가 들어갔는데 확인이 실패한다면 HTTPS 문제가 아니라 최신 배포가 아직 반영되지 않은 경우도 있습니다. 배포 로그와 실제 HTML 소스를 함께 확인합니다.',
+        ],
+      },
+      {
+        heading: '혼합 콘텐츠 주의',
+        body: [
+          '페이지는 HTTPS인데 이미지나 스크립트를 HTTP로 불러오면 혼합 콘텐츠 경고가 생길 수 있습니다. 외부 이미지, 폰트, 스크립트 주소는 가능하면 HTTPS를 사용합니다.',
+          '정적 사이트에서는 이런 문제가 적은 편이지만, 외부 위젯이나 광고 스크립트를 추가할 때는 브라우저 콘솔 경고를 확인하는 습관이 필요합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'GitHub Pages와 워드프레스 중 무엇을 선택할까',
+    slug: 'github-pages-vs-wordpress-for-beginners',
+    description: '초보자가 개인 정보 사이트를 만들 때 GitHub Pages와 WordPress의 장단점을 운영 관점에서 비교합니다.',
+    category: '사이트 제작',
+    date: '2026-06-09',
+    readingTime: '8분',
+    hero: '도구 선택은 유행보다 운영 방식, 글 관리, 비용, 필요한 기능을 기준으로 판단해야 합니다.',
+    sections: [
+      {
+        heading: 'GitHub Pages가 맞는 경우',
+        body: [
+          '글과 문서 중심의 정적 사이트라면 GitHub Pages나 Cloudflare Pages가 잘 맞습니다. 서버 관리가 필요 없고, 코드와 글 변경 이력이 Git으로 남으며, 정적 HTML이라 속도와 안정성이 좋습니다.',
+          '다만 마크다운이나 코드 기반 작업이 익숙하지 않다면 처음 진입 장벽이 있습니다. 관리자 화면에서 글을 쓰는 방식이 아니라 파일을 수정하고 배포하는 흐름을 이해해야 합니다.',
+        ],
+      },
+      {
+        heading: 'WordPress가 맞는 경우',
+        body: [
+          '관리자 화면에서 글을 쓰고, 테마와 플러그인을 활용하고, 댓글·회원·검색 같은 기능을 쉽게 붙이고 싶다면 WordPress가 편합니다. 비개발자에게는 글 작성 경험이 더 직관적일 수 있습니다.',
+          '대신 호스팅, 보안 업데이트, 플러그인 충돌, 성능 최적화 같은 운영 부담이 생깁니다. 애드센스 심사만을 위해 급하게 만든 WordPress 사이트도 콘텐츠가 얕으면 승인에 유리하지 않습니다.',
+        ],
+      },
+      {
+        heading: 'AdSense 관점의 비교',
+        body: [
+          'AdSense는 어떤 도구를 썼는지보다 사이트의 콘텐츠 품질, 정책 준수, 탐색 가능성, 신뢰 페이지를 봅니다. GitHub Pages든 WordPress든 얇은 글과 빈 카테고리가 많으면 낮은 가치 콘텐츠로 보일 수 있습니다.',
+          '정적 사이트는 빠르고 깔끔하지만, 직접 신뢰 페이지와 내부 링크를 구성해야 합니다. WordPress는 구조를 빠르게 만들 수 있지만 기본 테마와 플러그인만으로 품질이 보장되지는 않습니다.',
+        ],
+      },
+      {
+        heading: '초기 선택 기준',
+        body: [
+          '개인 도메인, DNS, 정적 사이트 운영을 배우는 것이 목표라면 GitHub Pages나 Cloudflare Pages가 좋은 학습 경로입니다. 글쓰기와 운영 편의성이 더 중요하고 기술 설정을 줄이고 싶다면 WordPress가 현실적일 수 있습니다.',
+          '한 번 선택한 도구를 영원히 써야 하는 것은 아닙니다. 초기에는 콘텐츠를 작고 단단하게 만들고, 방문자와 운영 요구가 늘어나면 이전을 검토해도 됩니다.',
+        ],
+      },
+    ],
+  },
 ];
 
 export const categories = Array.from(new Set(articles.map((article) => article.category)));
