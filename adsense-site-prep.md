@@ -81,6 +81,31 @@
 - 첫 배포 성공 후 Custom domain에 `emfls.com` 추가.
 - 가비아에서 Cloudflare가 안내하는 네임서버로 변경.
 
+## 2026-06-08 Cloudflare Pages 연결 진행
+
+- 사용자가 Cloudflare Pages에서 GitHub 저장소 `emfls/emfls-site` 연결 및 빌드 설정을 완료했다고 확인.
+- 다음 확인 대상:
+  - Cloudflare Pages 첫 배포 성공 여부.
+  - 임시 주소 `emfls-site.pages.dev` 접속 가능 여부.
+  - Custom domain `emfls.com` 연결.
+  - 가비아 네임서버를 Cloudflare 네임서버로 변경.
+
+## 2026-06-08 Cloudflare 도메인 활성화 확인
+
+- Cloudflare Overview 화면에서 `Your domain is now protected by Cloudflare` 상태 확인.
+- 의미: 가비아 네임서버 변경이 Cloudflare까지 반영되어 도메인이 Active 상태로 전환됨.
+- 다음 단계:
+  - Pages 프로젝트 `emfls-site`의 Custom domains에서 `emfls.com` 연결.
+  - DNS 화면에서 기존 GitHub Pages 대상 레코드가 Pages 대상으로 정리되었는지 확인.
+
+## 2026-06-08 AdSense 확인 코드 삽입
+
+- AdSense 사이트 소유권 확인 화면에서 제공된 코드 삽입.
+- 게시자 ID: `ca-pub-8830524482034754`
+- 적용 파일: `src/layouts/BaseLayout.astro`
+- 적용 위치: 모든 페이지 공통 `<head>` 영역.
+- 검증: `npm run build` 성공.
+
 ## 제작 전 확인할 내용
 
 ### 1. 사이트 주제와 포지셔닝
