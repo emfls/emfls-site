@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
-import { articles, categories } from '../../data/articles';
+import { articles, categoryList } from '../../data/articles';
 ---
 <BaseLayout
   title="글 목록 | EMFLS Guide"
@@ -13,7 +13,7 @@ import { articles, categories } from '../../data/articles';
     <h1>개인 웹사이트 운영 글 목록</h1>
     <p class="lead">사이트 제작 전 준비부터 배포 후 점검까지 필요한 내용을 주제별로 정리했습니다.</p>
     <div class="meta">
-      {categories.map((category) => <span class="tag">{category}</span>)}
+      {categoryList.map((category) => <a class="tag" href={`/categories/${category.slug}/`}>{category.name}</a>)}
     </div>
   </section>
   <section class="section">

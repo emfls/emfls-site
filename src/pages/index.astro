@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import { articles, categories } from '../data/articles';
+import { articles, categoryList } from '../data/articles';
 import { site } from '../data/site';
 
 const featured = articles.slice(0, 6);
@@ -61,7 +61,9 @@ const schema = [
       <div class="panel">
         <h3>주요 범위</h3>
         <ul class="check-list">
-          {categories.map((category) => <li>{category}</li>)}
+          {categoryList.map((category) => (
+            <li><a href={`/categories/${category.slug}/`}>{category.name}</a> - {category.description}</li>
+          ))}
         </ul>
       </div>
     </div>

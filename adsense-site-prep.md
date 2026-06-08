@@ -181,6 +181,26 @@
   - 신규 글이 `dist/sitemap-0.xml`, 글 목록, HTML 사이트맵에 반영됨 확인.
   - `npm audit --omit=dev` 취약점 0건.
 
+## 2026-06-09 주제 클러스터/카테고리 페이지 추가
+
+- 내부 링크와 크롤링 구조 강화를 위해 카테고리별 글 모음 페이지 추가.
+- 추가한 카테고리 URL:
+  - `/categories/getting-started/`
+  - `/categories/github-pages/`
+  - `/categories/domains-dns/`
+  - `/categories/site-building/`
+  - `/categories/operations-policy/`
+  - `/categories/seo/`
+  - `/categories/deployment-checks/`
+- 홈의 주요 범위를 카테고리 페이지 링크로 변경.
+- 글 목록 상단의 카테고리 태그를 링크로 변경.
+- HTML 사이트맵에 주제별 글 모음 섹션 추가.
+- 검증:
+  - `npm run build` 성공.
+  - 36개 정적 페이지 생성.
+  - 카테고리 URL이 `dist/sitemap-0.xml`, 홈, 글 목록, HTML 사이트맵에 반영됨 확인.
+  - `npm audit --omit=dev` 취약점 0건.
+
 ## 제작 전 확인할 내용
 
 ### 1. 사이트 주제와 포지셔닝

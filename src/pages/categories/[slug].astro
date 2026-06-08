@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { articles, categoryList } from '../../data/articles';
+
+export function getStaticPaths() {
+  return categoryList.map((category) => ({
+    params: { slug: category.slug },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const categoryArticles = articles.filter((article) => article.category === category.name);
+---
+<BaseLayout
+  title={`${category.name} 글 모음 | EMFLS Guide`}
+  description={category.description}
+  canonical={`/categories/${category.slug}/`}
+>
+  <section class="simple-page">
+    <p class="eyebrow">주제 클러스터</p>
+    <h1>{category.name} 글 모음</h1>
+    <p class="lead">{category.description}</p>
+    <p>이 주제의 글은 처음 설정하는 독자가 순서대로 읽을 수 있도록 구성했습니다. 먼저 개념을 잡고, 실제 설정과 점검 글로 이어지는 흐름을 권장합니다.</p>
+  </section>
+  <section class="section">
+    <div class="container content-grid">
+      {categoryArticles.map((article) => <ArticleCard article={article} />)}
+    </div>
+  </section>
+</BaseLayout>

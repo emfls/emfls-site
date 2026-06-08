@@ -621,6 +621,46 @@ export const articles: Article[] = [
 
 export const categories = Array.from(new Set(articles.map((article) => article.category)));
 
+export const categoryMeta: Record<string, { slug: string; description: string }> = {
+  '시작 준비': {
+    slug: 'getting-started',
+    description: '개인 도메인과 웹사이트 주제를 정하기 전에 확인할 기본 기준입니다.',
+  },
+  'GitHub Pages': {
+    slug: 'github-pages',
+    description: 'GitHub Pages의 장단점, 개인 도메인 연결, 정적 호스팅 운영 흐름을 다룹니다.',
+  },
+  '도메인과 DNS': {
+    slug: 'domains-dns',
+    description: '가비아, Cloudflare, 루트 도메인, www 주소, DNS 전파와 레코드 설정을 설명합니다.',
+  },
+  '사이트 제작': {
+    slug: 'site-building',
+    description: 'Astro, 정적 사이트 생성, 404, 문의 페이지, 도구 선택 기준을 정리합니다.',
+  },
+  '운영 기준': {
+    slug: 'operations-policy',
+    description: 'AdSense 심사 준비, 신뢰 페이지, 개인정보처리방침, 미완성 신호 점검을 다룹니다.',
+  },
+  SEO: {
+    slug: 'seo',
+    description: 'Search Console, 사이트맵, robots.txt, 제목과 URL 설계 등 검색 접근성을 다룹니다.',
+  },
+  '배포와 점검': {
+    slug: 'deployment-checks',
+    description: 'Cloudflare Pages 배포, HTTPS 확인, 공개 후 점검 항목을 정리합니다.',
+  },
+};
+
+export const categoryList = categories.map((name) => ({
+  name,
+  ...categoryMeta[name],
+}));
+
+export function getCategoryBySlug(slug: string) {
+  return categoryList.find((category) => category.slug === slug);
+}
+
 export function getArticleBySlug(slug: string) {
   return articles.find((article) => article.slug === slug);
 }
