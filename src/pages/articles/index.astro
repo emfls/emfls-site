@@ -1,24 +1,214 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
-import { articles, categoryList } from '../../data/articles';
+import { articleMetas, categoryList, tagList } from '../../data/articles';
+
+const articlesJson = JSON.stringify(articleMetas.map((article) => ({
+  title: article.title,
+  slug: article.slug,
+  category: article.category,
+  tags: article.tags,
+  summary: article.summary,
+  description: article.description,
+  publishedAt: article.publishedAt,
+  updatedAt: article.updatedAt,
+  readingTimeMinutes: article.readingTimeMinutes,
+  authorName: article.authorName,
+  icon: article.icon,
+  series: article.series,
+})));
 ---
 <BaseLayout
-  title="글 목록 | EMFLS Guide"
-  description="도메인, DNS, GitHub Pages, 정적 사이트 운영, SEO, AdSense 준비에 관한 글 목록입니다."
+  title="글 목록과 운영 로드맵 | EMFLS Guide"
+  description="초보자가 개인 도메인, DNS, GitHub Pages, Cloudflare Pages, SEO, AdSense 준비 글을 검색하고 단계별로 찾아볼 수 있는 글 목록입니다."
   canonical="/articles/"
 >
-  <section class="simple-page">
-    <p class="eyebrow">전체 글</p>
-    <h1>개인 웹사이트 운영 글 목록</h1>
-    <p class="lead">사이트 제작 전 준비부터 배포 후 점검까지 필요한 내용을 주제별로 정리했습니다.</p>
-    <div class="meta">
-      {categoryList.map((category) => <a class="tag" href={`/categories/${category.slug}/`}>{category.name}</a>)}
+  <section class="articles-hub">
+    <div class="container hub-header">
+      <p class="eyebrow">글 목록</p>
+      <h1>초보에서 운영까지 이어지는 웹사이트 운영 로드맵</h1>
+      <p class="lead">검색, 정렬, 카테고리, 태그를 함께 사용해 필요한 글을 찾을 수 있습니다. 설정을 바꾸면 URL에 상태가 남아 새로 고침 후에도 같은 목록을 볼 수 있습니다.</p>
+      <ol class="roadmap">
+        <li>시작 준비</li>
+        <li>도메인과 DNS</li>
+        <li>배포와 HTTPS</li>
+        <li>SEO와 Search Console</li>
+        <li>AdSense 점검</li>
+      </ol>
     </div>
   </section>
+
   <section class="section">
-    <div class="container content-grid">
-      {articles.map((article) => <ArticleCard article={article} />)}
+    <div class="container explorer" data-article-explorer>
+      <aside class="filters" aria-label="글 필터">
+        <label class="field-label" for="article-search">글 검색</label>
+        <input id="article-search" class="search-input" type="search" placeholder="예: DNS, AdSense, HTTPS" data-search />
+
+        <label class="field-label" for="article-sort">정렬</label>
+        <select id="article-sort" class="select-input" data-sort>
+          <option value="newest">최신순</option>
+          <option value="oldest">오래된순</option>
+          <option value="shortest">읽는 시간 짧은순</option>
+          <option value="longest">읽는 시간 긴순</option>
+        </select>
+
+        <div class="filter-group">
+          <strong>카테고리</strong>
+          <div class="filter-options" data-category-options>
+            <button type="button" class="filter-chip is-active" data-category="">전체</button>
+            {categoryList.map((category) => (
+              <button type="button" class="filter-chip" data-category={category.name}>{category.name}</button>
+            ))}
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <strong>태그</strong>
+          <div class="filter-options" data-tag-options>
+            <button type="button" class="filter-chip is-active" data-tag="">전체</button>
+            {tagList.map((tag) => (
+              <button type="button" class="filter-chip" data-tag={tag}>{tag}</button>
+            ))}
+          </div>
+        </div>
+      </aside>
+
+      <div class="results-area">
+        <div class="results-toolbar">
+          <p class="results-count" data-result-count>전체 글 {articleMetas.length}건</p>
+          <button type="button" class="text-button" data-reset>필터 초기화</button>
+        </div>
+        <div class="content-grid" data-results>
+          {articleMetas.map((article) => <ArticleCard article={article} />)}
+        </div>
+        <p class="empty-state" data-empty hidden>조건에 맞는 글이 없습니다. 검색어를 줄이거나 필터를 초기화해 주세요.</p>
+        <nav class="pagination" aria-label="글 목록 페이지" data-pagination></nav>
+      </div>
     </div>
   </section>
+
+  <script type="application/json" id="articles-data" set:html={articlesJson} />
+  <script is:inline>
+    const pageSize = 9;
+    const dataEl = document.getElementById('articles-data');
+    const articles = JSON.parse(dataEl?.textContent || '[]');
+    const root = document.querySelector('[data-article-explorer]');
+    const searchInput = root?.querySelector('[data-search]');
+    const sortInput = root?.querySelector('[data-sort]');
+    const results = root?.querySelector('[data-results]');
+    const count = root?.querySelector('[data-result-count]');
+    const empty = root?.querySelector('[data-empty]');
+    const pagination = root?.querySelector('[data-pagination]');
+    const reset = root?.querySelector('[data-reset]');
+    const categoryButtons = [...(root?.querySelectorAll('[data-category]') || [])];
+    const tagButtons = [...(root?.querySelectorAll('[data-tag]') || [])];
+    const iconLabel = {
+      compass: '◇',
+      branch: '⌁',
+      network: '◎',
+      layout: '▦',
+      shield: '◈',
+      search: '⌕',
+      rocket: '▲',
+      document: '□',
+    };
+
+    const getState = () => {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        q: params.get('q') || '',
+        sort: params.get('sort') || 'newest',
+        category: params.get('category') || '',
+        tag: params.get('tag') || '',
+        page: Math.max(Number.parseInt(params.get('page') || '1', 10), 1),
+      };
+    };
+
+    const setState = (next) => {
+      const state = { ...getState(), ...next };
+      const params = new URLSearchParams();
+      if (state.q) params.set('q', state.q);
+      if (state.sort && state.sort !== 'newest') params.set('sort', state.sort);
+      if (state.category) params.set('category', state.category);
+      if (state.tag) params.set('tag', state.tag);
+      if (state.page > 1) params.set('page', String(state.page));
+      const query = params.toString();
+      window.history.replaceState({}, '', query ? `${window.location.pathname}?${query}` : window.location.pathname);
+      render();
+    };
+
+    const matches = (article, state) => {
+      const haystack = [article.title, article.summary, article.description, article.category, ...(article.tags || [])].join(' ').toLowerCase();
+      const queryMatch = !state.q || haystack.includes(state.q.toLowerCase());
+      const categoryMatch = !state.category || article.category === state.category;
+      const tagMatch = !state.tag || (article.tags || []).includes(state.tag);
+      return queryMatch && categoryMatch && tagMatch;
+    };
+
+    const sortArticles = (items, sort) => [...items].sort((a, b) => {
+      if (sort === 'oldest') return a.publishedAt.localeCompare(b.publishedAt);
+      if (sort === 'shortest') return a.readingTimeMinutes - b.readingTimeMinutes;
+      if (sort === 'longest') return b.readingTimeMinutes - a.readingTimeMinutes;
+      return b.publishedAt.localeCompare(a.publishedAt);
+    });
+
+    const cardHtml = (article) => `
+      <a class="article-card" href="/articles/${article.slug}/">
+        <div class="card-visual" aria-hidden="true"><span>${iconLabel[article.icon] || iconLabel.document}</span></div>
+        <div class="meta"><span class="tag">${article.category}</span><span>${article.series}</span></div>
+        <h3>${article.title}</h3>
+        <p>${article.summary}</p>
+        <div class="tag-row">${(article.tags || []).slice(0, 3).map((tag) => `<span class="mini-tag">${tag}</span>`).join('')}</div>
+        <span class="meta">작성자 ${article.authorName} · 발행 ${article.publishedAt} · 수정 ${article.updatedAt} · ${article.readingTimeMinutes}분</span>
+      </a>
+    `;
+
+    const renderPagination = (totalPages, currentPage) => {
+      if (!pagination) return;
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+      pagination.innerHTML = Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        return `<button type="button" class="page-button ${page === currentPage ? 'is-active' : ''}" data-page="${page}" aria-current="${page === currentPage ? 'page' : 'false'}">${page}</button>`;
+      }).join('');
+      pagination.querySelectorAll('[data-page]').forEach((button) => {
+        button.addEventListener('click', () => setState({ page: Number(button.dataset.page) }));
+      });
+    };
+
+    const syncControls = (state) => {
+      if (searchInput) searchInput.value = state.q;
+      if (sortInput) sortInput.value = state.sort;
+      categoryButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.category === state.category));
+      tagButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.tag === state.tag));
+    };
+
+    const render = () => {
+      const state = getState();
+      const filtered = sortArticles(articles.filter((article) => matches(article, state)), state.sort);
+      const totalPages = Math.max(Math.ceil(filtered.length / pageSize), 1);
+      const page = Math.min(state.page, totalPages);
+      if (page !== state.page) {
+        setState({ page });
+        return;
+      }
+      const start = (page - 1) * pageSize;
+      const pageItems = filtered.slice(start, start + pageSize);
+      if (results) results.innerHTML = pageItems.map(cardHtml).join('');
+      if (count) count.textContent = state.q ? `검색 결과 ${filtered.length}건` : `전체 글 ${filtered.length}건`;
+      if (empty) empty.hidden = filtered.length > 0;
+      syncControls(state);
+      renderPagination(totalPages, page);
+    };
+
+    searchInput?.addEventListener('input', () => setState({ q: searchInput.value.trim(), page: 1 }));
+    sortInput?.addEventListener('change', () => setState({ sort: sortInput.value, page: 1 }));
+    categoryButtons.forEach((button) => button.addEventListener('click', () => setState({ category: button.dataset.category || '', page: 1 })));
+    tagButtons.forEach((button) => button.addEventListener('click', () => setState({ tag: button.dataset.tag || '', page: 1 })));
+    reset?.addEventListener('click', () => setState({ q: '', sort: 'newest', category: '', tag: '', page: 1 }));
+    window.addEventListener('popstate', render);
+    render();
+  </script>
 </BaseLayout>

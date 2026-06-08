@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { articleMetas, getTagBySlug, slugifyTag, tagList } from '../../data/articles';
+
+export function getStaticPaths() {
+  return tagList.map((tag) => ({
+    params: { slug: slugifyTag(tag) },
+    props: { tag },
+  }));
+}
+
+const { tag } = Astro.props;
+const tagArticles = articleMetas.filter((article) => article.tags.includes(tag));
+const slug = slugifyTag(tag);
+---
+<BaseLayout
+  title={`${tag} 태그 글 모음 | EMFLS Guide`}
+  description={`${tag}와 관련된 개인 웹사이트 운영, 도메인, DNS, SEO, AdSense 준비 글을 모았습니다.`}
+  canonical={`/tags/${slug}/`}
+>
+  <section class="simple-page">
+    <p class="eyebrow">태그</p>
+    <h1>{tag} 태그 글 모음</h1>
+    <p class="lead">{tag}와 관련된 설정, 점검, 문제 해결 글을 모았습니다.</p>
+    <p>태그 페이지는 같은 문제를 다른 관점에서 다룬 글을 연결해 독자가 다음 단계를 쉽게 찾도록 돕습니다.</p>
+  </section>
+  <section class="section">
+    <div class="container content-grid">
+      {tagArticles.map((article) => <ArticleCard article={article} />)}
+    </div>
+  </section>
+</BaseLayout>

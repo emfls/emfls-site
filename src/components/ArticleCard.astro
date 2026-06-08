@@ -1,9 +1,29 @@
 ---
 const { article } = Astro.props;
+const icon = article.icon ?? 'document';
+const iconLabel: Record<string, string> = {
+  compass: '◇',
+  branch: '⌁',
+  network: '◎',
+  layout: '▦',
+  shield: '◈',
+  search: '⌕',
+  rocket: '▲',
+  document: '□',
+};
 ---
 <a class="article-card" href={`/articles/${article.slug}/`}>
-  <span class="tag">{article.category}</span>
+  <div class="card-visual" aria-hidden="true">
+    <span>{iconLabel[icon] ?? iconLabel.document}</span>
+  </div>
+  <div class="meta">
+    <span class="tag">{article.category}</span>
+    {article.series && <span>{article.series}</span>}
+  </div>
   <h3>{article.title}</h3>
-  <p>{article.description}</p>
-  <span class="meta">{article.date} · {article.readingTime}</span>
+  <p>{article.summary ?? article.description}</p>
+  <div class="tag-row">
+    {(article.tags ?? []).slice(0, 3).map((tag) => <span class="mini-tag">{tag}</span>)}
+  </div>
+  <span class="meta">작성자 {article.authorName ?? 'EMFLS 운영자'} · 발행 {article.publishedAt ?? article.date} · 수정 {article.updatedAt ?? article.date} · {article.readingTimeMinutes ?? article.readingTime}분</span>
 </a>

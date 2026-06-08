@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { articles, categoryList } from '../data/articles';
+import { articles, categoryList, slugifyTag, tagList } from '../data/articles';
 ---
 <BaseLayout
   title="사이트맵 | EMFLS Guide"
@@ -26,6 +26,12 @@ import { articles, categoryList } from '../data/articles';
     <ul class="link-list">
       {categoryList.map((category) => (
         <li><a href={`/categories/${category.slug}/`}>{category.name}</a></li>
+      ))}
+    </ul>
+    <h2>태그별 글 모음</h2>
+    <ul class="link-list">
+      {tagList.map((tag) => (
+        <li><a href={`/tags/${slugifyTag(tag)}/`}>{tag}</a></li>
       ))}
     </ul>
     <h2>글</h2>

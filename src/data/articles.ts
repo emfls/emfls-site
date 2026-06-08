@@ -4,7 +4,14 @@ export type Article = {
   description: string;
   category: string;
   date: string;
+  updatedAt?: string;
   readingTime: string;
+  readingTimeMinutes?: number;
+  authorName?: string;
+  tags?: string[];
+  summary?: string;
+  heroImage?: string;
+  series?: string;
   hero: string;
   sections: {
     heading: string;
@@ -663,4 +670,91 @@ export function getCategoryBySlug(slug: string) {
 
 export function getArticleBySlug(slug: string) {
   return articles.find((article) => article.slug === slug);
+}
+
+const tagByCategory: Record<string, string[]> = {
+  '시작 준비': ['도메인', '기획', 'AdSense'],
+  'GitHub Pages': ['GitHub Pages', '정적 호스팅', '커스텀 도메인'],
+  '도메인과 DNS': ['DNS', 'Cloudflare', '도메인'],
+  '사이트 제작': ['Astro', '정적 사이트', 'UX'],
+  '운영 기준': ['AdSense', '정책', '신뢰도'],
+  SEO: ['SEO', 'Search Console', '사이트맵'],
+  '배포와 점검': ['Cloudflare Pages', 'HTTPS', '배포'],
+};
+
+const tagBySlug: Record<string, string[]> = {
+  'personal-domain-website-start-checklist': ['도메인', '기획', '체크리스트'],
+  'github-pages-strengths-and-limits': ['GitHub Pages', '정적 호스팅', '한계'],
+  'gabia-domain-dns-github-pages': ['가비아', 'DNS', 'GitHub Pages'],
+  'why-astro-for-static-content-site': ['Astro', '정적 사이트', 'SEO'],
+  'adsense-review-essential-pages': ['AdSense', '필수 페이지', '신뢰도'],
+  'seo-friendly-title-and-url': ['SEO', 'URL', '제목'],
+  'robots-and-sitemap-basics': ['robots.txt', '사이트맵', 'Search Console'],
+  'privacy-policy-practical-checklist': ['개인정보처리방침', 'AdSense', '쿠키'],
+  'why-custom-404-page-matters': ['404', 'UX', '정적 사이트'],
+  'simple-contact-page-for-static-site': ['문의 페이지', '정적 사이트', '개인정보'],
+  'after-first-deploy-checklist': ['배포', 'HTTPS', 'Search Console'],
+  'unfinished-site-signals-before-adsense': ['AdSense', 'Thin Content', '체크리스트'],
+  'cloudflare-dns-setup-for-beginners': ['Cloudflare', 'DNS', '가비아'],
+  'google-search-console-domain-property-guide': ['Search Console', '사이트맵', 'SEO'],
+  'adsense-review-final-checklist': ['AdSense', '체크리스트', '정책'],
+  'connect-custom-domain-to-github-pages': ['GitHub Pages', '커스텀 도메인', 'DNS'],
+  'how-to-check-https-on-custom-domain': ['HTTPS', 'Cloudflare', '보안'],
+  'github-pages-vs-wordpress-for-beginners': ['GitHub Pages', 'WordPress', '비교'],
+};
+
+const iconByCategory: Record<string, string> = {
+  '시작 준비': 'compass',
+  'GitHub Pages': 'branch',
+  '도메인과 DNS': 'network',
+  '사이트 제작': 'layout',
+  '운영 기준': 'shield',
+  SEO: 'search',
+  '배포와 점검': 'rocket',
+};
+
+export type ArticleMeta = Article & {
+  summary: string;
+  publishedAt: string;
+  updatedAt: string;
+  readingTimeMinutes: number;
+  authorName: string;
+  tags: string[];
+  heroImage: string;
+  icon: string;
+  series: string;
+};
+
+export function getReadingTimeMinutes(readingTime: string) {
+  const parsed = Number.parseInt(readingTime, 10);
+  return Number.isFinite(parsed) ? parsed : 5;
+}
+
+export function getArticleMeta(article: Article): ArticleMeta {
+  return {
+    ...article,
+    summary: article.summary ?? article.description,
+    publishedAt: article.date,
+    updatedAt: article.updatedAt ?? '2026-06-09',
+    readingTimeMinutes: article.readingTimeMinutes ?? getReadingTimeMinutes(article.readingTime),
+    authorName: article.authorName ?? 'EMFLS 운영자',
+    tags: article.tags ?? tagBySlug[article.slug] ?? tagByCategory[article.category] ?? [],
+    heroImage: article.heroImage ?? '',
+    icon: iconByCategory[article.category] ?? 'document',
+    series: article.series ?? article.category,
+  };
+}
+
+export const articleMetas = articles.map(getArticleMeta);
+
+export const tagList = Array.from(new Set(articleMetas.flatMap((article) => article.tags))).sort((a, b) =>
+  a.localeCompare(b, 'ko'),
+);
+
+export function slugifyTag(tag: string) {
+  return tag.toLowerCase().trim().replace(/\s+/g, '-');
+}
+
+export function getTagBySlug(slug: string) {
+  return tagList.find((tag) => slugifyTag(tag) === slug);
 }
