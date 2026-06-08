@@ -61,6 +61,26 @@
   - Build output directory: `dist`
   - Custom domain: `emfls.com`
 
+## 2026-06-08 GitHub 저장소 생성
+
+- GitHub 계정: `emfls`
+- 저장소: `emfls-site`
+- URL: https://github.com/emfls/emfls-site
+- 공개 여부: Public
+- 기본 브랜치: `main`
+- 첫 커밋: `Initial Astro site for EMFLS Guide`
+- 원격 이름: `origin`
+
+## 다음 작업
+
+- Cloudflare Pages에서 GitHub 저장소 `emfls/emfls-site` 연결.
+- 빌드 설정:
+  - Framework preset: Astro
+  - Build command: `npm run build`
+  - Build output directory: `dist`
+- 첫 배포 성공 후 Custom domain에 `emfls.com` 추가.
+- 가비아에서 Cloudflare가 안내하는 네임서버로 변경.
+
 ## 제작 전 확인할 내용
 
 ### 1. 사이트 주제와 포지셔닝
