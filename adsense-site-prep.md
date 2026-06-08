@@ -106,6 +106,37 @@
 - 적용 위치: 모든 페이지 공통 `<head>` 영역.
 - 검증: `npm run build` 성공.
 
+## 2026-06-09 AdSense 심사용 신뢰 신호 1차 보강
+
+- ChatGPT 리뷰 문서와 콘텐츠 로드맵을 검토하고 우선순위 1차 개선 반영.
+- About 페이지 보강:
+  - 운영자 역할
+  - 사이트 작성 목적
+  - 문의 이메일
+  - 콘텐츠 작성 기준
+  - 투명성 안내
+- 신규 신뢰 페이지 추가:
+  - `/editorial-policy/`
+  - `/content-methodology/`
+  - `/disclaimer/`
+- 모든 글 상세 페이지 보강:
+  - Breadcrumb 표시
+  - 작성자 정보
+  - 작성일 및 최종 검토일
+  - 실전 점검표
+  - 흔한 실수 섹션
+  - FAQ 섹션
+  - 관련 글 링크
+  - 공식 문서 출처 링크
+- 구조화 데이터 추가:
+  - 홈: WebSite, Organization schema
+  - 글 상세: Article, BreadcrumbList, FAQPage schema
+- 사이트맵 HTML 페이지에 신규 정책 페이지 링크 추가.
+- 검증:
+  - `npm run build` 성공.
+  - 23개 정적 페이지 생성.
+  - `npm audit --omit=dev` 취약점 0건.
+
 ## 제작 전 확인할 내용
 
 ### 1. 사이트 주제와 포지셔닝

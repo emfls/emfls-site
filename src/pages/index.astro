@@ -2,12 +2,41 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import { articles, categories } from '../data/articles';
+import { site } from '../data/site';
 
 const featured = articles.slice(0, 6);
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    url: site.url,
+    description: '개인 도메인, DNS, GitHub Pages, Cloudflare Pages, 정적 사이트 운영을 다루는 한국어 가이드입니다.',
+    inLanguage: 'ko-KR',
+    publisher: {
+      '@type': 'Organization',
+      name: site.name,
+      url: site.url,
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: site.name,
+    url: site.url,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: site.author.email,
+      contactType: 'editorial',
+      availableLanguage: 'Korean',
+    },
+  },
+];
 ---
 <BaseLayout
   title="EMFLS Guide | 개인 도메인과 GitHub Pages 운영 가이드"
   description="개인 도메인, DNS, GitHub Pages, 정적 사이트 운영을 초보자도 따라갈 수 있게 정리하는 한국어 가이드입니다."
+  schema={schema}
 >
   <section class="hero">
     <div class="container hero-inner">

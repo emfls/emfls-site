@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { articles } from '../../data/articles';
+import { site } from '../../data/site';
 
 export function getStaticPaths() {
   return articles.map((article) => ({
@@ -10,29 +11,186 @@ export function getStaticPaths() {
 }
 
 const { article } = Astro.props;
+const articleUrl = `${site.url}/articles/${article.slug}/`;
+const relatedArticles = articles
+  .filter((item) => item.slug !== article.slug && item.category === article.category)
+  .slice(0, 3);
+const fallbackRelatedArticles = articles
+  .filter((item) => item.slug !== article.slug && item.category !== article.category)
+  .slice(0, 3 - relatedArticles.length);
+const related = [...relatedArticles, ...fallbackRelatedArticles];
+const sources = [
+  { name: 'GitHub Pages documentation', url: 'https://docs.github.com/pages' },
+  { name: 'Cloudflare Pages documentation', url: 'https://developers.cloudflare.com/pages/' },
+  { name: 'Google Search Central documentation', url: 'https://developers.google.com/search/docs' },
+  { name: 'Google AdSense Help', url: 'https://support.google.com/adsense/' },
+];
+const faqs = [
+  {
+    question: '이 설정을 적용한 뒤 바로 검색에 노출되나요?',
+    answer:
+      '아닙니다. 사이트가 공개되고 Search Console에서 발견되어도 색인과 노출에는 시간이 걸립니다. 먼저 페이지가 정상 접속되는지, robots.txt와 sitemap이 올바른지 확인하는 것이 우선입니다.',
+  },
+  {
+    question: '초보자가 가장 자주 실수하는 부분은 무엇인가요?',
+    answer:
+      '대표 도메인, DNS 레코드, 배포 결과물 경로를 서로 다르게 설정하는 경우가 많습니다. 한 번에 여러 값을 바꾸기보다 변경 전후를 기록하고 하나씩 확인하는 방식이 안전합니다.',
+  },
+  {
+    question: 'AdSense 심사 전에는 무엇을 먼저 봐야 하나요?',
+    answer:
+      '광고 코드보다 사이트 완성도가 먼저입니다. 소개, 문의, 개인정보처리방침, 면책 고지, 충분한 본문, 깨진 링크 여부, 모바일 화면을 먼저 점검해야 합니다.',
+  },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.description,
+    datePublished: article.date,
+    dateModified: site.reviewedDate,
+    author: {
+      '@type': 'Person',
+      name: site.author.name,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: site.name,
+      url: site.url,
+    },
+    mainEntityOfPage: articleUrl,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: '홈',
+        item: site.url,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: '글 목록',
+        item: `${site.url}/articles/`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: article.title,
+        item: articleUrl,
+      },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  },
+];
 ---
 <BaseLayout
   title={`${article.title} | EMFLS Guide`}
   description={article.description}
   canonical={`/articles/${article.slug}/`}
+  ogType="article"
+  schema={schema}
 >
   <article class="article-shell">
     <header class="article-header">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">홈</a>
+        <span>/</span>
+        <a href="/articles/">글 목록</a>
+        <span>/</span>
+        <span>{article.category}</span>
+      </nav>
       <span class="tag">{article.category}</span>
       <h1>{article.title}</h1>
       <p class="lead">{article.hero}</p>
       <div class="meta">
-        <span>{article.date}</span>
+        <span>작성일 {article.date}</span>
+        <span>최종 검토 {site.reviewedDate}</span>
+        <span>작성자 {site.author.name}</span>
         <span>{article.readingTime}</span>
       </div>
     </header>
     <div class="article-body">
+      <aside class="trust-box" aria-label="작성자 정보">
+        <strong>{site.author.name}</strong>
+        <p>{site.author.description}</p>
+        <p>이 글은 개인 웹사이트 운영자가 실제 배포와 도메인 설정 과정에서 확인해야 할 항목을 초보자 기준으로 정리한 문서입니다.</p>
+      </aside>
       {article.sections.map((section) => (
         <section>
           <h2>{section.heading}</h2>
           {section.body.map((paragraph) => <p>{paragraph}</p>)}
         </section>
       ))}
+      <section>
+        <h2>실전 점검표</h2>
+        <table class="info-table">
+          <tbody>
+            <tr>
+              <th scope="row">확인 대상</th>
+              <td>{article.category} 설정이 실제 공개 사이트와 일치하는지 확인합니다.</td>
+            </tr>
+            <tr>
+              <th scope="row">기록할 내용</th>
+              <td>변경한 날짜, 수정한 값, 확인한 주소, 오류 메시지를 함께 남깁니다.</td>
+            </tr>
+            <tr>
+              <th scope="row">재확인 시점</th>
+              <td>DNS, 배포, 검색 색인은 즉시 반영되지 않을 수 있으므로 몇 분에서 하루 간격으로 다시 확인합니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="callout">
+        <h2>흔한 실수</h2>
+        <ul>
+          <li>대표 도메인을 정하지 않은 상태에서 Search Console, sitemap, AdSense 등록 주소를 각각 다르게 입력하는 경우.</li>
+          <li>배포가 끝나기 전에 확인 버튼을 반복해서 누르고, 실제 최신 HTML이 공개되었는지 확인하지 않는 경우.</li>
+          <li>공식 문서의 현재 안내와 오래된 블로그 글의 값을 섞어 적용하는 경우.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>자주 묻는 질문</h2>
+        <div class="faq-list">
+          {faqs.map((faq) => (
+            <details>
+              <summary>{faq.question}</summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+      <section>
+        <h2>관련 글</h2>
+        <ul class="related-list">
+          {related.map((item) => (
+            <li><a href={`/articles/${item.slug}/`}>{item.title}</a></li>
+          ))}
+        </ul>
+      </section>
+      <section>
+        <h2>참고한 공식 문서</h2>
+        <ul class="source-list">
+          {sources.map((source) => (
+            <li><a href={source.url} rel="nofollow noopener" target="_blank">{source.name}</a></li>
+          ))}
+        </ul>
+      </section>
     </div>
   </article>
 </BaseLayout>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
 ---
 <BaseLayout
   title="소개 | EMFLS Guide"
@@ -8,15 +9,33 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 >
   <section class="simple-page">
     <p class="eyebrow">소개</p>
-    <h1>EMFLS Guide는 개인 웹사이트 운영을 위한 실용 가이드입니다.</h1>
+    <h1>EMFLS Guide는 첫 개인 웹사이트를 운영하는 사람을 위한 실전 기록입니다.</h1>
     <p class="lead">
       이 사이트는 개인 도메인을 구매한 뒤 정적 웹사이트를 만들고 공개하는 과정을 초보자도 이해할 수 있게 정리합니다.
     </p>
     <p>
-      주요 주제는 도메인 관리, DNS 설정, GitHub Pages 배포, 정적 사이트 제작, 검색 접근성, 사이트 운영 정책입니다. 글은 실제 운영자가 확인해야 할 순서와 주의점을 중심으로 작성합니다.
+      운영자는 개인 도메인, DNS, Cloudflare Pages, GitHub 저장소, Search Console, AdSense 연결 과정을 직접 설정하며 막히기 쉬운 지점을 기록합니다. 글은 공식 문서의 핵심만 옮기는 방식이 아니라, 실제 설정 순서와 확인해야 할 화면, 실수하기 쉬운 값을 함께 설명하는 것을 기준으로 합니다.
     </p>
     <p>
-      단순한 용어 설명보다 “무엇을 먼저 정해야 하는지”, “어떤 설정이 서로 연결되는지”, “배포 후 무엇을 확인해야 하는지”를 분명히 전달하는 것을 목표로 합니다.
+      주요 주제는 도메인 관리, DNS 설정, GitHub Pages와 Cloudflare Pages 배포, 정적 사이트 제작, 검색 접근성, 사이트 운영 정책입니다. 단순한 용어 설명보다 “무엇을 먼저 정해야 하는지”, “어떤 설정이 서로 연결되는지”, “배포 후 무엇을 확인해야 하는지”를 분명히 전달하는 것을 목표로 합니다.
+    </p>
+    <h2>운영자 정보</h2>
+    <p>
+      작성자: {site.author.name} / 역할: {site.author.role}
+    </p>
+    <p>
+      문의: <a href={`mailto:${site.author.email}`}>{site.author.email}</a>
+    </p>
+    <h2>콘텐츠 작성 기준</h2>
+    <ul class="link-list">
+      <li>초보자가 실제 설정 화면에서 확인할 수 있는 순서로 설명합니다.</li>
+      <li>도메인, DNS, 배포, 검색 등록처럼 서로 연결되는 항목은 내부 링크로 함께 안내합니다.</li>
+      <li>공식 문서와 실제 운영 경험이 다르게 느껴지는 부분은 주의사항으로 분리합니다.</li>
+      <li>서비스 정책이나 설정 화면이 변경될 수 있는 내용은 최종 확인일을 표시하고 갱신합니다.</li>
+    </ul>
+    <h2>투명성</h2>
+    <p>
+      사이트 운영과 광고 심사 준비 과정은 <a href="/editorial-policy/">편집 정책</a>, <a href="/content-methodology/">작성 기준</a>, <a href="/disclaimer/">면책 고지</a>에 따릅니다. 광고나 제휴 링크가 포함되는 경우 해당 사실을 본문 또는 정책 문서에 명확히 표시합니다.
     </p>
   </section>
 </BaseLayout>

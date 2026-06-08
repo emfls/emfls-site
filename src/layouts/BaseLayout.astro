@@ -3,6 +3,8 @@ const {
   title = 'EMFLS Guide',
   description = '개인 웹사이트, 도메인, DNS, GitHub Pages 운영을 다루는 실용 가이드입니다.',
   canonical,
+  ogType = 'website',
+  schema,
 } = Astro.props;
 
 const siteUrl = 'https://emfls.com';
@@ -17,7 +19,7 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="EMFLS Guide" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -27,6 +29,11 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8830524482034754"
       crossorigin="anonymous"></script>
+    {
+      schema && (
+        <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+      )
+    }
     <title>{title}</title>
   </head>
   <body>
@@ -54,6 +61,9 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
           <p>개인 도메인과 정적 웹사이트 운영을 차근차근 정리하는 한국어 가이드입니다.</p>
         </div>
         <nav aria-label="하단 메뉴">
+          <a href="/editorial-policy/">편집 정책</a>
+          <a href="/content-methodology/">작성 기준</a>
+          <a href="/disclaimer/">면책 고지</a>
           <a href="/privacy/">개인정보처리방침</a>
           <a href="/terms/">이용약관</a>
           <a href="/site-map/">사이트맵</a>
@@ -348,6 +358,19 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     border-bottom: 1px solid var(--line);
   }
 
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .breadcrumb a {
+    color: var(--muted);
+    text-decoration: none;
+  }
+
   .article-body {
     display: grid;
     gap: 34px;
@@ -361,6 +384,86 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   .article-body p {
     color: #344447;
+  }
+
+  .article-body ul,
+  .article-body ol {
+    margin: 0;
+    color: #344447;
+  }
+
+  .article-body li + li {
+    margin-top: 8px;
+  }
+
+  .trust-box,
+  .callout,
+  .faq-list,
+  .related-list,
+  .source-list {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .trust-box {
+    display: grid;
+    gap: 8px;
+    border-left: 5px solid var(--accent);
+  }
+
+  .callout {
+    border-left: 5px solid var(--sun);
+  }
+
+  .faq-list {
+    display: grid;
+    gap: 16px;
+  }
+
+  .faq-list details {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq-list details:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .faq-list summary {
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .related-list,
+  .source-list {
+    display: grid;
+    gap: 10px;
+    padding-left: 38px;
+  }
+
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .info-table th,
+  .info-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .info-table tr:last-child th,
+  .info-table tr:last-child td {
+    border-bottom: 0;
   }
 
   .simple-page {
