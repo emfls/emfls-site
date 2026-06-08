@@ -466,6 +466,25 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     border-bottom: 0;
   }
 
+  .screenshot-placeholder {
+    display: grid;
+    gap: 14px;
+  }
+
+  .placeholder-frame {
+    display: grid;
+    min-height: 220px;
+    place-items: center;
+    border: 1px dashed #9aa8aa;
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, rgba(45, 156, 143, 0.08), rgba(242, 201, 76, 0.12)),
+      var(--surface);
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
   .simple-page {
     width: min(100% - 32px, 860px);
     margin: 0 auto;
