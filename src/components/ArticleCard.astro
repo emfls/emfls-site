@@ -1,0 +1,9 @@
+---
+const { article } = Astro.props;
+---
+<a class="article-card" href={`/articles/${article.slug}/`}>
+  <span class="tag">{article.category}</span>
+  <h3>{article.title}</h3>
+  <p>{article.description}</p>
+  <span class="meta">{article.date} · {article.readingTime}</span>
+</a>

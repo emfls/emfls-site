@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import { articles, categories } from '../../data/articles';
+---
+<BaseLayout
+  title="글 목록 | EMFLS Guide"
+  description="도메인, DNS, GitHub Pages, 정적 사이트 운영, SEO, AdSense 준비에 관한 글 목록입니다."
+  canonical="/articles/"
+>
+  <section class="simple-page">
+    <p class="eyebrow">전체 글</p>
+    <h1>개인 웹사이트 운영 글 목록</h1>
+    <p class="lead">사이트 제작 전 준비부터 배포 후 점검까지 필요한 내용을 주제별로 정리했습니다.</p>
+    <div class="meta">
+      {categories.map((category) => <span class="tag">{category}</span>)}
+    </div>
+  </section>
+  <section class="section">
+    <div class="container content-grid">
+      {articles.map((article) => <ArticleCard article={article} />)}
+    </div>
+  </section>
+</BaseLayout>

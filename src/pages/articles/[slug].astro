@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { articles } from '../../data/articles';
+
+export function getStaticPaths() {
+  return articles.map((article) => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+---
+<BaseLayout
+  title={`${article.title} | EMFLS Guide`}
+  description={article.description}
+  canonical={`/articles/${article.slug}/`}
+>
+  <article class="article-shell">
+    <header class="article-header">
+      <span class="tag">{article.category}</span>
+      <h1>{article.title}</h1>
+      <p class="lead">{article.hero}</p>
+      <div class="meta">
+        <span>{article.date}</span>
+        <span>{article.readingTime}</span>
+      </div>
+    </header>
+    <div class="article-body">
+      {article.sections.map((section) => (
+        <section>
+          <h2>{section.heading}</h2>
+          {section.body.map((paragraph) => <p>{paragraph}</p>)}
+        </section>
+      ))}
+    </div>
+  </article>
+</BaseLayout>
