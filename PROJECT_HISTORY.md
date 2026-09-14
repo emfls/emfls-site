@@ -184,3 +184,26 @@
 - non-blocking issues: pages.dev hostname, browser rendering, dashboard 확인 불가.
 - verdict: `NO_GO`.
 - 다음 단계: live ads.txt 원인 해결 후 Phase 3B 재검증.
+
+## 2026-09-14 — AdSense Approval Phase 3B ads.txt Fix
+
+- 목적: production ads.txt 404 blocker 해결.
+- root cause: 저장소 증거만으로 미해결; Cloudflare live deployment artifact/project configuration 확인 필요.
+- public/ads.txt tracked: 예.
+- production commit contained ads.txt: 예, `4abad48`에 포함.
+- build output: `dist/ads.txt` 생성, public 파일과 동일.
+- redirects 영향: `/ads.txt`와 매칭되는 wildcard 없음.
+- Functions 영향: Functions 파일 없음.
+- Cloudflare output config: 저장소에서는 Astro static output `dist/` 확인; 실제 Pages dashboard 설정은 확인 불가.
+- 수정 파일: `ADSENSE_LIVE_QA.md`, `ADSENSE_APPROVAL.md`, `PROJECT_HISTORY.md` 문서만 갱신.
+- commit: 이 Phase 문서 갱신 커밋으로 기록.
+- deployment: ads.txt fix deployment는 수행하지 않음; 원인 미확정 상태에서 우회 수정 금지.
+- HTTPS ads.txt: 404.
+- HTTP ads.txt: 301 → HTTPS, 최종 404.
+- Content-Type: 최종 응답은 HTML 404.
+- Publisher ID match: 저장소 AdSense code와 `ads.txt` publisher 값 일치.
+- crawler checks: ads.txt 404 상태로 성공하지 않음.
+- regression check: homepage 200, robots 200, sitemap 200, 대표 article 200, 404 404.
+- blocker resolved: 아니오.
+- 남은 non-blocking issues: pages.dev hostname, mobile/browser QA.
+- 다음 단계: Cloudflare Pages deployment artifact/project build 설정 확인 후 재검증.

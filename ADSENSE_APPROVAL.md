@@ -101,6 +101,15 @@ Phase 3 — Final Site QA (after Phase 2C COMPLETE)
 - [ ] AdSense review 요청
 - 최종 상태: `NO_GO` — live ads.txt 수정 및 재검증 필요
 
+## Phase 3B-FIX — ads.txt
+
+- [x] `public/ads.txt` Git tracking 확인
+- [x] production commit 포함 여부 확인
+- [x] `dist/ads.txt` 생성 및 내용 동일성 확인
+- [x] `_redirects`·Functions·ignore 간섭 확인
+- [ ] live `/ads.txt` HTTP 200 (현재 404)
+- 최종 상태: `NO_GO` — `ADS_TXT_ROOT_CAUSE_UNRESOLVED`
+
 - [ ] Phase 2 콘텐츠 품질 재설계
 - [ ] Phase 3 정보 구조 및 내부링크
 - [ ] Phase 4 최종 AdSense QA

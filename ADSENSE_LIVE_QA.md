@@ -71,8 +71,9 @@
 ## ads.txt
 
 - repository/build output: present and contains publisher line
-- live `https://emfls.com/ads.txt`: 404 — BLOCKER
+- live `https://emfls.com/ads.txt`: 404 — BLOCKER; Phase 3B-FIX 재검증에서도 동일
 - live HTTP request: 301 to HTTPS, final HTTPS resource remains 404
+- repository root cause: unresolved; `public/ads.txt` is tracked, present in commit `4abad48`, copied to `dist/ads.txt`, not ignored, and not intercepted by `_redirects` or Functions
 - publisher ID: repository value matches live AdSense script value, but file is not publicly accessible
 
 ## AdSense Code
@@ -136,4 +137,4 @@
 
 ## Final Live Readiness
 
-NO_GO — live `ads.txt` is a required public AdSense connection file and currently returns 404. Do not request AdSense review until it is accessible and rechecked.
+NO_GO — live `ads.txt` is a required public AdSense connection file and currently returns 404. Root cause is unresolved from repository evidence; do not request AdSense review until Cloudflare deployment artifact/project configuration is checked and the file is accessible.
