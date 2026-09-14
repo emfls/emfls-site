@@ -15,7 +15,8 @@
 - HTTP → HTTPS: PASS, `http://emfls.com/` returns 301 to `https://emfls.com/`
 - www: `https://www.emfls.com/` and `http://www.emfls.com/` return 404 from a GitHub edge response; no independent 200 duplicate observed
 - certificate: HTTPS connection valid for the tested request; expiry details not separately inspected
-- pages.dev: actual project hostname not available from repository or tested live output; `PAGES_DEV_REVIEW_REQUIRED`
+- pages.dev: `https://emfls-site.pages.dev/` returns 200 with production content; `NON_BLOCKING_SEO_HARDENING`
+- hashed preview: `https://42825105.emfls-site.pages.dev/` returns 200 with `X-Robots-Tag: noindex`
 
 ## Core Pages
 
@@ -71,9 +72,9 @@
 ## ads.txt
 
 - repository/build output: present and contains publisher line
-- live `https://emfls.com/ads.txt`: 404 — BLOCKER; Phase 3B-FIX 재검증에서도 동일
+- live `https://emfls.com/ads.txt`: PASS; 3회 연속 HTTP 200, `text/plain`
 - live HTTP request: 301 to HTTPS, final HTTPS resource remains 404
-- repository root cause: unresolved; `public/ads.txt` is tracked, present in commit `4abad48`, copied to `dist/ads.txt`, not ignored, and not intercepted by `_redirects` or Functions
+- root cause status: not proven; normal/cache-busting requests are both 200 with `cf-cache-status: DYNAMIC`, so cache-only cause is not confirmed
 - publisher ID: repository value matches live AdSense script value, but file is not publicly accessible
 
 ## AdSense Code
@@ -132,9 +133,9 @@
 
 ## Non-Blocking Issues
 
-- Cloudflare dashboard deployment record and actual `pages.dev` hostname were not accessible from repository/live output.
+- production pages.dev host is accessible and returns 200; Cloudflare account rule configuration was not changed.
 - Mobile and desktop browser rendering were not tested in this environment.
 
 ## Final Live Readiness
 
-NO_GO — live `ads.txt` is a required public AdSense connection file and currently returns 404. Root cause is unresolved from repository evidence; do not request AdSense review until Cloudflare deployment artifact/project configuration is checked and the file is accessible.
+GO_TO_ADSENSE_REVIEW — core live checks pass. Production `pages.dev` remains a non-blocking SEO hardening item; mobile browser QA remains unavailable.

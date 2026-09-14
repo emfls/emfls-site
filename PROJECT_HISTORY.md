@@ -207,3 +207,58 @@
 - blocker resolved: 아니오.
 - 남은 non-blocking issues: pages.dev hostname, mobile/browser QA.
 - 다음 단계: Cloudflare Pages deployment artifact/project build 설정 확인 후 재검증.
+
+## 2026-09-14 — AdSense Approval Phase 3C
+
+- 목적: AdSense 제출 직전 최종 production hardening.
+- ads.txt repeated check: 3/3 HTTP 200, `text/plain`.
+- production pages.dev: `https://emfls-site.pages.dev/` returns 200; 실제 production duplicate host로 확인.
+- hashed preview: `https://42825105.emfls-site.pages.dev/` returns 200, `X-Robots-Tag: noindex`.
+- preview X-Robots-Tag: 확인.
+- pages.dev redirect: 적용하지 않음; Cloudflare 설정 변경 권한·필요성이 이번 범위에서 확정되지 않아 non-blocking으로 기록.
+- mobile QA: 브라우저 자동화 사용 불가.
+- HTTPS: apex 200.
+- HTTP → HTTPS: 301 → HTTPS 200.
+- crawler checks: Mediapartners-Google, Google-Display-Ads-Bot, Googlebot 모두 200.
+- robots: 200.
+- sitemap: 200, sitemap-0.xml 25 URLs.
+- ads.txt: 200, `text/plain`, publisher match.
+- AdSense code: live homepage와 대표 article에서 확인.
+- canonical: sample pages 모두 `https://emfls.com` self canonical.
+- trust pages: About, Contact, Privacy, Terms, Editorial Policy, Disclaimer 200.
+- broken links: 확인 범위에서 없음.
+- placeholders: 확인 범위에서 없음.
+- blocking issues: 없음.
+- non-blocking issues: production pages.dev 200 duplicate host, mobile/browser QA 미실행.
+- final verdict: `GO_TO_ADSENSE_REVIEW`.
+- docs commit: 이번 문서 갱신 커밋 예정.
+- next step: 상위 승인 후 AdSense Request review 실행.
+
+## 2026-09-14 — ads.txt Cloudflare Root Cause Investigation
+
+- custom domain ads.txt: 정상화; 일반 URL과 cache-busting URL 모두 HTTP 200.
+- cache-busting result: normal 200, query-string 200.
+- cf-cache-status: `DYNAMIC`; cache-only 원인은 확정하지 않음.
+- actual pages.dev hostname: `42825105.emfls-site.pages.dev`.
+- pages.dev homepage: 200.
+- pages.dev robots.txt: 200.
+- pages.dev ads.txt: 200, `text/plain`.
+- production branch: `main`.
+- deployed SHA: Cloudflare check run에서 `609c6b8` 확인.
+- build command: 저장소 `npm run build`.
+- root directory: 저장소 root 기준으로 확인.
+- output directory: `dist/`.
+- Worker routes: 저장소에서 확인 불가; repository Functions 없음.
+- Worker custom domains: 확인 불가.
+- Redirect Rules: 확인 불가.
+- Rewrite Rules: 확인 불가.
+- Origin Rules: 확인 불가.
+- Cache Rules: 확인 불가.
+- Page Rules: 확인 불가.
+- probe used: 사용하지 않음.
+- root cause: `RESOLVED_DURING_DIAGNOSIS`; Pages artifact와 custom domain 모두 현재 정상이나 최초 404의 계정/edge 원인은 확정하지 않음.
+- change: 코드·Cloudflare 설정 변경 없음.
+- final ads.txt: HTTPS 200, `text/plain`, publisher ID 일치.
+- crawler checks: Mediapartners-Google·Googlebot 모두 200.
+- regression: homepage 200, robots 200, sitemap 200, representative article 200, nonexistent URL 404.
+- blocker resolved: 예.

@@ -107,8 +107,18 @@ Phase 3 — Final Site QA (after Phase 2C COMPLETE)
 - [x] production commit 포함 여부 확인
 - [x] `dist/ads.txt` 생성 및 내용 동일성 확인
 - [x] `_redirects`·Functions·ignore 간섭 확인
-- [ ] live `/ads.txt` HTTP 200 (현재 404)
-- 최종 상태: `NO_GO` — `ADS_TXT_ROOT_CAUSE_UNRESOLVED`
+- [x] live `/ads.txt` HTTP 200 및 publisher line 확인
+- 최종 상태: `GO_TO_ADSENSE_REVIEW` — live ads.txt 3회 연속 200; 실제 심사 요청은 별도 승인 필요
+
+## Phase 3C — Final Production Hardening
+
+- [x] ads.txt 3회 연속 200 및 crawler 확인
+- [x] production pages.dev hostname 확인
+- [x] 해시 preview noindex 확인
+- [x] HTTPS·HTTP redirect·대표 URL smoke test
+- [ ] pages.dev → emfls.com Bulk Redirect (non-blocking SEO hardening)
+- [ ] AdSense review 요청
+- 최종 상태: `GO_TO_ADSENSE_REVIEW`
 
 - [ ] Phase 2 콘텐츠 품질 재설계
 - [ ] Phase 3 정보 구조 및 내부링크
