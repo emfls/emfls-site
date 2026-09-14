@@ -392,6 +392,22 @@
 - 최종 readiness: `NOT_READY` — repository main과 production SHA는 일치하지만 실제 homepage 응답이 작업 트리 최신 문구와 불일치하고, 주요 live URL을 모두 재검증하지 못했다.
 - 다음 권장 작업: 현재 작업 트리 변경을 검토·commit·push한 뒤, 그 commit SHA를 기준으로 Cloudflare Pages production deployment와 주요 live URL을 다시 대조한다.
 
+## 2026-09-14 — GitHub·Cloudflare Production 배포 일치성 복구
+
+- 목적: 검증 완료된 `emfls-site` 작업 트리를 `emfls/emfls-site`의 `main`에 반영하고 Cloudflare Pages production과 대조.
+- Git 상태: repository `emfls-site`, remote `https://github.com/emfls/emfls-site.git`, branch `main`. 기존 HEAD `f914dc56fadb3063816b9365b864aed36984f4c3`에서 새 commit `0b162cbb8af2f4fe077f173098a9808f2f894237`로 commit/push했다.
+- 변경 검토: 현재 프로젝트의 homepage 운영 메시지, article 날짜·콘텐츠·cluster, AdSense utility 제어, category·related 구조, `PROJECT_HISTORY.md` 변경만 포함했다. 다른 `emfls-*` repository/project는 수정하거나 commit하지 않았다.
+- 보안 검토: untracked 파일 없음, `.env`·private key·credential 파일 없음, diff whitespace 오류 없음. 문서의 공개 publisher ID와 URL은 기존 프로젝트 구성값이며 비밀 credential로 취급되는 값은 발견하지 않았다.
+- 로컬 검증: `npm run build` PASS, 52페이지 생성. 공개 article 15개, 신규 article 4개, homepage Cloudflare Pages 문구, category/cluster, broken article link 0개, 자기 자신 링크 0개, canonical·sitemap·robots·ads.txt, 404/tag/site-map AdSense script 제외를 확인했다.
+- GitHub push: `origin/main` push 성공. force push나 history rewrite는 사용하지 않았다.
+- Cloudflare production: project `emfls-site`, repository `emfls/emfls-site`, branch `main`, build command `npm run build`, output `dist/`, root `/`, custom domain `emfls.com`. 새 production deployment `9f112888-a372-457b-8c78-9d25f82e9350`가 build/deploy success이고 commit `0b162cbb8af2f4fe077f173098a9808f2f894237`를 반영했다. custom domain API status도 active다.
+- SHA 일치: GitHub `main` HEAD와 Cloudflare production deployment/canonical deployment SHA가 일치한다.
+- 실제 homepage: web fetch에서는 여전히 GitHub Pages 문구가 반환되었으나, 현재 실행 환경의 직접 DNS/curl 확인은 실패했고 해당 fetch가 새 deployment 전환 전 결과인지 확정하지 못했다. 따라서 live homepage 최신 문구는 확인 불가로 기록하고 검색 cache라고 단정하지 않았다.
+- 최근 article 4개·신뢰 페이지·robots·sitemap·ads.txt: Cloudflare API deployment 성공은 확인했지만 현재 환경의 DNS와 web fetch 제한으로 각 URL의 HTTP status, canonical, content-type을 모두 직접 확인하지 못했다.
+- 배포 수정 여부: 예. 검증된 `main` commit을 push해 기존 Pages project에서 자동 production deployment가 성공했다. project 삭제·재생성이나 설정 변경은 하지 않았다.
+- 최종 AdSense readiness: `NOT_READY` 유지. repository와 Cloudflare SHA는 정상 일치하지만 실제 live homepage와 주요 URL의 최신 응답을 이 환경에서 완전히 확인하지 못했다.
+- 다음 권장 작업: 일반 브라우저 또는 DNS가 정상인 환경에서 `emfls.com` homepage·최근 article 4개·`robots.txt`·sitemap·`ads.txt`의 HTTP와 최신 문구를 한 번에 재확인한다.
+
 ## 2026-09-14 — Production·AdSense 최종 상태 진단
 
 - 목적: 신규 콘텐츠나 구조 변경 없이 현재 repository build와 emfls.com production 반영 상태, 검색 기본 구조, AdSense 심사 blocker를 최종 점검.
