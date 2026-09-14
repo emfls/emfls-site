@@ -92,6 +92,15 @@ Phase 3 — Final Site QA (after Phase 2C COMPLETE)
 - [x] `ADSENSE_FINAL_QA.md` 생성
 - [x] READY_TO_DEPLOY (live-only 항목은 Phase 3B 대상)
 
+## Phase 3B — Production Deploy & Live QA
+
+- [x] `main` push 완료 (`4abad48`)
+- [x] live homepage 및 대표 글 11개 새 버전 확인
+- [x] live HTTPS apex·HTTP redirect·robots·sitemap·redirect 검사
+- [ ] live `ads.txt` 접근성 (현재 404 blocker)
+- [ ] AdSense review 요청
+- 최종 상태: `NO_GO` — live ads.txt 수정 및 재검증 필요
+
 - [ ] Phase 2 콘텐츠 품질 재설계
 - [ ] Phase 3 정보 구조 및 내부링크
 - [ ] Phase 4 최종 AdSense QA

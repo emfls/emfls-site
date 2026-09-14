@@ -153,3 +153,34 @@
 - LIVE_QA_REQUIRED: HTTPS/redirect/certificate, pages.dev, live status, live static files, 404 status, mobile rendering, AdSense crawler access.
 - Phase 3A verdict: READY_TO_DEPLOY.
 - 다음 단계: Phase 3B Cloudflare production 배포 후 live emfls.com QA.
+
+## 2026-09-14 — AdSense Approval Phase 3B
+
+- 목적: Production 배포 및 live AdSense QA.
+- Git commit: `4abad48`.
+- production branch: `main`.
+- push: 성공.
+- Cloudflare deployment: live homepage와 대표 글에서 새 콘텐츠 확인; dashboard 배포 기록은 확인하지 않음.
+- production version verified: homepage와 대표 article 11개에 Phase 2C 변경 반영.
+- HTTPS: apex 200, 유효한 HTTPS 연결 확인.
+- HTTP → HTTPS: 301 확인.
+- www: HTTP/HTTPS 모두 404; 독립 200 duplicate는 확인되지 않음.
+- TLS: tested HTTPS connection valid; 만료일 별도 확인은 하지 않음.
+- pages.dev: 실제 hostname 확인 불가, `PAGES_DEV_REVIEW_REQUIRED`.
+- representative articles: 11/11 live 200, self canonical, indexable.
+- robots.txt: 200, crawler 허용, sitemap 선언.
+- sitemap: 200, sitemap-0.xml 25 URLs, tags·HTML sitemap·404·redirect source 제외.
+- ads.txt: 저장소와 build output에는 존재하지만 live `/ads.txt`는 404, blocker.
+- AdSense code: homepage와 대표 글에서 확인, publisher ID 정합.
+- crawler proxy checks: Googlebot·Mediapartners-Google·Google-Display-Ads-Bot 모두 200; `NO_OBVIOUS_UA_BLOCK`.
+- redirects: 주요 3개 old URL 직접 301, chain 없음.
+- 404: 고유 누락 경로 실제 404.
+- tag noindex: sample 확인, noindex 유지.
+- HTML sitemap: 200, noindex,follow.
+- live broken links: 확인 범위에서 없음.
+- mobile: 브라우저 QA 불가.
+- placeholders: 확인 범위에서 0.
+- blocking issues: live ads.txt 404.
+- non-blocking issues: pages.dev hostname, browser rendering, dashboard 확인 불가.
+- verdict: `NO_GO`.
+- 다음 단계: live ads.txt 원인 해결 후 Phase 3B 재검증.
