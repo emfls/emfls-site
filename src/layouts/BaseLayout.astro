@@ -1,11 +1,12 @@
 ---
 const {
   title = 'EMFLS Guide',
-  description = '개인 웹사이트, 도메인, DNS, GitHub Pages 운영을 다루는 실용 가이드입니다.',
+  description = '개인 도메인, DNS, 정적 웹사이트, Cloudflare Pages, 검색·SEO와 AdSense 운영을 다루는 실용 가이드입니다.',
   canonical,
   ogType = 'website',
   robots = 'index, follow',
   schema,
+  adsEligible = true,
 } = Astro.props;
 
 const siteUrl = 'https://emfls.com';
@@ -26,10 +27,10 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta name="twitter:card" content="summary" />
-    <script
+    {adsEligible && <script
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8830524482034754"
-      crossorigin="anonymous"></script>
+      crossorigin="anonymous"></script>}
     {
       schema && (
         <script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -16,7 +16,10 @@ const enhancement = getArticleEnhancement(article.slug);
 const articleMeta = getArticleMeta(article);
 const articleUrl = `${site.url}/articles/${article.slug}/`;
 const relatedArticles = articles
-  .filter((item) => item.slug !== article.slug && item.category === article.category)
+  .filter((item) => item.slug !== article.slug && (
+    item.category === article.category ||
+    (articleCluster[item.slug] && articleCluster[item.slug] === (articleCluster[article.slug] ?? article.category))
+  ))
   .slice(0, 3);
 const fallbackRelatedArticles = articles
   .filter((item) => item.slug !== article.slug && item.category !== article.category)
@@ -29,7 +32,7 @@ const schema = [
     headline: article.title,
     description: article.description,
     datePublished: article.date,
-    dateModified: site.reviewedDate,
+    dateModified: articleMeta.updatedAt,
     author: {
       '@type': 'Person',
       name: site.author.name,
@@ -100,7 +103,7 @@ const schema = [
       <p class="lead">{article.hero}</p>
       <div class="meta">
         <span>작성일 {article.date}</span>
-        <span>최종 검토 {site.reviewedDate}</span>
+        <span>최종 검토 {articleMeta.updatedAt}</span>
         <span>작성자 {site.author.name}</span>
         <span>{article.readingTime}</span>
       </div>

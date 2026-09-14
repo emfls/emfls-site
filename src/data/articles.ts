@@ -21,11 +21,258 @@ export type Article = {
 
 const sourceArticles: Article[] = [
   {
+    title: '사이트 이전 후 검색 순위가 떨어질 때 확인할 것',
+    slug: 'site-migration-ranking-drop',
+    description: '도메인·호스팅·URL을 이전한 뒤 검색 노출이 줄었을 때 redirect, canonical, sitemap, robots와 Search Console을 점검하는 순서입니다.',
+    category: '검색·SEO',
+    date: '2026-09-14',
+    updatedAt: '2026-09-14',
+    readingTime: '10분',
+    hero: '사이트 이전 후 검색 변화가 생겼다면 순위부터 추측하지 말고 이전 유형과 URL 신호를 먼저 대조합니다.',
+    sections: [
+      {
+        heading: '먼저 어떤 이전인지 구분한다',
+        body: [
+          '사이트 이전은 같은 도메인에서 호스팅만 바꾸는 경우, framework나 build 환경을 바꾸는 경우, URL 구조를 바꾸는 경우, HTTP에서 HTTPS로 바꾸는 경우, www와 루트 도메인을 바꾸는 경우, 도메인 자체를 바꾸는 경우가 서로 다릅니다. 이전 범위가 클수록 검색 변화의 원인을 한 가지로 단정하기 어렵습니다.',
+          'URL이 그대로라면 redirect를 새로 만들기보다 현재 URL의 응답과 canonical을 먼저 확인합니다. URL이 바뀌었다면 이전 URL과 최종 URL의 관계를 표로 만들어 다음 단계의 기준으로 삼습니다.',
+        ],
+      },
+      {
+        heading: '1. 기존 URL과 최종 URL의 관계를 확인한다',
+        body: [
+          '중요 페이지마다 이전 URL, 최종 URL, redirect 도착지, 신규 페이지의 canonical을 기록합니다. 주소가 변경된 경우 Google은 이전 URL에서 새 URL로 연결되는 영구 redirect를 권장하므로, 가장 관련성 높은 새 페이지로 직접 연결되는지 봅니다.',
+          '모든 과거 URL을 홈페이지 하나로 보내거나 redirect를 여러 번 거치는 구조는 페이지 의미를 확인하기 어렵게 만들 수 있습니다. 반대로 URL이 바뀌지 않은 호스팅 이전이라면 불필요한 redirect 변경부터 하지 않습니다.',
+        ],
+      },
+      {
+        heading: '2. HTTP 상태와 redirect chain을 확인한다',
+        body: [
+          '주요 이전 전 URL과 신규 URL을 HTTP 도구나 브라우저 개발자 도구로 확인해 200, 301/308, 404 중 무엇을 반환하는지 구분합니다. 기존 중요 URL이 404라면 순위 분석보다 먼저 migration 경로 문제로 분류합니다.',
+          'redirect가 있다면 중간 주소를 거치지 않고 최종 URL에 도착하는지 확인합니다. redirect가 정상이어도 검색 결과가 즉시 바뀐다고 보장되는 것은 아니므로, 상태 확인과 재처리 시간을 별도로 기록합니다.',
+        ],
+      },
+      {
+        heading: '3. canonical과 sitemap을 최종 URL 기준으로 맞춘다',
+        body: [
+          '신규 페이지의 `rel="canonical"`이 자기 자신, 이전 URL, 또는 전혀 다른 페이지 중 어디를 가리키는지 확인합니다. redirect와 canonical이 서로 다른 대표 URL을 가리키면 이전 신호를 해석하기 어려워집니다.',
+          'sitemap에는 현재 색인되길 원하는 최종 canonical URL을 넣는 방향으로 점검합니다. 이전 URL과 신규 URL을 특별한 이유 없이 함께 남기지 말고, 사이트 내부 링크도 최종 URL을 가리키는지 함께 확인합니다.',
+        ],
+      },
+      {
+        heading: '4. 내부 링크와 크롤링 경계를 확인한다',
+        body: [
+          'navigation, article 본문, related article 영역이 이전 URL을 계속 가리키고 있지 않은지 확인합니다. sitemap에만 남아 있는 URL보다 사이트 안에서 관련 페이지로 자연스럽게 연결되는 구조가 migration 후 점검 대상이 됩니다.',
+          '`robots.txt`, `noindex`, X-Robots-Tag가 이전 과정에서 잘못 남았는지도 확인합니다. 다만 이 항목을 모든 검색 하락의 원인으로 단정하지 말고, 실제 응답과 HTML에서 확인되는 신호로만 판단합니다.',
+        ],
+      },
+      {
+        heading: '5. Search Console에서 전후 상태를 비교한다',
+        body: [
+          'Search Console의 Page indexing, URL Inspection, sitemap 상태에서 이전 URL과 최종 URL을 각각 확인합니다. 도메인 자체를 옮겼다면 해당 이전 유형에 맞는 Search Console 속성과 변경 절차를 검토합니다. 실제 emfls.com 계정 데이터나 순위 하락 수치는 이 저장소에서 확인되지 않으므로 만들어내지 않습니다.',
+          'URL Inspection의 실시간 테스트가 성공해도 색인이나 검색 순위가 보장되는 것은 아닙니다. 구조를 수정한 뒤에는 sitemap과 내부 링크를 최종 URL 기준으로 정리하고, Google이 다시 크롤링·처리할 시간을 고려합니다.',
+        ],
+      },
+      {
+        heading: '6. 이전과 동시에 바뀐 것을 분리한다',
+        body: [
+          '호스팅만 바꾼 것인지, 아니면 title·본문·URL·내부 링크·canonical·페이지 구조까지 함께 바꾼 것인지 비교합니다. 여러 요소가 동시에 변했다면 검색 변화를 hosting migration 하나의 결과라고 단정할 수 없습니다.',
+          '변경 기록과 이전 전후 HTML을 비교해 공통 설정 문제와 특정 페이지 콘텐츠 문제를 나눕니다. 원인을 확인하기 전에 URL을 다시 바꾸거나 content를 대량 수정하는 방식은 권하지 않습니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Cloudflare Pages 배포 실패 원인별 점검표',
+    slug: 'cloudflare-pages-build-failure',
+    description: 'Cloudflare Pages와 GitHub 연결 후 배포가 실패할 때 build log, 로컬 재현, command, output directory와 runtime을 순서대로 확인하는 점검표입니다.',
+    category: 'Cloudflare·배포',
+    date: '2026-09-14',
+    updatedAt: '2026-09-14',
+    readingTime: '9분',
+    hero: '오류 메시지를 먼저 확인하고 repository, build, deploy 단계 중 어디에서 문제가 생겼는지 구분하는 실전 진단 순서입니다.',
+    sections: [
+      {
+        heading: 'Build log부터 확인한다',
+        body: [
+          'Cloudflare Pages에서 배포가 실패했다면 설정을 무작정 바꾸기 전에 Workers & Pages의 프로젝트에서 Deployments를 열고 해당 배포의 View details와 Build log를 확인합니다. 먼저 repository·dependency 준비, application build, deploy 중 어느 단계에서 멈췄는지 나눠야 다음 확인 위치가 정해집니다.',
+          'Cloudflare 공식 문서도 build log의 실제 오류를 출발점으로 삼고, build command·output folder·환경 변수를 application build 오류의 점검 항목으로 안내합니다. 로그를 확인하지 않은 상태에서는 특정 원인을 확정하지 않습니다.',
+        ],
+      },
+      {
+        heading: '로컬에서 같은 build를 재현한다',
+        body: [
+          '로컬에서 먼저 `npm ci`를 실행해 package-lock과 dependency 설치를 재현하고, 이어서 `npm run build`를 실행합니다. emfls.com 저장소는 `package.json`에 `build: astro build`가 정의되어 있으므로 이 두 명령으로 repository와 정적 build 단계를 확인할 수 있습니다.',
+          '`npm ci`는 lockfile을 사용하는 이 저장소에서 재현 가능한 방법이라는 뜻이지 모든 Node 프로젝트의 필수 해결책은 아닙니다. 로컬에서도 실패하면 Cloudflare 설정을 바꾸기 전에 install 또는 application build 문제로 분류하고, 로컬은 성공하지만 Pages만 실패하면 build log와 환경 차이를 비교합니다.',
+        ],
+      },
+      {
+        heading: 'Build command와 output directory를 대조한다',
+        body: [
+          'Cloudflare Pages의 build command가 repository의 `package.json` scripts와 같은지 확인합니다. emfls.com의 저장소에서 확인되는 명령은 `npm run build`이며, Cloudflare dashboard의 실제 현재 설정값은 별도로 확인하지 않았으므로 설정되어 있다고 단정하지 않습니다.',
+          '그 다음 framework가 실제로 만든 결과 디렉터리를 확인합니다. 이 Astro 프로젝트는 build 결과를 `dist/`에 생성하며 `astro.config.mjs`에는 대표 site `https://emfls.com`이 설정되어 있습니다. `dist/`는 emfls.com의 확인 결과일 뿐 모든 framework의 공통 output directory는 아닙니다.',
+        ],
+      },
+      {
+        heading: 'Root directory와 runtime 차이를 점검한다',
+        body: [
+          'repository가 monorepo이거나 사이트가 하위 폴더에 있다면 Pages의 root directory가 실제 `package.json` 위치와 맞는지 확인합니다. 잘못된 폴더에서 시작하면 command를 찾지 못하거나 엉뚱한 파일을 build할 수 있지만, emfls.com이 그런 문제를 겪었다는 기록은 없습니다.',
+          '로컬과 Pages의 Node/runtime이 다르면 dependency 설치나 build 결과가 달라질 수 있습니다. Cloudflare 공식 문서에서 안내하는 `NODE_VERSION`, `.nvmrc`, `.node-version` 같은 지정 방법과 현재 build image의 지원 범위를 확인하되, 특정 버전으로 무조건 바꾸지는 않습니다. 현재 emfls.com 저장소에는 Node version 고정 파일이 확인되지 않습니다.',
+        ],
+      },
+      {
+        heading: '환경 변수와 dependency 문제를 로그로 좁힌다',
+        body: [
+          'build 과정에서 환경 변수를 요구하는 프로젝트라면 Pages의 Environment variables에 필요한 값이 있는지 확인합니다. emfls.com의 현재 정적 build는 저장소에서 확인되는 build secret을 요구하지 않으므로, 이 글에서 실제 누락 사례로 주장하지 않습니다. secret 값은 article이나 repository에 기록하지 않습니다.',
+          'install failure라면 package manager와 lockfile의 일치 여부, dependency 버전, runtime 호환성을 오류 메시지와 함께 확인합니다. 원인을 모른 채 dependency를 전부 최신으로 올리거나 lockfile을 삭제하는 방식은 권하지 않습니다.',
+        ],
+      },
+      {
+        heading: 'Build 실패와 배포 후 404를 구분한다',
+        body: [
+          'build command가 0이 아닌 상태로 끝나면 우선 build failure입니다. 반대로 build가 성공해 파일이 업로드된 뒤 공개 URL이 404라면 build 자체의 실패와 다른 문제로 분류하고 output directory, 최상위 정적 파일 구조, 요청한 URL을 따로 확인합니다.',
+          '예를 들어 정적 배포 결과에 요청 경로에 맞는 파일이 실제로 생성됐는지 `dist/`에서 확인합니다. Cloudflare Pages 공식 정적 HTML 안내처럼 최상위 `index.html`이 필요한 유형도 있으므로, framework별 결과 구조를 확인한 뒤 판단해야 합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Search Console에서 발견됨 - 현재 색인이 생성되지 않음 해결 순서',
+    slug: 'search-console-discovered-not-indexed',
+    description: 'Search Console의 발견됨 - 현재 색인이 생성되지 않음 상태를 크롤링 전 구조와 크롤링 후 색인 적합성으로 나누어 점검하는 순서입니다.',
+    category: '검색·SEO',
+    date: '2026-09-14',
+    updatedAt: '2026-09-14',
+    readingTime: '8분',
+    hero: 'URL이 발견됐다는 사실과 색인이 거부됐다는 판단을 섞지 않고, 확인 가능한 신호부터 순서대로 점검합니다.',
+    sections: [
+      {
+        heading: '먼저 상태의 의미를 정확히 해석한다',
+        body: [
+          'Google 공식 설명에서 `Discovered - currently not indexed`는 Google이 URL을 발견했지만 아직 크롤링하지 않은 상태입니다. 따라서 이 상태만으로 noindex, 콘텐츠 품질, canonical 문제가 확정되었다고 해석하면 안 됩니다.',
+          '발견과 크롤링, 크롤링과 색인은 서로 다른 단계입니다. 먼저 Google이 방문할 수 있는 구조인지 확인하고, 실제로 크롤링한 뒤에야 페이지 내용과 색인 적합성을 별도로 판단합니다.',
+        ],
+      },
+      {
+        heading: '1. URL과 redirect가 정상인지 확인한다',
+        body: [
+          '브라우저나 HTTP 도구로 검사할 URL이 실제로 200 응답을 반환하는지 확인합니다. 예를 들어 emfls.com의 저장소·production QA에서 사용하는 대표 URL 형식은 `https://emfls.com/articles/personal-domain-website-start-checklist/`처럼 최종 공개 주소를 기준으로 합니다. 이 예시는 URL 구조 확인용이며, emfls.com이 해당 Search Console 상태를 겪었다는 뜻은 아닙니다.',
+          '예전 주소에서 새 주소로 이동한다면 redirect가 최종 URL에서 끝나는지 확인합니다. 여러 redirect를 연속으로 거치거나 존재하지 않는 주소로 끝나면 크롤링 전 접근성 문제로 먼저 분류합니다.',
+        ],
+      },
+      {
+        heading: '2. 크롤링 전에 접근 경계를 점검한다',
+        body: [
+          '`robots.txt`가 검사 대상 URL을 막고 있지 않은지 확인합니다. robots.txt는 crawler가 요청할 수 있는 범위를 제어하는 파일이므로, noindex와 같은 색인 지시로 취급하지 않습니다.',
+          '페이지 HTML의 robots meta 또는 X-Robots-Tag도 확인하되, `noindex`는 실제 페이지를 크롤링한 이후 색인에 영향을 주는 별도 신호로 구분합니다. 이 단계에서는 “현재 상태의 직접 원인”이라고 단정하지 않고, 향후 크롤링 후 점검할 항목으로 기록합니다.',
+        ],
+      },
+      {
+        heading: '3. canonical과 sitemap 신호를 맞춘다',
+        body: [
+          '최종 공개 URL의 `rel="canonical"`, redirect 대상, sitemap에 적힌 URL이 서로 다른 주소를 가리키지 않는지 비교합니다. Google은 redirect, canonical link, sitemap을 canonical 선택에 참고하는 신호로 설명하지만, 어느 하나가 색인을 보장한다고 말하지 않습니다.',
+          'emfls.com 저장소에서는 `astro.config.mjs`의 site가 `https://emfls.com`이고 XML sitemap은 `https://emfls.com/sitemap-index.xml`에서 시작합니다. 실제 점검에서는 sitemap에 최종 canonical URL만 들어 있는지 확인하고, HTML 사이트맵과 redirect source를 같은 대상으로 착각하지 않습니다.',
+        ],
+      },
+      {
+        heading: '4. 내부 링크로 발견 가능한 구조인지 본다',
+        body: [
+          'URL이 sitemap에만 있고 사이트 내부에서 연결되지 않는지, 관련 글·목록·카테고리에서 자연스럽게 접근할 수 있는지 확인합니다. 내부 링크가 있다고 색인이 보장되는 것은 아니지만, 사이트 구조와 URL의 관계를 점검하는 유효한 구조 검사입니다.',
+          '정적 Astro 사이트라면 `src/pages/`에서 route가 생성되고, article 데이터와 목록 페이지에서 공개 URL이 연결됩니다. 특정 URL이 실제 build 결과에 생성되는지와 사이트 안에서 링크가 존재하는지를 나누어 확인합니다.',
+        ],
+      },
+      {
+        heading: '5. 크롤링 이후의 색인 적합성은 별도로 판단한다',
+        body: [
+          'Google이 실제로 페이지를 크롤링한 뒤에는 noindex, Google이 선택한 canonical, 중복·유사 콘텐츠, 페이지의 고유성과 가치 같은 항목을 별도의 색인 적합성 문제로 점검할 수 있습니다. 이는 `Discovered` 상태 자체의 확정 원인 목록이 아닙니다.',
+          '비슷한 URL이 여러 개라면 어떤 주소를 대표로 삼을지 정하고, 대표 페이지의 내용과 내부 연결을 정리합니다. 페이지를 억지로 늘리거나 제목만 바꾼 유사 글을 추가하는 방식은 해결책으로 보지 않습니다.',
+        ],
+      },
+      {
+        heading: '6. URL Inspection과 재확인의 범위를 정한다',
+        body: [
+          'URL Inspection에서는 Google이 URL을 어떻게 발견했는지, 접근 가능 여부와 보고된 상태를 확인합니다. 다만 실시간 테스트가 성공했다고 색인이 보장되는 것은 아니며, `Discovered - currently not indexed`나 canonical 선택처럼 실시간으로 모두 판단할 수 없는 항목이 있습니다.',
+          '구조적 문제를 고친 뒤에는 해당 URL을 다시 확인하고, 색인 요청을 반복 클릭하는 것을 핵심 해결책으로 삼지 않습니다. 크롤링과 색인 결과가 갱신되는 데 시간이 필요한 경우와, 계속되는 접근·redirect·canonical·콘텐츠 문제를 구분해 기록합니다.',
+        ],
+      },
+    ],
+  },
+  {
+    title: '개인 도메인 정적 사이트 운영 비용 총정리',
+    slug: 'static-website-running-cost',
+    description: '개인 도메인, GitHub, Astro, Cloudflare Pages와 DNS를 이용한 정적 사이트 운영비를 무료·유료·추가 비용으로 구분해 정리합니다.',
+    category: 'Cloudflare·배포',
+    date: '2026-09-14',
+    updatedAt: '2026-09-14',
+    readingTime: '9분',
+    hero: '정적 사이트는 무료로 시작할 수 있지만 도메인과 사용량·기능에 따른 비용은 따로 계산해야 합니다.',
+    sections: [
+      {
+        heading: '먼저 비용을 세 종류로 나눈다',
+        body: [
+          '개인 정적 사이트의 운영비는 반드시 발생하는 비용, 현재 무료로 사용할 수 있는 부분, 사용량이나 기능에 따라 추가되는 비용으로 나누어야 합니다. “무료 호스팅”이라는 문장만 보면 도메인 갱신비와 유료 기능 비용을 놓치기 쉽습니다.',
+          '이 글의 가격은 확인일 `2026-09-14` 기준입니다. 특히 도메인 프로모션과 무료 플랜의 한도는 바뀔 수 있으므로 결제 전에는 각 공식 가격 페이지에서 다시 확인해야 합니다.',
+        ],
+      },
+      {
+        heading: '처음 시작할 때 반드시 계산할 비용',
+        body: [
+          '대표 도메인을 구매하면 등록 비용이 발생합니다. 가비아의 현재 `.com` 페이지에는 프로모션 가격 19,800원과 일반 가격 26,400원이 함께 표시됩니다(부가세 포함, `2026-09-14` 확인). 19,800원은 이벤트 가격이므로 매년 고정 비용으로 계산하지 말고, 갱신 시점의 정상 가격과 조건을 별도로 확인해야 합니다.',
+          '도메인을 제외하면 이 구조에서 소스 저장소, Astro 정적 빌드, Cloudflare Pages 호스팅, Cloudflare DNS와 HTTPS는 무료 범위로 시작할 수 있습니다. 전체 연결 순서는 관련 글에서 이어서 확인할 수 있습니다. 다만 무료라는 말은 무제한이라는 뜻이 아니며, 각 서비스의 정책과 사용량 한도를 함께 봐야 합니다.',
+        ],
+      },
+      {
+        heading: '첫해 결제와 매년 반복되는 비용은 다르다',
+        body: [
+          '개인 도메인은 첫해 등록비만 내고 끝나는 서비스가 아니라 등록 기간을 연장하는 갱신 비용이 반복되는 구조입니다. 가비아 `.com` 페이지에서 확인한 19,800원은 프로모션 등록 가격이고 26,400원은 일반 가격입니다(부가세 포함, `2026-09-14` 확인). 신규 등록 프로모션과 갱신 가격은 다를 수 있으므로 갱신 시점의 공식 가격을 확인해야 하며, 이 글에서는 갱신 가격을 추측해 연간 고정액으로 계산하지 않습니다.',
+          '도메인을 정상적으로 같은 registrar에서 갱신하고 nameserver와 DNS 설정을 바꾸지 않았다면, 기존 DNS record를 매년 처음부터 다시 만드는 비용 항목과는 별개입니다. 다만 registrar 정책과 계정 상태에 따라 확인할 사항이 달라질 수 있으므로 만료일, 자동 갱신, 결제수단, 연락처와 알림 수신 상태를 함께 점검합니다.',
+        ],
+      },
+      {
+        heading: 'Registrar 이전과 DNS provider 변경을 구분한다',
+        body: [
+          'registrar는 도메인 소유와 갱신을 관리하고, DNS provider는 nameserver와 DNS record를 관리합니다. 현재 emfls.com 구조에서는 registrar와 Cloudflare DNS의 역할을 나누어 보며, GitHub는 source, Astro는 static build, Cloudflare Pages는 hosting/deployment를 담당합니다.',
+          'registrar만 이전하는 경우와 nameserver를 Cloudflare 또는 다른 DNS provider로 변경하는 경우는 확인 범위가 다릅니다. 후자는 기존 record, MX/TXT 같은 필요한 항목, Pages custom domain과 HTTPS를 다시 대조해야 하지만 DNS record가 반드시 사라진다고 단정하지는 않습니다. 실제 설정을 확인하지 않은 상태에서 이전 비용이나 중단 시간을 합산하지 않습니다.',
+        ],
+      },
+      {
+        heading: '현재 무료로 사용하는 운영 구조',
+        body: [
+          'emfls.com은 GitHub에서 소스와 버전을 관리하고, Astro가 `npm run build`로 정적 파일을 만들며, Cloudflare Pages가 production hosting/deployment를 담당합니다. 이 역할 분리는 관련 글에서 더 자세히 설명합니다. Cloudflare DNS는 도메인의 DNS를 관리하고 `https://emfls.com`이 대표 주소가 됩니다.',
+          'GitHub Free는 개인 계정에서 public·private repository를 운영할 수 있는 범위를 제공하지만, Actions나 Packages처럼 별도 사용량이 있는 기능은 이 사이트의 필수 운영비로 계산하지 않습니다. Astro 자체도 이 프로젝트에서는 package dependency로 빌드에 사용하며, 별도 호스팅 요금 항목으로 계산하지 않습니다.',
+          'Cloudflare Pages Free는 공식 제한상 월 500 builds, 동시 build 1개, 프로젝트당 custom domain 100개, 사이트 파일 20,000개, 단일 asset 25 MiB까지입니다. Cloudflare DNS는 공식 문서상 Free plan에서도 제공되며 DNS query에 별도 요금을 부과하지 않는 범위입니다.',
+        ],
+      },
+      {
+        heading: '언제 추가 비용이 생기는가',
+        body: [
+          '가장 먼저 발생하는 반복 비용은 도메인 갱신입니다. 첫 등록 프로모션과 갱신 가격은 다를 수 있으므로 연간 예산은 프로모션 가격이 아니라 갱신 조건으로 잡는 편이 안전합니다. 이메일 주소가 필요하면 별도 메일 서비스 비용도 추가될 수 있습니다.',
+          '무료 정적 호스팅의 한도를 넘는 빌드·파일·asset·동적 기능이 필요하면 상위 플랜이나 다른 제품을 검토해야 합니다. GitHub와 Cloudflare Pages의 역할을 나누어 보는 것이 먼저입니다. 서버 실행, 데이터베이스, 회원 기능, 대용량 파일, 고급 분석을 붙이는 순간에는 정적 사이트의 기본 비용표와 분리해 예상해야 합니다.',
+          '비교 참고로 Netlify Free는 공식 가격 페이지에서 월 300 credits의 하드 한도를 안내하고, Personal은 월 9달러입니다. 이 글은 Netlify 요금제 비교가 아니라, 무료 호스팅도 사용량 정책이 있다는 점을 보여주는 참고 사례로만 다룹니다.',
+        ],
+      },
+      {
+        heading: 'GitHub Pages와 다른 호스팅을 볼 때의 기준',
+        body: [
+          'GitHub Pages, Cloudflare Pages, Netlify 모두 정적 사이트를 무료 범위에서 시작할 수 있지만, 실제 선택에서는 custom domain, build 한도, 파일 크기, 배포 방식, 동적 기능 필요 여부를 비교해야 합니다. 서비스 이름만 보고 비용이 0원이라고 결론 내리면 안 됩니다.',
+          'emfls.com처럼 GitHub는 source/version control, Astro는 build, Cloudflare Pages는 production hosting이라는 역할 분리가 이미 명확하다면, 서비스를 바꾸기 전에 현재 한도와 실제 필요한 기능부터 계산하는 것이 우선입니다. 상세 서비스 비교는 별도의 비교 글에서 다룰 수 있는 주제입니다.',
+        ],
+      },
+      {
+        heading: 'emfls.com 방식으로 예산을 분류하는 법',
+        body: [
+          '최소 예산은 “도메인 등록·갱신비”와 “선택한 추가 서비스”를 따로 적고, GitHub·Astro·Cloudflare Pages·Cloudflare DNS는 무료 사용 범위와 한도를 확인하는 방식으로 계산합니다. 실제 결제하지 않은 서비스나 이 사이트의 실제 지출 총액은 저장소만으로 알 수 없으므로 합계로 단정하지 않습니다.',
+          '예산표를 만들 때는 도메인 첫해 프로모션, 다음 갱신 예상액, 이메일·폼·분석 같은 선택 기능, 무료 플랜을 넘을 가능성이 있는 사용량을 각각 별도 행으로 두면 비용 구조가 선명해집니다. 실제 공개 후 확인 항목은 관련 글에서 이어서 확인할 수 있습니다.',
+        ],
+      },
+    ],
+  },
+  {
     title: 'emfls.com 개인 도메인 사이트 구축 로드맵',
     slug: 'personal-domain-website-start-checklist',
     description: '도메인 구매부터 DNS, GitHub, Astro, Cloudflare Pages, HTTPS, production QA, 검색 등록과 AdSense 준비까지의 실제 구축 순서입니다.',
     category: '시작 준비',
     date: '2026-06-08',
+    updatedAt: '2026-09-14',
     readingTime: '5분',
     hero: '개인 도메인을 산 뒤 무엇을 어떤 순서로 연결할지 emfls.com의 실제 파일과 배포 흐름으로 안내합니다.',
     sections: [
@@ -129,6 +376,7 @@ const sourceArticles: Article[] = [
     description: 'GitHub의 Astro 소스가 Cloudflare Pages를 거쳐 emfls.com으로 공개되는 실제 운영 구조를 파일 기준으로 설명합니다.',
     category: '사이트 제작',
     date: '2026-06-08',
+    updatedAt: '2026-09-14',
     readingTime: '5분',
     hero: '이 사이트의 배포 흐름은 GitHub 저장소, Astro 빌드, Cloudflare Pages, emfls.com으로 이어집니다.',
     sections: [
@@ -161,6 +409,7 @@ const sourceArticles: Article[] = [
     description: 'emfls.com의 About, Contact, Privacy, Terms, Editorial Policy, Disclaimer가 각각 어떤 정보를 제공하는지 실제 페이지 기준으로 설명합니다.',
     category: '운영 기준',
     date: '2026-06-08',
+    updatedAt: '2026-09-14',
     readingTime: '6분',
     hero: '좋은 글만큼이나 사이트가 누가 운영하는지, 어떻게 연락할 수 있는지도 중요합니다.',
     sections: [
@@ -232,6 +481,7 @@ const sourceArticles: Article[] = [
     description: 'robots.txt의 크롤링 규칙, noindex의 색인 제외, XML sitemap의 URL 발견 역할을 emfls.com 구현으로 설명합니다.',
     category: '검색·SEO',
     date: '2026-06-08',
+    updatedAt: '2026-09-14',
     readingTime: '5분',
     hero: 'robots.txt, noindex, sitemap은 비슷해 보이지만 검색 크롤링과 색인을 서로 다르게 다룹니다.',
     sections: [
@@ -321,6 +571,7 @@ const sourceArticles: Article[] = [
     description: 'Cloudflare Pages 정적 배포 뒤 production URL, HTTP 상태, canonical, 대표 페이지, robots, sitemap, ads.txt와 내부 링크를 확인하는 QA 순서입니다.',
     category: '배포와 점검',
     date: '2026-06-08',
+    updatedAt: '2026-09-14',
     readingTime: '6분',
     hero: '배포 버튼을 누른 순간 사이트 제작이 끝나는 것이 아니라 공개 점검이 시작됩니다.',
     sections: [
@@ -385,6 +636,7 @@ const sourceArticles: Article[] = [
     description: '개인 도메인을 Cloudflare DNS와 Pages에 연결한 뒤 nameserver, record, HTTPS와 대표 주소를 검증하는 순서입니다.',
     category: '도메인과 DNS',
     date: '2026-06-09',
+    updatedAt: '2026-09-14',
     readingTime: '8분',
     hero: 'DNS 문제는 값을 많이 바꾸는 것보다 현재 권한 있는 DNS와 실제 응답을 분리해 확인하는 데서 시작합니다.',
     sections: [
@@ -424,6 +676,7 @@ const sourceArticles: Article[] = [
     description: 'Domain property를 DNS로 확인한 뒤 sitemap 제출과 URL Inspection까지 이어가는 emfls.com 등록 절차입니다.',
     category: '검색·SEO',
     date: '2026-06-09',
+    updatedAt: '2026-09-14',
     readingTime: '8분',
     hero: 'Search Console 등록은 소유권 확인, 사이트맵 제출, 개별 URL 점검을 분리해 진행해야 합니다.',
     sections: [
@@ -463,6 +716,7 @@ const sourceArticles: Article[] = [
     description: 'emfls.com 저장소에서 확인한 공개 상태, 콘텐츠 구조, 크롤링, AdSense 연결과 신뢰 페이지 점검 항목입니다.',
     category: '운영 기준',
     date: '2026-06-09',
+    updatedAt: '2026-09-14',
     readingTime: '9분',
     hero: '심사 요청 전에는 광고 코드보다 사이트 전체가 공개 상태이고 독자가 운영자와 콘텐츠 목적을 이해할 수 있는지 확인합니다.',
     sections: [
@@ -502,6 +756,7 @@ const sourceArticles: Article[] = [
     description: 'GitHub의 Astro 소스를 Cloudflare Pages에 연결하고 npm run build와 dist/ 결과를 emfls.com에 배포하는 흐름입니다.',
     category: 'GitHub Pages',
     date: '2026-06-09',
+    updatedAt: '2026-09-14',
     readingTime: '8분',
     hero: 'GitHub는 소스를 관리하고 Astro는 빌드하며 Cloudflare Pages가 정적 결과를 emfls.com에 배포합니다.',
     sections: [
@@ -541,6 +796,7 @@ const sourceArticles: Article[] = [
     description: 'Cloudflare Pages에 연결한 emfls.com을 DNS, 인증서, HTTP redirect, canonical 순서로 확인하는 진단 가이드입니다.',
     category: 'HTTPS·사이트 운영',
     date: '2026-06-09',
+    updatedAt: '2026-09-14',
     readingTime: '7분',
     hero: '사이트가 열려도 HTTPS가 올바른지는 DNS, 인증서, redirect, canonical을 나누어 확인해야 합니다.',
     sections: [
@@ -555,7 +811,16 @@ const sourceArticles: Article[] = [
         heading: 'DNS와 Pages custom domain',
         body: [
           'Cloudflare 공식 절차에서 Pages 프로젝트의 Custom domains에 도메인을 추가하고, apex domain은 Cloudflare zone과 nameserver 설정을 함께 확인합니다. 이 프로젝트의 실제 record 값은 저장소에 없습니다.',
-          'DNS가 다른 대상으로 향하면 Pages가 정상이어도 도메인 접속이 실패할 수 있습니다. 먼저 DNS 응답과 Pages custom domain 상태를 따로 확인합니다.',
+          'DNS record를 추가하는 것과 Pages 프로젝트의 Custom domains에 hostname을 등록하는 것은 별도 단계입니다. 공식 문서도 dashboard에서 custom domain을 먼저 연결하는 절차를 안내하므로, record만 만든 상태를 Pages 연결 완료로 보지 않습니다.',
+          'DNS가 다른 대상으로 향하면 Pages가 정상이어도 도메인 접속이 실패할 수 있습니다. 먼저 DNS 응답과 Pages custom domain 상태를 따로 확인합니다. `example.com`과 `www.example.com`은 서로 다른 hostname이므로 한쪽만 설정하고 양쪽이 모두 동작한다고 가정하지 않습니다.',
+        ],
+      },
+      {
+        heading: '문제 유형별로 확인 위치를 나눈다',
+        body: [
+          '`pages.dev` 주소는 열리지만 custom domain만 열리지 않으면 Pages의 Custom domains 등록 상태, 해당 hostname의 DNS record, 기존 충돌 record와 redirect를 먼저 확인합니다. custom domain은 열리지만 HTTPS 경고가 있으면 DNS와 별도로 certificate·SSL/TLS 상태를 확인합니다.',
+          'Cloudflare Pages build 자체가 실패한 경우에는 domain 설정이 아니라 deployment의 build log와 build configuration을 확인해야 합니다. 이 프로젝트의 build 진단은 [Cloudflare Pages 배포 실패 원인별 점검표](/articles/cloudflare-pages-build-failure/)에서 분리해 다룹니다.',
+          '정상 배포 뒤 production URL과 내부 페이지를 확인하는 순서는 [첫 배포 후 확인해야 할 체크리스트](/articles/after-first-deploy-checklist/)에서 이어서 확인합니다.',
         ],
       },
       {
@@ -568,7 +833,7 @@ const sourceArticles: Article[] = [
       {
         heading: '진단 순서',
         body: [
-          '① DNS 응답, ② Pages custom domain, ③ 인증서 상태, ④ HTTP→HTTPS response, ⑤ apex/www 대표 주소, ⑥ canonical, ⑦ 브라우저와 `curl` 결과 순서로 좁혀갑니다.',
+          '① 요청한 hostname(apex 또는 www), ② Pages Custom domains 등록, ③ nameserver와 DNS record, ④ 기존 record·redirect 충돌, ⑤ 인증서 상태, ⑥ HTTP→HTTPS response, ⑦ canonical, ⑧ 브라우저와 `curl` 결과 순서로 좁혀갑니다.',
           '이 순서는 DNS를 변경하지 않는 읽기 전용 점검입니다. 한 단계에서 문제가 확인되면 다음 값을 임의로 바꾸기 전에 결과를 기록합니다.',
         ],
       },
@@ -580,6 +845,7 @@ const sourceArticles: Article[] = [
     description: '가비아에서 구매한 emfls.com 도메인을 Cloudflare DNS와 Pages custom domain으로 연결하는 nameserver 중심 절차입니다.',
     category: '도메인·DNS',
     date: '2026-06-09',
+    updatedAt: '2026-09-14',
     readingTime: '7분',
     hero: '등록기관, 권한 있는 DNS, Pages custom domain은 서로 다른 역할을 순서대로 연결해야 합니다.',
     sections: [
@@ -643,6 +909,10 @@ const sourceArticles: Article[] = [
 ];
 
 const representativeSlugs = new Set([
+  'site-migration-ranking-drop',
+  'cloudflare-pages-build-failure',
+  'search-console-discovered-not-indexed',
+  'static-website-running-cost',
   'personal-domain-website-start-checklist',
   'gabia-domain-cloudflare-dns',
   'why-astro-for-static-content-site',
@@ -669,6 +939,9 @@ export const categoryMeta: Record<string, { slug: string; description: string }>
 export const categoryList = Object.entries(categoryMeta).map(([name, meta]) => ({ name, ...meta }));
 
 export const articleCluster: Record<string, string> = {
+  'site-migration-ranking-drop': '검색·SEO',
+  'static-website-running-cost': 'Cloudflare·배포',
+  'cloudflare-pages-build-failure': 'Cloudflare·배포',
   'personal-domain-website-start-checklist': '도메인·DNS',
   'gabia-domain-cloudflare-dns': '도메인·DNS',
   'cloudflare-dns-setup-for-beginners': '도메인·DNS',
@@ -677,6 +950,7 @@ export const articleCluster: Record<string, string> = {
   'after-first-deploy-checklist': 'HTTPS·사이트 운영',
   'how-to-check-https-on-custom-domain': 'HTTPS·사이트 운영',
   'google-search-console-domain-property-guide': '검색·SEO',
+  'search-console-discovered-not-indexed': '검색·SEO',
   'robots-and-sitemap-basics': '검색·SEO',
   'adsense-review-essential-pages': 'AdSense',
   'adsense-review-final-checklist': 'AdSense',
@@ -758,7 +1032,7 @@ export function getArticleMeta(article: Article): ArticleMeta {
     category: articleCluster[article.slug] ?? article.category,
     summary: article.summary ?? article.description,
     publishedAt: article.date,
-    updatedAt: article.updatedAt ?? '2026-06-09',
+    updatedAt: article.updatedAt ?? article.date,
     readingTimeMinutes: article.readingTimeMinutes ?? getReadingTimeMinutes(article.readingTime),
     authorName: article.authorName ?? 'EMFLS 운영자',
     tags: article.tags ?? tagBySlug[article.slug] ?? tagByCategory[article.category] ?? [],
