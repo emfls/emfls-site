@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { articles, getArticleMeta, slugifyTag } from '../../data/articles';
+import { articles, articleCluster, getArticleMeta, slugifyTag } from '../../data/articles';
 import { getArticleEnhancement } from '../../data/articleEnhancements';
 import { site } from '../../data/site';
 
@@ -95,7 +95,7 @@ const schema = [
         <span>/</span>
         <span>{article.category}</span>
       </nav>
-      <span class="tag">{article.category}</span>
+      <span class="tag">{articleCluster[article.slug] ?? article.category}</span>
       <h1>{article.title}</h1>
       <p class="lead">{article.hero}</p>
       <div class="meta">
@@ -122,30 +122,23 @@ const schema = [
           {section.body.map((paragraph) => <p>{paragraph}</p>)}
         </section>
       ))}
-      <section>
+      {enhancement.checklist.length > 0 && <section>
         <h2>{enhancement.example.title}</h2>
         {enhancement.example.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
-      </section>
-      <section class="screenshot-placeholder">
-        <h2>{enhancement.screenshot.title}</h2>
-        <div class="placeholder-frame" aria-label="추후 추가할 스크린샷 자리">
-          <span>스크린샷 추가 예정</span>
-        </div>
-        <p>{enhancement.screenshot.caption}</p>
       </section>
       <section>
         <h2>실전 점검표</h2>
         <ul class="check-list">
           {enhancement.checklist.map((item) => <li>{item}</li>)}
         </ul>
-      </section>
-      <section class="callout">
+      </section>}
+      {enhancement.mistakes.length > 0 && <section class="callout">
         <h2>흔한 실수</h2>
         <ul>
           {enhancement.mistakes.map((mistake) => <li>{mistake}</li>)}
         </ul>
-      </section>
-      <section>
+      </section>}
+      {enhancement.faqs.length > 0 && <section>
         <h2>자주 묻는 질문</h2>
         <div class="faq-list">
           {enhancement.faqs.map((faq) => (
@@ -155,7 +148,7 @@ const schema = [
             </details>
           ))}
         </div>
-      </section>
+      </section>}
       <section>
         <h2>관련 글</h2>
         <ul class="related-list">

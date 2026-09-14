@@ -4,6 +4,7 @@ const {
   description = '개인 웹사이트, 도메인, DNS, GitHub Pages 운영을 다루는 실용 가이드입니다.',
   canonical,
   ogType = 'website',
+  robots = 'index, follow',
   schema,
 } = Astro.props;
 
@@ -16,7 +17,7 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={robots} />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content={ogType} />
@@ -638,25 +639,6 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   .info-table tr:last-child th,
   .info-table tr:last-child td {
     border-bottom: 0;
-  }
-
-  .screenshot-placeholder {
-    display: grid;
-    gap: 14px;
-  }
-
-  .placeholder-frame {
-    display: grid;
-    min-height: 220px;
-    place-items: center;
-    border: 1px dashed #9aa8aa;
-    border-radius: 8px;
-    background:
-      linear-gradient(135deg, rgba(45, 156, 143, 0.08), rgba(242, 201, 76, 0.12)),
-      var(--surface);
-    color: var(--muted);
-    font-size: 0.95rem;
-    font-weight: 800;
   }
 
   .simple-page {

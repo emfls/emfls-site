@@ -109,12 +109,12 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       { name: 'Cloudflare Pages documentation', url: 'https://developers.cloudflare.com/pages/' },
     ],
   },
-  'gabia-domain-dns-github-pages': {
+  'gabia-domain-cloudflare-dns': {
     example: {
-      title: '가비아에서 Cloudflare로 DNS 관리를 넘긴 사례',
+      title: '가비아 등록기관에서 Cloudflare DNS로 연결하는 순서',
       paragraphs: [
-        '기존에는 가비아 DNS에 GitHub Pages용 A 레코드 4개와 `www -> emfls.github.io` CNAME이 있었습니다. Cloudflare를 사용하기로 한 뒤에는 가비아에서 개별 DNS 레코드를 수정하는 대신 네임서버를 Cloudflare가 안내한 값으로 변경했습니다.',
-        '이 차이를 이해하는 것이 중요합니다. 네임서버를 바꾸면 이후 DNS의 기준은 가비아 레코드 화면이 아니라 Cloudflare DNS 화면입니다. 가비아에서 CNAME을 계속 수정하면 실제 적용 위치를 착각할 수 있습니다.',
+        '가비아는 도메인 등록기관이고 Cloudflare는 authoritative DNS와 Pages custom domain을 담당합니다. 저장소에는 실제 emfls.com nameserver 값이나 DNS record가 없습니다.',
+        '일반 절차는 Cloudflare가 할당한 nameserver 확인, 가비아에서 nameserver 변경, Cloudflare zone 활성 확인, Pages custom domain 연결 순서입니다.',
       ],
     },
     screenshot: {
@@ -153,10 +153,10 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
   },
   'why-astro-for-static-content-site': {
     example: {
-      title: 'Astro로 글과 정책 페이지를 함께 관리한 방식',
+      title: 'emfls.com 저장소에서 확인되는 구조',
       paragraphs: [
-        '이 사이트는 글 데이터를 TypeScript 파일에 두고, Astro 동적 라우트가 각 글 상세 페이지를 정적 HTML로 생성합니다. 그래서 Cloudflare Pages에서는 `npm run build` 후 `dist` 폴더만 배포하면 됩니다.',
-        '반복되는 헤더, 푸터, SEO 메타 태그, AdSense 확인 코드, 구조화 데이터는 공통 레이아웃에서 관리합니다. 페이지가 늘어나도 기본 신뢰 신호를 빠뜨릴 가능성이 줄어듭니다.',
+        '실제 저장소에는 `package.json`의 `astro build`, `astro.config.mjs`의 `site: https://emfls.com`, `src/pages/`, `src/data/`, `src/layouts/BaseLayout.astro`가 있습니다. 이 파일 구성이 GitHub 소스에서 정적 결과를 만드는 경계를 보여줍니다.',
+        '`public/robots.txt`, `public/ads.txt`, `public/_redirects`도 저장소에서 확인할 수 있습니다. 다만 Cloudflare 계정의 실제 프로젝트 설정이나 배포 로그는 저장소 파일만으로 확인할 수 없다고 구분해야 합니다.',
       ],
     },
     screenshot: {
@@ -279,10 +279,10 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
   },
   'robots-and-sitemap-basics': {
     example: {
-      title: 'HTML 사이트맵과 XML 사이트맵을 구분한 사례',
+      title: 'emfls.com에서 세 가지 신호를 분리한 사례',
       paragraphs: [
-        '이 사이트에는 사람이 보는 `/site-map/` 페이지와 검색 엔진에 제출하는 `/sitemap-index.xml` 파일이 따로 있습니다. Search Console에는 HTML 페이지가 아니라 XML 사이트맵을 제출해야 합니다.',
-        '`sitemap-index.xml`은 실제 URL을 모두 직접 담는 파일이 아니라 `sitemap-0.xml` 같은 하위 사이트맵을 가리키는 목차일 수 있습니다. Google은 인덱스 파일을 읽고 하위 사이트맵을 따라갑니다.',
+        '사람이 보는 `/site-map/`과 검색 엔진에 제출하는 `/sitemap-index.xml`을 분리했습니다. `robots.txt`는 `/robots.txt`에서 크롤링 규칙과 XML 사이트맵 위치만 안내합니다.',
+        '색인에서 제외할 유틸리티 페이지는 문서의 robots meta로 처리합니다. 따라서 크롤링 제어, 색인 제어, URL 발견을 한 파일의 역할로 섞지 않습니다.',
       ],
     },
     screenshot: {
@@ -300,7 +300,8 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       '`robots.txt`에서 실제 존재하지 않는 사이트맵 주소를 안내하는 것.',
       '사이트맵 인덱스에 글 URL이 직접 안 보인다고 오류로 착각하는 것.',
     ],
-    faqs: [
+    faqs: [], /* 역할 구분 글은 반복 FAQ 대신 본문 절차에 집중 */
+    /*
       {
         question: 'sitemap-index.xml에 글 URL이 안 보이면 문제인가요?',
         answer: '아닙니다. 사이트맵 인덱스는 하위 사이트맵 위치를 알려주는 파일입니다. 실제 URL은 `sitemap-0.xml` 같은 하위 파일에 들어갈 수 있습니다.',
@@ -313,10 +314,10 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
         question: '사이트맵 제출 후 발견된 페이지가 0으로 나옵니다.',
         answer: '제출 직후에는 0으로 보일 수 있습니다. 사이트맵 형식이 맞고 URL이 접속된다면 Google이 처리할 시간을 두고 다시 확인하세요.',
       },
-    ],
+    ], */
     sources: [
-      { name: 'Google sitemap documentation', url: 'https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview' },
       { name: 'Google robots.txt documentation', url: 'https://developers.google.com/search/docs/crawling-indexing/robots/intro' },
+      { name: 'Google robots meta documentation', url: 'https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag' },
     ],
   },
   'privacy-policy-practical-checklist': {
@@ -403,7 +404,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       { name: 'Astro pages documentation', url: 'https://docs.astro.build/en/basics/astro-pages/' },
     ],
   },
-  'simple-contact-page-for-static-site': {
+  'merged-contact-page-reference': {
     example: {
       title: 'mailto 링크로 시작한 문의 페이지',
       paragraphs: [
@@ -501,7 +502,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       caption: '홈, 글 목록, 글 상세, 정책 페이지, 404 페이지가 모두 정상적으로 이어지는 흐름을 캡처해 심사 전 점검 자료로 남깁니다.',
     },
     checklist: [
-      '공사중, 테스트, lorem ipsum 문구를 제거한다.',
+      '공사중과 테스트용 문구를 제거한다.',
       '빈 카테고리를 메뉴에서 숨긴다.',
       '모든 푸터 링크가 실제 페이지로 연결되는지 확인한다.',
       '글마다 고유한 FAQ와 관련 글 링크가 있는지 확인한다.',
@@ -533,10 +534,10 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
   },
   'cloudflare-dns-setup-for-beginners': {
     example: {
-      title: '가비아에서 Cloudflare로 기준 화면이 바뀌는 순간',
+      title: '저장소에서 확정할 수 있는 범위',
       paragraphs: [
-        '가비아에서 Cloudflare 네임서버로 변경한 뒤 Cloudflare Overview에 `Your domain is now protected by Cloudflare`가 표시되면 DNS 기준은 Cloudflare입니다. 이후 가비아의 개별 DNS 레코드 수정 화면은 실제 서비스 기준이 아닐 수 있습니다.',
-        '이 상태에서 Pages의 Custom domains에 `emfls.com`을 추가하면 Cloudflare가 필요한 연결을 안내합니다. 기존 GitHub Pages 레코드가 남아 있으면 충돌을 정리한 뒤 Pages 대상 레코드로 맞춥니다.',
+        '이 저장소에서 확정되는 사실은 대표 도메인이 `https://emfls.com`이고, Cloudflare Pages를 실제 배포 환경으로 설명하며, DNS와 Pages custom domain을 별도 단계로 다룬다는 점입니다. 실제 계정의 nameserver와 record 값은 저장소에 없습니다.',
+        '따라서 설정 화면에서는 먼저 현재 권한 있는 DNS 제공자를 확인하고, 그 다음 Pages custom domain 상태와 브라우저·DNS 응답을 비교해야 합니다. 특정 A/CNAME 값을 이 글에 추가하지 않은 이유도 이 경계 때문입니다.',
       ],
     },
     screenshot: {
@@ -617,10 +618,10 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
   },
   'adsense-review-final-checklist': {
     example: {
-      title: '심사 직전 emfls.com에서 확인한 기준',
+      title: 'Phase 1·2에서 실제로 정리한 항목',
       paragraphs: [
-        '이 사이트는 AdSense 확인 코드를 공통 head에 넣고, Cloudflare Pages 배포가 끝난 뒤 확인을 진행하는 흐름으로 구성했습니다. 코드가 저장소에 들어갔더라도 실제 배포가 끝나기 전에는 AdSense가 확인하지 못할 수 있습니다.',
-        '또한 소개, 문의, 개인정보처리방침, 편집 정책, 작성 기준, 면책 고지를 푸터와 사이트맵에서 접근 가능하게 배치했습니다. 심사자는 한 페이지가 아니라 사이트 전체 완성도를 볼 수 있기 때문입니다.',
+        'Phase 1에서 `src/layouts/BaseLayout.astro`의 공통 AdSense script, `public/ads.txt`, Cloudflare Pages 기준 Privacy 설명, 공개 글의 미완성 플레이스홀더 제거를 확인했습니다.',
+        'Phase 2에서는 기존 18개 글을 대표 12개로 정리하고 6개 병합 URL에 301 redirect를 추가했으며, 태그·HTML sitemap·404를 noindex 대상으로 구분했습니다. 이는 저장소의 실제 변경 기록으로 확인할 수 있는 범위입니다.',
       ],
     },
     screenshot: {
@@ -658,26 +659,26 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       { name: 'AdSense Program policies', url: 'https://support.google.com/adsense/answer/48182' },
     ],
   },
-  'connect-custom-domain-to-github-pages': {
+  'github-to-cloudflare-pages-deployment': {
     example: {
-      title: 'GitHub Pages 기준에서 Cloudflare Pages 기준으로 바꾼 이유',
+      title: 'GitHub source에서 Cloudflare Pages production까지',
       paragraphs: [
-        '처음에는 GitHub Pages용 A 레코드와 CNAME 파일을 준비했지만, 최종 운영은 Cloudflare Pages로 정리했습니다. 이유는 도메인, DNS, HTTPS, 배포 상태를 Cloudflare에서 한 번에 관리하는 편이 초보자에게 더 명확했기 때문입니다.',
+        '이 저장소의 GitHub repository는 source와 version management를 담당하고, Astro의 `npm run build`는 `dist/` 정적 결과를 만듭니다. Cloudflare Pages는 그 결과를 production에 배포하는 역할입니다.',
         '이런 변경을 할 때는 예전 GitHub Pages용 설정을 계속 남겨두지 않는 것이 중요합니다. 배포 기준이 바뀌면 README, DNS, AdSense 등록 주소, sitemap 기준 URL도 함께 맞춰야 합니다.',
       ],
     },
     screenshot: {
       title: '준비할 스크린샷',
-      caption: 'GitHub Pages custom domain 화면과 Cloudflare Pages custom domain 화면을 비교하면 두 방식의 차이를 설명하기 좋습니다.',
+      caption: 'GitHub repository 연결, build command `npm run build`, output directory `dist/`를 배포 설정 문서와 함께 확인합니다.',
     },
     checklist: [
       '어떤 서비스가 실제 배포를 담당하는지 먼저 정한다.',
       'GitHub Pages를 쓰면 CNAME 파일과 GitHub Pages 설정을 확인한다.',
-      'Cloudflare Pages를 쓰면 GitHub Pages 전용 설정을 제거한다.',
+      'GitHub를 source repository로, Cloudflare Pages를 production hosting으로 구분한다.',
       '대표 도메인 기준으로 canonical과 sitemap을 맞춘다.',
     ],
     mistakes: [
-      'GitHub Pages와 Cloudflare Pages 설정을 동시에 활성화해 충돌을 만드는 것.',
+      'GitHub Pages hosting과 Cloudflare Pages hosting을 현재 emfls.com 구조로 혼동하는 것.',
       'CNAME 파일이 필요 없는 배포 방식에서도 계속 유지하는 것.',
       '심사 도메인과 실제 공개 도메인을 다르게 두는 것.',
     ],
@@ -696,16 +697,17 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       },
     ],
     sources: [
-      { name: 'GitHub Pages custom domains', url: 'https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site' },
+      { name: 'Cloudflare Pages Git integration', url: 'https://developers.cloudflare.com/pages/configuration/git-integration/' },
+      { name: 'Cloudflare Pages build configuration', url: 'https://developers.cloudflare.com/pages/configuration/build-configuration/' },
       { name: 'Cloudflare Pages custom domains', url: 'https://developers.cloudflare.com/pages/configuration/custom-domains/' },
     ],
   },
   'how-to-check-https-on-custom-domain': {
     example: {
-      title: 'AdSense 확인 전 HTTPS를 확인한 순서',
+      title: 'emfls.com에서 HTTPS를 진단한 기록',
       paragraphs: [
-        'AdSense 확인 코드를 넣은 뒤 바로 확인 버튼을 누르기보다 먼저 `https://emfls.com`에서 실제 최신 사이트가 열리는지 확인했습니다. 이어서 사이트맵과 주요 글 URL이 모두 HTTPS로 열리는지 봤습니다.',
-        'HTTPS가 정상이어도 Cloudflare 배포가 아직 이전 버전이면 head에 새 코드가 없을 수 있습니다. 그래서 배포 성공 로그와 실제 페이지 소스 확인을 함께 보는 것이 좋습니다.',
+        '진단 기준 주소를 `https://emfls.com`으로 고정하고, HTTP 요청의 이동 여부와 대표 주소의 canonical을 별도로 확인합니다.',
+        '브라우저에서 열리는 것만으로 배포 상태를 단정하지 않고 DNS, 인증서, redirect, 페이지 HTML을 순서대로 확인합니다.',
       ],
     },
     screenshot: {
@@ -739,7 +741,8 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     ],
     sources: [
       { name: 'Cloudflare SSL/TLS documentation', url: 'https://developers.cloudflare.com/ssl/' },
-      { name: 'Google HTTPS documentation', url: 'https://developers.google.com/search/docs/advanced/security/https' },
+      { name: 'Cloudflare Pages custom domains', url: 'https://developers.cloudflare.com/pages/configuration/custom-domains/' },
+      { name: 'Google HTTPS documentation', url: 'https://developers.google.com/search/docs/crawling-indexing/https' },
     ],
   },
   'github-pages-vs-wordpress-for-beginners': {

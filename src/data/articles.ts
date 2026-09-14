@@ -19,35 +19,42 @@ export type Article = {
   }[];
 };
 
-export const articles: Article[] = [
+const sourceArticles: Article[] = [
   {
-    title: '개인 도메인으로 웹사이트를 시작하기 전에 정해야 할 것들',
+    title: 'emfls.com 개인 도메인 사이트 구축 로드맵',
     slug: 'personal-domain-website-start-checklist',
-    description: '도메인, 사이트 목적, 대표 주소, 콘텐츠 범위를 먼저 정하면 이후 DNS와 배포 과정에서 실수가 줄어듭니다.',
+    description: '도메인 구매부터 DNS, GitHub, Astro, Cloudflare Pages, HTTPS, production QA, 검색 등록과 AdSense 준비까지의 실제 구축 순서입니다.',
     category: '시작 준비',
     date: '2026-06-08',
     readingTime: '5분',
-    hero: '도메인은 주소를 사는 일이 아니라 앞으로 운영할 공간의 기준을 정하는 일에 가깝습니다.',
+    hero: '개인 도메인을 산 뒤 무엇을 어떤 순서로 연결할지 emfls.com의 실제 파일과 배포 흐름으로 안내합니다.',
     sections: [
       {
-        heading: '사이트의 역할을 먼저 정하기',
+        heading: '1단계 — 도메인과 DNS 기준 정하기',
         body: [
-          '개인 웹사이트를 만들 때 가장 먼저 할 일은 도메인 구매가 아니라 사이트의 역할을 한 문장으로 정하는 것입니다. 예를 들어 “개인 기록 저장소”와 “검색 방문자를 위한 정보 사이트”는 같은 블로그 형태라도 필요한 글 구조와 메뉴가 달라집니다.',
-          '검색 유입과 광고 심사를 고려한다면 방문자가 얻을 수 있는 정보가 분명해야 합니다. 운영자의 일상만 나열하기보다 특정 문제를 해결하는 글, 직접 해본 설정 과정, 실수와 해결 방법을 정리한 글이 더 안정적입니다.'
+          '대표 주소를 `https://emfls.com`으로 정하고, 가비아 registrar와 Cloudflare DNS의 역할을 분리합니다. nameserver 연결은 별도 도메인 글에서 확인합니다.',
+          'DNS 세부 검증은 [emfls.com Cloudflare DNS 설정 후 확인하는 순서](/articles/cloudflare-dns-setup-for-beginners/)를 참고합니다.'
         ],
       },
       {
-        heading: '대표 주소 정하기',
+        heading: '2단계 — 소스와 정적 사이트 준비',
         body: [
-          '도메인을 샀다면 `example.com`을 대표 주소로 쓸지, `www.example.com`을 대표 주소로 쓸지 정해야 합니다. 두 주소가 모두 열리더라도 검색 엔진과 방문자에게 보여줄 기준 주소는 하나로 통일하는 것이 좋습니다.',
-          'GitHub Pages에서는 루트 도메인과 www 주소를 모두 연결할 수 있지만, DNS 레코드와 저장소 설정이 서로 맞아야 합니다. 이 결정을 미루면 나중에 Search Console, 사이트맵, 애드센스 등록 주소가 어긋날 수 있습니다.'
+          'GitHub repository에서 Astro 소스를 관리하고 `npm run build`로 `dist/` 정적 출력을 만듭니다. 구성 요소의 책임은 [Astro + Cloudflare Pages 운영 구조](/articles/why-astro-for-static-content-site/)에서 설명합니다.',
+          '이 단계는 새 기능을 추가하는 과정이 아니라 source, build command, output directory가 실제 설정과 맞는지 확인하는 과정입니다.'
         ],
       },
       {
-        heading: '콘텐츠 범위 좁히기',
+        heading: '3단계 — 배포와 production 확인',
         body: [
-          '처음부터 모든 주제를 다루려 하면 빈 카테고리가 생기고 사이트의 성격이 흐려집니다. 초기에 3개 정도의 카테고리로 시작하고, 각 카테고리에 실제 글을 꾸준히 채울 수 있는지 확인하는 편이 낫습니다.',
-          '도메인, DNS, GitHub Pages, 정적 사이트 운영처럼 서로 연결되는 주제를 묶으면 내부 링크를 만들기 쉽고 방문자가 다음 글로 이동할 이유도 생깁니다.'
+          'Cloudflare Pages에 GitHub repository를 연결하고 build command `npm run build`, output directory `dist/`를 기준으로 배포합니다. [GitHub → Cloudflare Pages 배포 글](/articles/github-to-cloudflare-pages-deployment/)에서 pipeline을 확인합니다.',
+          'custom domain과 HTTPS가 연결된 뒤에는 [첫 production 배포 후 점검](/articles/after-first-deploy-checklist/) 순서로 실제 공개 상태를 확인합니다.'
+        ],
+      },
+      {
+        heading: '4단계 — 검색·신뢰·심사 준비',
+        body: [
+          'Search Console Domain property와 sitemap을 연결하고 [robots.txt·sitemap·noindex 역할](/articles/robots-and-sitemap-basics/)을 구분합니다.',
+          'About, Contact, Privacy, Terms, Editorial Policy, Disclaimer를 실제 운영 상태에 맞게 정리한 뒤 [AdSense 최종 체크리스트](/articles/adsense-review-final-checklist/)로 넘어갑니다.'
         ],
       },
     ],
@@ -86,7 +93,7 @@ export const articles: Article[] = [
   },
   {
     title: '가비아 도메인을 GitHub Pages에 연결할 때 확인할 DNS 기록',
-    slug: 'gabia-domain-dns-github-pages',
+    slug: 'legacy-gabia-domain-dns-source',
     description: '루트 도메인과 www 주소를 모두 쓰려면 A 레코드와 CNAME의 역할을 구분해야 합니다.',
     category: '도메인과 DNS',
     date: '2026-06-08',
@@ -117,65 +124,72 @@ export const articles: Article[] = [
     ],
   },
   {
-    title: '정적 사이트 생성기 Astro를 선택할 때의 기준',
+    title: 'Astro + Cloudflare Pages로 emfls.com을 운영하는 구조',
     slug: 'why-astro-for-static-content-site',
-    description: 'Astro는 콘텐츠 중심 사이트에서 빠른 HTML 출력, 컴포넌트 재사용, SEO 설정을 균형 있게 제공합니다.',
+    description: 'GitHub의 Astro 소스가 Cloudflare Pages를 거쳐 emfls.com으로 공개되는 실제 운영 구조를 파일 기준으로 설명합니다.',
     category: '사이트 제작',
     date: '2026-06-08',
     readingTime: '5분',
-    hero: '콘텐츠 사이트는 화려한 프레임워크보다 빠르고 읽기 쉬운 페이지 구조가 더 중요합니다.',
+    hero: '이 사이트의 배포 흐름은 GitHub 저장소, Astro 빌드, Cloudflare Pages, emfls.com으로 이어집니다.',
     sections: [
       {
-        heading: '정적 HTML을 기본으로 출력',
+        heading: '한 번의 배포가 지나가는 경로',
         body: [
-          'Astro는 기본적으로 정적 HTML을 생성합니다. 방문자가 페이지를 열 때 서버에서 매번 렌더링하지 않아도 되므로 GitHub Pages 같은 정적 호스팅과 잘 맞습니다.',
-          '필요한 경우에만 JavaScript를 붙일 수 있어 글 읽기 중심 사이트에서 불필요한 스크립트를 줄이기 쉽습니다.'
+          '현재 저장소의 소스는 GitHub에서 관리하고, `npm run build`가 Astro 정적 출력을 `dist/`에 만듭니다. Cloudflare Pages는 이 빌드 결과를 배포하고 `emfls.com`은 대표 공개 주소로 사용됩니다.',
+          'GitHub는 이 프로젝트에서 소스와 버전 관리 역할을 하며, 실제 Pages 배포는 Cloudflare Pages에 맡깁니다.'
         ],
       },
       {
-        heading: '컴포넌트로 반복 구조 관리',
+        heading: '파일별 책임을 나누기',
         body: [
-          '헤더, 푸터, 글 카드, SEO 메타 태그 같은 반복 구조를 컴포넌트로 관리하면 페이지가 늘어나도 유지보수가 쉽습니다.',
-          '순수 HTML 파일을 여러 개 직접 관리하면 작은 문구 수정도 모든 파일을 열어야 하지만, Astro에서는 공통 레이아웃을 한 번만 고치면 됩니다.'
+          '`src/pages/`는 공개 route, `src/data/articles.ts`는 글 데이터, `src/layouts/BaseLayout.astro`는 title·description·canonical·robots·AdSense head를 담당합니다. `astro.config.mjs`는 `https://emfls.com`과 XML sitemap을 선언합니다.',
+          '`public/robots.txt`, `public/ads.txt`, `public/_redirects`는 운영 파일로 빌드 결과에 복사됩니다.'
         ],
       },
       {
-        heading: '블로그보다 정보 사이트에 가깝게 구성하기',
+        heading: '이 구조의 선택과 한계',
         body: [
-          'Astro를 쓰더라도 사이트를 단순 일기형 블로그로만 만들 필요는 없습니다. 글 목록, 카테고리, 가이드형 상세 페이지, 정책 페이지를 함께 구성하면 정보 사이트에 가까운 구조를 만들 수 있습니다.',
-          '애드센스 심사를 고려한다면 첫 화면부터 사이트 주제와 주요 글이 명확히 보이도록 만드는 것이 좋습니다.'
+          '정적 출력은 글·정책 페이지에 공통 metadata를 적용하기 쉽습니다. 반면 관리자 화면이나 데이터베이스는 이 구조에 포함되지 않아 문의는 현재 이메일 링크로 처리합니다.',
+          '배포 문제는 Astro 소스, 빌드 결과, Cloudflare 배포, DNS와 대표 도메인을 분리해 확인해야 합니다.'
         ],
       },
     ],
   },
   {
-    title: '애드센스 심사 전 사이트에 필요한 기본 페이지',
+    title: 'emfls.com 신뢰 페이지를 구성하는 방법',
     slug: 'adsense-review-essential-pages',
-    description: '소개, 문의, 개인정보처리방침, 이용약관은 사이트의 신뢰도를 보여주는 기본 장치입니다.',
+    description: 'emfls.com의 About, Contact, Privacy, Terms, Editorial Policy, Disclaimer가 각각 어떤 정보를 제공하는지 실제 페이지 기준으로 설명합니다.',
     category: '운영 기준',
     date: '2026-06-08',
     readingTime: '6분',
     hero: '좋은 글만큼이나 사이트가 누가 운영하는지, 어떻게 연락할 수 있는지도 중요합니다.',
     sections: [
       {
-        heading: '소개 페이지',
+        heading: '신뢰 페이지의 역할',
         body: [
-          '소개 페이지는 운영자가 누구인지 장황하게 쓰는 곳이 아니라 사이트가 어떤 문제를 다루는지 설명하는 공간입니다. 방문자는 이 페이지를 통해 사이트의 주제와 신뢰도를 빠르게 판단합니다.',
-          '개인정보를 과하게 공개할 필요는 없지만, 운영 목적과 다루는 범위, 콘텐츠 작성 기준은 분명하게 적는 것이 좋습니다.'
+          'About, Contact, Privacy, Terms, Editorial Policy, Disclaimer는 특정 문서명을 갖추면 승인이 보장되는 장치가 아닙니다. 운영 주체와 연락 방법, 개인정보 처리, 콘텐츠 원칙을 방문자에게 공개하는 역할입니다.',
+          'emfls.com에는 이 여섯 route가 실제로 존재하며 footer와 관련 페이지에서 접근할 수 있습니다.'
         ],
       },
       {
-        heading: '문의 페이지',
+        heading: '페이지별 실제 정보',
         body: [
-          '문의 페이지는 광고주, 독자, 검색 엔진 검토자에게 사이트가 닫힌 공간이 아니라는 신호를 줍니다. 초기에는 이메일 링크만 있어도 충분합니다.',
-          '문의 폼을 붙인다면 개인정보 수집 항목과 보관 기준을 개인정보처리방침에 맞춰야 합니다. 단순하게 시작하는 것이 관리 측면에서 안전합니다.'
+          'About은 사이트 목적과 운영자 정보를, Contact는 `contact@emfls.com` 이메일을 제공합니다. Privacy는 이메일 문의 처리, Cloudflare Pages, GitHub, AdSense, Google Analytics 미사용을 설명합니다.',
+          'Terms는 콘텐츠 이용·외부 링크·금지 행위를, Editorial Policy는 작성·검토·광고 투명성을, Disclaimer는 정보 제공 범위와 책임 한계를 안내합니다.'
         ],
       },
       {
-        heading: '개인정보처리방침과 이용약관',
+        heading: 'Contact와 Privacy 점검',
         body: [
-          '분석 도구, 광고, 문의 이메일을 운영하면 방문자 데이터와 관련된 설명이 필요합니다. 실제로 사용하는 도구에 맞춰 정책 문서를 작성해야 하며, 쓰지 않는 서비스를 임의로 나열하는 것은 피해야 합니다.',
-          '이용약관이나 면책 고지는 콘텐츠의 성격을 설명하고, 외부 링크와 정보 활용 책임 범위를 안내하는 용도로 사용할 수 있습니다.'
+          '현재 Contact는 backend form이 아닌 mailto 링크 방식입니다. 실제 연락 경로를 유지하고, 문의 방식이 바뀌면 Privacy의 수집·보관 설명도 함께 갱신합니다.',
+          '이 글은 신뢰 페이지의 목적을 다루며 robots, sitemap, build, 전체 심사 준비는 [AdSense 최종 체크리스트](/articles/adsense-review-final-checklist/)의 범위입니다.'
+        ],
+      },
+      {
+        heading: 'footer에서 연결할 항목',
+        body: [
+          '각 신뢰 페이지가 footer와 About에서 실제로 접근되는지 확인하고, 시행일·최종 검토일·문의 주소가 현재 운영 상태와 맞는지 점검합니다.',
+          '법률상 승인 요건을 단정하지 않고, 방문자가 사이트 운영 방식을 확인할 수 있는 공개 정보로 관리합니다.'
         ],
       },
     ],
@@ -199,7 +213,7 @@ export const articles: Article[] = [
       {
         heading: 'URL은 짧고 의미 있게',
         body: [
-          '한글 URL도 가능하지만 운영과 공유 편의성을 고려하면 영어 소문자, 하이픈 조합의 짧은 slug가 다루기 쉽습니다. 예를 들어 `/articles/gabia-domain-dns-github-pages`처럼 만들 수 있습니다.',
+          '한글 URL도 가능하지만 운영과 공유 편의성을 고려하면 영어 소문자, 하이픈 조합의 짧은 slug가 다루기 쉽습니다. 대표 글은 `/articles/gabia-domain-cloudflare-dns/`처럼 의미가 드러나는 형태를 사용합니다.',
           '날짜 기반 URL은 뉴스나 일기에는 어울리지만, 오래 읽히는 가이드 글에는 주제 기반 URL이 더 적합한 경우가 많습니다.'
         ],
       },
@@ -213,33 +227,33 @@ export const articles: Article[] = [
     ],
   },
   {
-    title: 'robots.txt와 sitemap.xml의 역할 이해하기',
+    title: 'emfls.com의 robots.txt, sitemap.xml, noindex 역할 구분하기',
     slug: 'robots-and-sitemap-basics',
-    description: '검색 엔진 접근을 막거나 안내하는 파일을 구분하면 배포 후 색인 문제를 줄일 수 있습니다.',
-    category: 'SEO',
+    description: 'robots.txt의 크롤링 규칙, noindex의 색인 제외, XML sitemap의 URL 발견 역할을 emfls.com 구현으로 설명합니다.',
+    category: '검색·SEO',
     date: '2026-06-08',
     readingTime: '5분',
-    hero: '검색 엔진 최적화는 복잡한 기술보다 기본 파일을 정확히 제공하는 것에서 시작합니다.',
+    hero: 'robots.txt, noindex, sitemap은 비슷해 보이지만 검색 크롤링과 색인을 서로 다르게 다룹니다.',
     sections: [
       {
-        heading: 'robots.txt는 접근 안내',
+        heading: '세 파일의 역할을 나누기',
         body: [
-          '`robots.txt`는 검색 엔진 크롤러에게 어떤 경로를 허용하거나 제한할지 알려주는 파일입니다. 공개 정보 사이트라면 대부분의 페이지를 허용하는 단순한 설정으로 충분합니다.',
-          '중요한 점은 robots.txt가 보안 장치가 아니라는 것입니다. 숨겨야 하는 정보는 애초에 공개 저장소나 정적 사이트에 올리지 않아야 합니다.'
+          '`robots.txt`는 crawler가 요청할 수 있는 경로를 안내하는 파일이고, 페이지를 검색 결과에서 숨기는 장치가 아닙니다. Google 문서처럼 crawl 차단 URL도 주소 자체가 검색 결과에 나타날 수 있습니다.',
+          '`noindex`는 HTML을 crawl할 수 있을 때 검색 색인 제외를 지시합니다. sitemap은 검색엔진이 canonical URL을 발견하도록 돕지만 색인을 보장하지 않습니다.'
         ],
       },
       {
-        heading: 'sitemap.xml은 페이지 목록',
+        heading: 'emfls.com의 실제 구현',
         body: [
-          '`sitemap.xml`은 검색 엔진이 사이트의 주요 URL을 발견하도록 돕는 파일입니다. 글 수가 많지 않아도 사이트맵을 제공하면 Search Console에서 제출하고 상태를 확인하기 쉽습니다.',
-          'Astro는 sitemap 통합 기능을 통해 빌드 시 사이트맵을 만들 수 있습니다. 이때 사이트의 기준 URL이 정확해야 하므로 설정 파일의 `site` 값을 실제 도메인으로 맞춰야 합니다.'
+          '`public/robots.txt`는 전체 crawler를 허용하고 `https://emfls.com/sitemap-index.xml`을 안내합니다. `astro.config.mjs`의 sitemap filter는 태그와 HTML sitemap을 XML sitemap에서 제외합니다.',
+          '공통 `BaseLayout.astro`의 robots prop으로 태그·HTML sitemap·404는 `noindex,follow`, 대표 콘텐츠는 `index,follow`가 되도록 구분합니다.'
         ],
       },
       {
-        heading: 'Search Console과 함께 보기',
+        heading: '배포 후 확인 순서',
         body: [
-          'robots.txt와 sitemap.xml을 만들었다고 바로 검색 노출이 보장되는 것은 아닙니다. Google Search Console에 도메인을 등록하고 사이트맵 제출, 색인 상태, 페이지 오류를 함께 확인해야 합니다.',
-          '특히 새 도메인은 색인까지 시간이 걸릴 수 있으므로, 심사 직전에 급하게 만드는 것보다 먼저 공개해 안정적으로 접근되는지 확인하는 편이 좋습니다.'
+          '대표 URL에서 `/robots.txt`, `/sitemap-index.xml`, 대표 글의 robots meta를 차례로 확인합니다. 태그와 HTML sitemap이 XML sitemap에 들어가지 않는지도 build output에서 확인합니다.',
+          'robots.txt로 noindex 페이지를 동시에 막으면 crawler가 noindex 지시를 읽지 못할 수 있으므로 두 역할을 혼동하지 않습니다.'
         ],
       },
     ],
@@ -302,58 +316,33 @@ export const articles: Article[] = [
     ],
   },
   {
-    title: '정적 사이트에서 문의 기능을 단순하게 시작하는 방법',
-    slug: 'simple-contact-page-for-static-site',
-    description: '백엔드 없이도 이메일 링크와 명확한 안내만으로 초기 문의 페이지를 운영할 수 있습니다.',
-    category: '사이트 제작',
-    date: '2026-06-08',
-    readingTime: '4분',
-    hero: '문의 페이지는 복잡한 폼보다 실제로 답변 가능한 연락 경로가 먼저입니다.',
-    sections: [
-      {
-        heading: '이메일 링크로 시작하기',
-        body: [
-          'GitHub Pages는 서버를 실행하지 않기 때문에 자체 문의 폼을 바로 처리할 수 없습니다. 초기에는 `mailto:` 링크로 이메일 문의를 받는 방식이 가장 단순합니다.',
-          '문의 유형, 답변 가능 범위, 답변 소요 시간을 안내하면 불필요한 문의를 줄이고 사용자 기대치를 맞출 수 있습니다.'
-        ],
-      },
-      {
-        heading: '폼 서비스를 붙일 때의 주의점',
-        body: [
-          '외부 폼 서비스를 사용하면 이름, 이메일, 문의 내용 같은 개인정보가 수집됩니다. 이 경우 개인정보처리방침에 수집 항목, 목적, 보관 기준, 외부 서비스 이용 여부를 반영해야 합니다.',
-          '스팸 방지 기능과 알림 설정도 함께 봐야 합니다. 단순한 사이트라면 방문자가 늘어난 뒤 폼 도입을 검토해도 늦지 않습니다.'
-        ],
-      },
-    ],
-  },
-  {
     title: '첫 배포 후 확인해야 할 체크리스트',
     slug: 'after-first-deploy-checklist',
-    description: '배포가 끝난 뒤에는 HTTPS, 모바일 화면, 깨진 링크, 사이트맵, 검색 등록 상태를 확인해야 합니다.',
+    description: 'Cloudflare Pages 정적 배포 뒤 production URL, HTTP 상태, canonical, 대표 페이지, robots, sitemap, ads.txt와 내부 링크를 확인하는 QA 순서입니다.',
     category: '배포와 점검',
     date: '2026-06-08',
     readingTime: '6분',
     hero: '배포 버튼을 누른 순간 사이트 제작이 끝나는 것이 아니라 공개 점검이 시작됩니다.',
     sections: [
       {
-        heading: '주소와 보안 확인',
+        heading: 'Production URL과 응답 확인',
         body: [
           '대표 도메인으로 접속했을 때 HTTPS가 적용되는지 확인합니다. `http://`로 접속해도 `https://`로 이동하는지, www 주소와 루트 도메인이 의도한 방식으로 연결되는지도 봐야 합니다.',
-          'GitHub Pages의 사용자 지정 도메인 설정에서 DNS 확인과 HTTPS 적용 상태를 함께 확인합니다. 인증서 발급에는 시간이 걸릴 수 있습니다.'
+          '`curl -I https://emfls.com`과 `curl -I http://emfls.com`으로 status와 redirect를 확인합니다. 실제 DNS·인증서 결과는 명령 실행 결과로만 판단합니다.'
         ],
       },
       {
-        heading: '모바일과 링크 점검',
+        heading: '대표 페이지와 공개 파일 확인',
         body: [
-          '애드센스 심사와 실제 방문자 경험 모두 모바일 화면이 중요합니다. 메뉴가 눌리는지, 본문 폭이 지나치게 넓거나 좁지 않은지, 버튼과 링크가 겹치지 않는지 확인합니다.',
-          '홈, 글 목록, 필수 페이지, 404 페이지, 푸터 링크를 하나씩 눌러 깨진 경로가 없는지도 점검합니다.'
+          '홈, 글 목록, 대표 글, About, Privacy를 `https://emfls.com` 기준으로 열고 BaseLayout의 canonical을 확인합니다.',
+          '`/robots.txt`, `/sitemap-index.xml`, `/ads.txt`가 공개되는지 확인하고, 404 route와 푸터·관련 글 내부 링크도 점검합니다.'
         ],
       },
       {
-        heading: '검색 도구 등록',
+        heading: '빌드 결과와 색인 정책 확인',
         body: [
-          'Google Search Console에 도메인 속성을 등록하고 sitemap을 제출합니다. 색인 생성은 시간이 걸리므로 바로 노출되지 않는 것이 정상입니다.',
-          '사이트를 계속 수정할 예정이라도 핵심 페이지와 글이 안정적으로 공개된 상태에서 검색 엔진이 접근할 수 있게 두는 것이 좋습니다.'
+          '`npm run build`가 성공하고 `dist/`에 실제 페이지가 생성되는지 확인합니다. 이 프로젝트의 tag/archive 등 유틸리티 페이지는 noindex 정책 대상입니다.',
+          '대표 canonical 페이지와 redirect source를 구분하고, 배포 후 점검은 AdSense 신청 절차나 Search Console 등록 절차와 섞지 않습니다.'
         ],
       },
     ],
@@ -370,7 +359,7 @@ export const articles: Article[] = [
       {
         heading: '빈 페이지와 공사중 문구',
         body: [
-          '“준비 중”, “테스트”, “내용 추가 예정” 같은 문구가 남아 있으면 사이트가 아직 공개할 준비가 되지 않은 것처럼 보입니다. 심사 전에 이런 페이지는 숨기거나 실제 콘텐츠로 채워야 합니다.',
+          '임시 문구와 테스트용 안내가 남아 있으면 사이트가 아직 공개할 준비가 되지 않은 것처럼 보입니다. 심사 전에 이런 페이지는 숨기거나 실제 콘텐츠로 채워야 합니다.',
           '카테고리 메뉴를 만들었다면 각 카테고리에 글이 있어야 합니다. 빈 카테고리는 메뉴에서 빼고 나중에 글이 쌓였을 때 추가하는 편이 좋습니다.'
         ],
       },
@@ -391,198 +380,225 @@ export const articles: Article[] = [
     ],
   },
   {
-    title: 'Cloudflare DNS 설정을 처음 할 때 확인할 순서',
+    title: 'emfls.com Cloudflare DNS 설정 후 확인하는 순서',
     slug: 'cloudflare-dns-setup-for-beginners',
-    description: '가비아 같은 등록기관에서 Cloudflare로 네임서버를 옮긴 뒤 DNS를 어디서 관리해야 하는지 정리합니다.',
+    description: '개인 도메인을 Cloudflare DNS와 Pages에 연결한 뒤 nameserver, record, HTTPS와 대표 주소를 검증하는 순서입니다.',
     category: '도메인과 DNS',
     date: '2026-06-09',
     readingTime: '8분',
-    hero: 'Cloudflare를 쓰기 시작하면 DNS의 기준 화면이 도메인 구매처가 아니라 Cloudflare로 바뀝니다.',
+    hero: 'DNS 문제는 값을 많이 바꾸는 것보다 현재 권한 있는 DNS와 실제 응답을 분리해 확인하는 데서 시작합니다.',
     sections: [
       {
-        heading: '네임서버 변경과 DNS 레코드 수정은 다르다',
+        heading: '1. 변경 전에 권한을 확인한다',
         body: [
-          '도메인 등록기관에서 A 레코드나 CNAME을 수정하는 것과 네임서버를 Cloudflare로 바꾸는 것은 다른 작업입니다. 네임서버를 Cloudflare로 바꾸면 이후 실제 DNS 응답은 Cloudflare DNS 설정을 기준으로 나갑니다.',
-          '초보자가 자주 헷갈리는 지점은 가비아 DNS 화면에 예전 레코드가 보인다는 이유로 그 화면을 계속 수정하는 것입니다. Cloudflare 활성화가 끝났다면 기준은 Cloudflare의 DNS 메뉴입니다.',
+          '가비아는 도메인 등록기관이고 Cloudflare는 이 구성에서 DNS를 관리하는 제공자입니다. 현재 nameserver가 어느 제공자를 가리키는지 먼저 확인합니다.',
+          '저장소에는 emfls.com의 실제 A/CNAME 값이 기록되어 있지 않으므로 특정 record 값을 사실처럼 제시하지 않습니다.',
         ],
       },
       {
-        heading: 'Pages 프로젝트와 연결하기',
+        heading: '2. Pages custom domain을 연결한다',
         body: [
-          'Cloudflare Pages에서 커스텀 도메인을 추가하면 필요한 DNS 레코드를 자동으로 만들거나 기존 레코드 충돌을 알려줍니다. 이때 예전 GitHub Pages A 레코드나 `www -> emfls.github.io` CNAME이 남아 있으면 충돌이 생길 수 있습니다.',
-          '루트 도메인과 www 주소를 모두 쓸 계획이라면 Cloudflare Pages의 Custom domains에서 각각 추가하고, 실제 접속이 어느 주소로 정리되는지 확인합니다.',
+          'Cloudflare Pages의 Custom domains에서 `emfls.com`을 추가한 뒤 연결 상태를 확인합니다. 저장소의 대표 canonical은 `https://emfls.com`입니다.',
+          '이전 GitHub Pages용 record가 남아 있다면 현재 Pages 연결과 충돌하는지 확인합니다. 계정 상태와 실제 DNS 값은 저장소만으로 확정할 수 없습니다.',
         ],
       },
       {
-        heading: 'Proxy 상태를 이해하기',
+        heading: '3. 실제 응답을 비교한다',
         body: [
-          'Cloudflare DNS의 주황색 구름은 트래픽이 Cloudflare 프록시를 거친다는 뜻입니다. Pages 연결에서는 Cloudflare가 자동으로 적절한 설정을 만들기 때문에 처음에는 임의로 켜고 끄기보다 안내를 따르는 것이 좋습니다.',
-          'DNS만 확인해야 하는 특수 상황에서는 프록시를 끄는 경우도 있지만, 일반적인 정적 사이트 운영에서는 HTTPS, 캐시, 보안 기능을 함께 쓰기 위해 프록시 상태를 유지하는 경우가 많습니다.',
+          '브라우저에서 `https://emfls.com`과 필요하다면 `https://www.emfls.com`을 열어 대표 주소 동작을 확인합니다.',
+          '터미널에서는 `dig emfls.com`과 `dig www.emfls.com`으로 DNS 응답을 확인할 수 있습니다. 이 명령은 DNS를 변경하지 않습니다.',
         ],
       },
       {
-        heading: '반영 확인 방법',
+        heading: '4. HTTPS와 배포 결과를 확인한다',
         body: [
-          'Cloudflare Overview에서 도메인이 Active 상태인지 확인하고, Pages 프로젝트에서 배포가 성공했는지 봅니다. 그 다음 `https://emfls.com`, `https://www.emfls.com`, `https://emfls.com/sitemap-index.xml`을 차례대로 열어봅니다.',
-          'DNS 전파 중에는 일부 네트워크에서 예전 주소가 보일 수 있습니다. 브라우저 캐시를 지우거나 다른 네트워크에서 확인하되, 변경 직후에 여러 설정을 반복 수정하지 않는 것이 중요합니다.',
+          'Cloudflare Pages 배포가 성공한 뒤 `https://emfls.com`, `/robots.txt`, `/ads.txt`, `/sitemap-index.xml`을 확인합니다. 저장소의 Phase 2B build 결과는 51페이지였습니다.',
+          '문제가 남으면 nameserver, DNS record, Pages custom domain, 인증서, 최신 배포를 순서대로 분리해 확인합니다.',
         ],
       },
     ],
   },
   {
-    title: 'Google Search Console에 새 도메인을 등록하는 방법',
+    title: 'emfls.com을 Google Search Console에 등록하는 절차',
     slug: 'google-search-console-domain-property-guide',
-    description: '도메인 속성과 URL 접두어 속성의 차이, 사이트맵 제출, 색인 확인 순서를 설명합니다.',
-    category: 'SEO',
+    description: 'Domain property를 DNS로 확인한 뒤 sitemap 제출과 URL Inspection까지 이어가는 emfls.com 등록 절차입니다.',
+    category: '검색·SEO',
     date: '2026-06-09',
     readingTime: '8분',
-    hero: 'Search Console은 검색 노출을 보장하는 도구가 아니라 Google이 사이트를 어떻게 보는지 확인하는 도구입니다.',
+    hero: 'Search Console 등록은 소유권 확인, 사이트맵 제출, 개별 URL 점검을 분리해 진행해야 합니다.',
     sections: [
       {
-        heading: '도메인 속성과 URL 접두어 속성',
+        heading: '1. 속성 유형을 고른다',
         body: [
-          'Search Console에서 도메인 속성은 `emfls.com` 전체를 기준으로 루트 도메인과 하위 도메인을 함께 다룹니다. 반면 URL 접두어 속성은 `https://emfls.com/`처럼 특정 프로토콜과 주소 조합을 기준으로 합니다.',
-          'Cloudflare로 DNS를 관리한다면 도메인 속성을 등록하고 DNS TXT 레코드로 소유권을 확인하는 방식이 깔끔합니다. 다만 이미 AdSense 확인 코드를 넣은 상태라도 Search Console 소유권 확인은 별도로 처리될 수 있습니다.',
+          'Domain property는 `emfls.com`처럼 protocol과 path 없이 입력하며 http/https와 하위 도메인을 포함합니다. URL-prefix property는 `https://emfls.com/`처럼 protocol을 포함하고 그 prefix에 해당하는 URL만 다룹니다.',
+          '이 프로젝트의 대표 주소는 `https://emfls.com`이고 Cloudflare를 DNS provider로 사용하므로 전체 도메인 범위를 보려면 Domain property가 자연스럽습니다. 실제 계정 속성은 저장소에 없습니다.',
         ],
       },
       {
-        heading: '사이트맵 제출',
+        heading: '2. DNS로 소유권을 확인한다',
         body: [
-          'Astro sitemap 통합을 사용하면 `sitemap-index.xml`과 하위 사이트맵이 생성됩니다. Search Console에는 사람이 보는 `/site-map/` 페이지가 아니라 `/sitemap-index.xml`을 제출해야 합니다.',
-          '제출 직후 발견된 페이지 수가 0으로 보여도 바로 실패라고 판단하지 않습니다. Google이 사이트맵을 다시 읽고 색인 후보 URL을 처리하는 데 시간이 걸릴 수 있습니다.',
+          'Search Console이 제공한 TXT verification record를 Cloudflare DNS의 권한 있는 zone에 추가한 뒤 Verify를 누릅니다. token은 계정마다 다르므로 실제 값을 이 글이나 저장소에 적지 않습니다. 예시는 `google-site-verification=예시값`처럼 구분합니다.',
+          '소유권 확인 완료는 Google에 사이트를 관리할 권한을 증명한 상태이지 모든 페이지의 색인을 의미하지 않습니다.',
         ],
       },
       {
-        heading: 'URL 검사로 먼저 확인할 페이지',
+        heading: '3. sitemap과 URL을 따로 점검한다',
         body: [
-          '홈, 글 목록, 대표 글 2~3개, 개인정보처리방침, 문의 페이지를 URL 검사에 넣어 접근 가능 여부를 확인합니다. 색인 요청은 남발하기보다 중요한 페이지만 우선 진행하는 편이 좋습니다.',
-          '페이지가 `크롤링됨 - 현재 색인이 생성되지 않음`으로 표시될 수 있습니다. 새 사이트에서는 흔한 상태이며, 콘텐츠 품질과 내부 링크를 보강하면서 기다려야 합니다.',
+          '이 저장소의 XML sitemap entry point는 `https://emfls.com/sitemap-index.xml`입니다. 사람이 읽는 `/site-map/`과 구분해 Search Console에 제출합니다. sitemap은 URL 발견을 돕지만 색인을 보장하지 않습니다.',
+          '그 다음 URL Inspection에서 홈, 글 목록, 대표 글의 실제 URL과 canonical, 접근 가능 여부를 확인합니다. 저장소에는 실제 계정의 색인 상태나 마지막 crawl 날짜가 없습니다.',
         ],
       },
       {
-        heading: 'AdSense와 함께 볼 때의 기준',
+        heading: '4. 결과를 다르게 해석한다',
         body: [
-          'AdSense 심사 전에는 Search Console에서 모든 페이지가 색인되어 있어야만 하는 것은 아닙니다. 하지만 사이트맵이 읽히고, 주요 페이지가 접근 가능하며, robots.txt가 막고 있지 않은 상태가 되어야 합니다.',
-          'Search Console 오류가 있으면 AdSense 심사에서도 사이트가 미완성처럼 보일 수 있으므로, HTML 사이트맵 제출 오류처럼 명확한 실수는 먼저 정리합니다.',
+          '소유권 확인, sitemap 처리, 개별 URL 색인은 서로 다른 상태입니다. 하나가 완료되었다고 나머지가 자동 완료되었다고 판단하지 않습니다.',
+          '현재 프로젝트에서는 `robots.txt`가 공개 크롤링을 허용하고 대표 페이지 canonical은 `https://emfls.com`을 기준으로 합니다. 최종 판단은 실제 Search Console 계정 화면에서 합니다.',
         ],
       },
     ],
   },
   {
-    title: 'AdSense 심사 전 최종 체크리스트',
+    title: 'AdSense 심사 전 최종 체크리스트: emfls.com에서 확인한 항목',
     slug: 'adsense-review-final-checklist',
-    description: '사이트 공개 상태, 필수 페이지, 콘텐츠 깊이, 정책 위험, 검색 접근성을 심사 전 한 번에 점검합니다.',
+    description: 'emfls.com 저장소에서 확인한 공개 상태, 콘텐츠 구조, 크롤링, AdSense 연결과 신뢰 페이지 점검 항목입니다.',
     category: '운영 기준',
     date: '2026-06-09',
     readingTime: '9분',
-    hero: 'AdSense 심사 전에는 광고 코드보다 사이트가 독립적인 정보 사이트로 보이는지가 더 중요합니다.',
+    hero: '심사 요청 전에는 광고 코드보다 사이트 전체가 공개 상태이고 독자가 운영자와 콘텐츠 목적을 이해할 수 있는지 확인합니다.',
     sections: [
       {
-        heading: '사이트 접근성 확인',
+        heading: '현재 프로젝트의 공개 상태',
         body: [
-          '대표 도메인 `https://emfls.com`으로 접속했을 때 홈이 열리고, 주요 메뉴와 푸터 링크가 모두 작동해야 합니다. `pages.dev` 임시 주소가 아니라 실제 신청 도메인 기준으로 확인하는 것이 중요합니다.',
-          'HTTPS 인증서가 활성화되어 있고, 모바일 화면에서 메뉴와 본문이 겹치지 않아야 합니다. 심사자는 데스크톱만 보는 것이 아니므로 작은 화면에서도 글을 읽을 수 있어야 합니다.',
+          '현재 저장소는 Astro 정적 출력이며 `astro.config.mjs`의 site 값은 `https://emfls.com`입니다. 소스는 GitHub에서 관리하고 실제 서비스 배포는 Cloudflare Pages를 사용합니다.',
+          'Phase 1에서는 공개 글의 스크린샷 플레이스홀더를 제거하고 Privacy를 실제 운영환경에 맞췄으며 `public/ads.txt`를 추가했습니다. Phase 2B에서는 대표 글 12개와 5개 클러스터를 구성했습니다.',
         ],
       },
       {
-        heading: '필수 신뢰 페이지',
+        heading: '심사 전에 확인할 증거',
         body: [
-          '소개, 문의, 개인정보처리방침, 이용약관, 면책 고지, 편집 정책, 콘텐츠 작성 기준은 사이트가 누가 어떤 기준으로 운영되는지 보여주는 장치입니다. 이 페이지들이 푸터나 사이트맵에서 접근 가능해야 합니다.',
-          '문의 이메일은 실제 수신 가능한 주소여야 하며, 개인정보처리방침은 문의 이메일, 광고 스크립트, 외부 서비스 사용 가능성을 실제 운영 방식에 맞게 설명해야 합니다.',
+          'About에는 운영 목적·작성자 역할·문의 주소가 있고 Contact에는 `contact@emfls.com`이 있습니다. Privacy, Terms, Editorial Policy, Disclaimer, Content Methodology는 푸터에서 접근할 수 있습니다.',
+          '실제 공개 도메인에서 홈·글 목록·대표 글·정책 링크를 열고 임시 페이지나 잘못된 주소가 남아 있지 않은지 확인합니다. 이메일 수신 여부는 저장소만으로 확정할 수 없습니다.',
         ],
       },
       {
-        heading: '콘텐츠 품질 확인',
+        heading: '콘텐츠와 색인 구조',
         body: [
-          '짧은 설명만 있는 글은 낮은 가치 콘텐츠로 보일 수 있습니다. 각 글에는 실제 예시, 흔한 실수, 점검표, FAQ, 공식 출처, 관련 글 링크가 포함되어야 합니다.',
-          'AI 생성 흔적을 줄이려면 일반론을 반복하기보다 실제 사이트 운영 중 겪는 상황을 구체적으로 설명해야 합니다. 예를 들어 Cloudflare 네임서버 변경, Search Console 사이트맵 오류, AdSense 확인 코드 배포 지연 같은 맥락이 도움이 됩니다.',
+          '현재 18개 글은 Phase 2B에서 고유 검색 의도 중심의 대표 12개로 압축했고, 6개 기존 article URL은 `public/_redirects`에서 대표 URL로 연결했습니다. 태그 archive는 `noindex,follow`입니다.',
+          'XML sitemap은 대표 canonical 페이지 중심으로 생성되며 HTML sitemap과 404는 noindex입니다. 대표 글의 고유한 설명과 실제 운영 근거는 별도로 읽어야 합니다.',
         ],
       },
       {
-        heading: '정책 위험 제거',
+        heading: '요청 직전 점검 순서',
         body: [
-          '광고 클릭 유도 문구, 트래픽 구매, 자동 새로고침, 저작권 침해 자료, 불법 다운로드, 성인·도박·혐오 콘텐츠는 심사 전 반드시 제거해야 합니다.',
-          '광고가 들어갈 자리도 콘텐츠와 혼동되면 안 됩니다. 승인 전에는 광고 배치보다 콘텐츠와 신뢰 페이지를 먼저 완성하는 것이 안전합니다.',
+          '1) 대표 도메인 접속, 2) 홈에서 글·정책 이동, 3) 대표 글의 title·description·canonical 확인, 4) robots와 sitemap 확인, 5) ads.txt와 공통 head의 AdSense 코드 확인, 6) redirect 대상 URL 확인 순서로 점검합니다.',
+          'Google은 고유하고 관련성 있는 콘텐츠, 명확한 탐색, 정책 준수와 접근 가능한 사이트를 준비 요소로 안내합니다. 이 목록은 승인 보장이나 공식 글자 수 기준이 아닙니다.',
         ],
       },
     ],
   },
   {
-    title: 'GitHub Pages에 개인 도메인을 연결하는 기본 흐름',
-    slug: 'connect-custom-domain-to-github-pages',
-    description: 'GitHub Pages에서 루트 도메인과 www 주소를 연결할 때 필요한 CNAME, A 레코드, HTTPS 확인 흐름을 설명합니다.',
+    title: 'GitHub 저장소에서 Cloudflare Pages로 emfls.com을 배포하는 방법',
+    slug: 'github-to-cloudflare-pages-deployment',
+    description: 'GitHub의 Astro 소스를 Cloudflare Pages에 연결하고 npm run build와 dist/ 결과를 emfls.com에 배포하는 흐름입니다.',
     category: 'GitHub Pages',
     date: '2026-06-09',
     readingTime: '8분',
-    hero: '개인 도메인 연결은 GitHub 설정과 DNS 설정이 서로 맞아야 완성됩니다.',
+    hero: 'GitHub는 소스를 관리하고 Astro는 빌드하며 Cloudflare Pages가 정적 결과를 emfls.com에 배포합니다.',
     sections: [
       {
-        heading: 'GitHub Pages의 사용자 지정 도메인',
+        heading: 'GitHub 저장소와 Astro 프로젝트 확인',
         body: [
-          'GitHub Pages 저장소 설정에서 Custom domain에 대표 도메인을 입력하면 저장소에 CNAME 파일이 생기거나 유지됩니다. 이 파일은 GitHub Pages가 어떤 도메인으로 사이트를 제공할지 기억하는 역할을 합니다.',
-          '루트 도메인과 www 주소를 모두 사용할 경우 DNS 레코드도 함께 맞춰야 합니다. 루트 도메인은 GitHub가 안내하는 A 레코드, www는 보통 GitHub Pages 기본 도메인을 가리키는 CNAME을 사용합니다.',
+          '이 저장소는 Astro 프로젝트이며 `package.json`에 공식 production build 명령으로 `npm run build`가 정의되어 있습니다. 소스와 버전 이력은 GitHub repository에서 관리합니다.',
+          '빌드 결과는 `astro.config.mjs`의 static 설정에 따라 `dist/`에 생성됩니다. Cloudflare Pages에 연결하기 전에 저장소에서 이 명령과 출력 경로를 먼저 확인합니다.',
         ],
       },
       {
-        heading: 'Cloudflare Pages와의 차이',
+        heading: 'Cloudflare Pages 연결 흐름',
         body: [
-          'Cloudflare Pages를 사용할 경우 GitHub Pages용 CNAME 파일이나 GitHub Actions 배포 워크플로가 필요하지 않을 수 있습니다. GitHub는 코드 저장소 역할을 하고, Cloudflare가 빌드와 배포를 담당합니다.',
-          '이 사이트도 처음에는 GitHub Pages 기준으로 준비했지만, 최종 배포는 Cloudflare Pages로 정리했습니다. 그래서 CNAME 파일을 제거하고 Cloudflare Custom domains를 기준으로 도메인을 연결했습니다.',
+          '공식 연결 흐름은 Cloudflare Pages에서 GitHub repository를 선택하고 production branch, build command, output directory를 지정한 뒤 배포하는 방식입니다. 이 프로젝트의 값은 production branch는 실제 연결 설정을 저장소에서 확인할 수 없으므로 단정하지 않고, build command는 `npm run build`, output directory는 `dist/`입니다.',
+          '배포가 완료되면 Cloudflare Pages의 custom domain 기능에서 `emfls.com`을 연결합니다. Dashboard의 실제 상태나 branch 값은 저장소 파일만으로 확인할 수 없습니다.',
         ],
       },
       {
-        heading: 'HTTPS 확인',
+        heading: 'GitHub Pages와 역할 구분',
         body: [
-          'GitHub Pages에서는 사용자 지정 도메인을 연결한 뒤 HTTPS 인증서 발급까지 시간이 걸릴 수 있습니다. 설정 화면의 Enforce HTTPS 옵션이 활성화되는지 확인합니다.',
-          'Cloudflare Pages에서는 Cloudflare가 인증서를 발급하고 프록시/SSL 설정을 관리합니다. 어느 방식을 쓰든 최종 확인은 브라우저에서 실제 대표 도메인으로 접속해 자물쇠 표시와 리디렉션을 보는 것입니다.',
+          '현재 emfls.com의 구조에서 GitHub는 source와 version management, Astro는 static site build, Cloudflare Pages는 production hosting/deployment를 담당합니다. GitHub Pages hosting을 사용한다고 해석하면 안 됩니다.',
+          '배포 후 실제 동작 검증은 별도 QA 절차입니다. 상세 확인 항목은 [첫 production 배포 후 점검 글](/articles/after-first-deploy-checklist/)에서 다룹니다.',
         ],
       },
       {
-        heading: '언제 GitHub Pages를 선택할까',
+        heading: '배포 전후의 최소 확인',
         body: [
-          '간단한 문서 사이트이고 도메인 관리가 복잡하지 않다면 GitHub Pages만으로 충분합니다. 반면 도메인, DNS, 캐시, 보안 설정을 한 화면에서 다루고 싶다면 Cloudflare Pages가 더 편할 수 있습니다.',
-          '중요한 것은 심사 도메인과 실제 공개 도메인이 일치하는 것입니다. `emfls.github.io`가 아니라 `emfls.com`으로 심사받을 계획이라면 모든 SEO와 정책 링크도 `emfls.com` 기준이어야 합니다.',
+          '먼저 로컬 또는 CI에서 `npm run build`가 성공하고 `dist/`가 생성되는지 확인합니다. 이후 Cloudflare Pages 배포 결과와 `https://emfls.com` 접근을 별도로 확인합니다.',
+          '이 글은 pipeline 연결을 설명하며, DNS nameserver와 상세 production QA는 각각 관련 글로 분리합니다.',
         ],
       },
     ],
   },
   {
-    title: 'HTTPS 적용이 제대로 되었는지 확인하는 방법',
+    title: 'Cloudflare Pages 개인 도메인의 HTTPS를 진단하는 순서',
     slug: 'how-to-check-https-on-custom-domain',
-    description: '커스텀 도메인 연결 후 HTTPS 인증서, http 리디렉션, www 주소 처리 상태를 점검하는 방법입니다.',
-    category: '배포와 점검',
+    description: 'Cloudflare Pages에 연결한 emfls.com을 DNS, 인증서, HTTP redirect, canonical 순서로 확인하는 진단 가이드입니다.',
+    category: 'HTTPS·사이트 운영',
     date: '2026-06-09',
     readingTime: '7분',
-    hero: 'HTTPS는 단순한 자물쇠 표시가 아니라 검색, 광고 심사, 사용자 신뢰의 기본 조건입니다.',
+    hero: '사이트가 열려도 HTTPS가 올바른지는 DNS, 인증서, redirect, canonical을 나누어 확인해야 합니다.',
     sections: [
       {
-        heading: '브라우저에서 먼저 확인하기',
+        heading: '증상부터 분리하기',
         body: [
-          '`https://emfls.com`을 열었을 때 경고 없이 사이트가 보이고 주소창에 보안 연결 표시가 있어야 합니다. `http://emfls.com`으로 접속했을 때도 HTTPS로 이동하는지 확인합니다.',
-          'www 주소를 함께 운영한다면 `https://www.emfls.com`도 확인합니다. 두 주소가 모두 같은 콘텐츠를 보여준다면 canonical URL과 대표 주소 정책이 일관적인지 함께 봅니다.',
+          '`https://emfls.com`이 열리는 것과 HTTP 요청이 HTTPS로 이동하는 것은 별도 결과입니다. `curl -I https://emfls.com`과 `curl -I http://emfls.com`으로 response header를 확인할 수 있습니다.',
+          '이 저장소에서 확인된 대표 canonical은 `https://emfls.com`입니다. `www`의 실제 redirect 상태와 인증서 상태는 저장소에 기록되어 있지 않으므로 라이브 응답으로 확인해야 합니다.',
         ],
       },
       {
-        heading: 'Cloudflare SSL/TLS 설정',
+        heading: 'DNS와 Pages custom domain',
         body: [
-          'Cloudflare를 사용하는 경우 SSL/TLS 모드가 사이트 구성과 맞아야 합니다. Pages 프로젝트는 Cloudflare가 배포와 인증서를 관리하므로 일반적인 정적 사이트에서는 자동으로 처리되는 부분이 많습니다.',
-          '다만 도메인을 막 연결한 직후에는 인증서 발급과 DNS 전파가 끝나지 않았을 수 있습니다. 이때는 설정을 계속 바꾸기보다 상태가 Active인지, Pages 커스텀 도메인이 검증되었는지 확인합니다.',
+          'Cloudflare 공식 절차에서 Pages 프로젝트의 Custom domains에 도메인을 추가하고, apex domain은 Cloudflare zone과 nameserver 설정을 함께 확인합니다. 이 프로젝트의 실제 record 값은 저장소에 없습니다.',
+          'DNS가 다른 대상으로 향하면 Pages가 정상이어도 도메인 접속이 실패할 수 있습니다. 먼저 DNS 응답과 Pages custom domain 상태를 따로 확인합니다.',
         ],
       },
       {
-        heading: 'Search Console과 AdSense에서 보는 관점',
+        heading: '인증서와 redirect',
         body: [
-          'Search Console 속성, 사이트맵 URL, AdSense 신청 도메인은 모두 HTTPS 대표 도메인을 기준으로 맞추는 것이 좋습니다. 도메인 속성을 쓰더라도 실제 사이트맵 주소는 HTTPS로 제출해야 합니다.',
-          'AdSense 확인 코드가 들어갔는데 확인이 실패한다면 HTTPS 문제가 아니라 최신 배포가 아직 반영되지 않은 경우도 있습니다. 배포 로그와 실제 HTML 소스를 함께 확인합니다.',
+          'Cloudflare Pages custom domain 상태와 SSL/TLS 인증서 발급 상태를 확인한 뒤 HTTP가 HTTPS로 이동하는지 봅니다. 인증서 발급과 redirect 정책은 같은 검사가 아닙니다.',
+          'HTTPS 응답이 정상이면 HTML의 canonical이 `https://emfls.com`을 가리키는지 확인합니다. HTTPS는 AdSense 승인을 보장하는 장치가 아니라 정상 접근성과 주소 일관성을 위한 기반입니다.',
         ],
       },
       {
-        heading: '혼합 콘텐츠 주의',
+        heading: '진단 순서',
         body: [
-          '페이지는 HTTPS인데 이미지나 스크립트를 HTTP로 불러오면 혼합 콘텐츠 경고가 생길 수 있습니다. 외부 이미지, 폰트, 스크립트 주소는 가능하면 HTTPS를 사용합니다.',
-          '정적 사이트에서는 이런 문제가 적은 편이지만, 외부 위젯이나 광고 스크립트를 추가할 때는 브라우저 콘솔 경고를 확인하는 습관이 필요합니다.',
+          '① DNS 응답, ② Pages custom domain, ③ 인증서 상태, ④ HTTP→HTTPS response, ⑤ apex/www 대표 주소, ⑥ canonical, ⑦ 브라우저와 `curl` 결과 순서로 좁혀갑니다.',
+          '이 순서는 DNS를 변경하지 않는 읽기 전용 점검입니다. 한 단계에서 문제가 확인되면 다음 값을 임의로 바꾸기 전에 결과를 기록합니다.',
         ],
       },
+    ],
+  },
+  {
+    title: '가비아 도메인을 Cloudflare DNS에 연결하는 흐름',
+    slug: 'gabia-domain-cloudflare-dns',
+    description: '가비아에서 구매한 emfls.com 도메인을 Cloudflare DNS와 Pages custom domain으로 연결하는 nameserver 중심 절차입니다.',
+    category: '도메인·DNS',
+    date: '2026-06-09',
+    readingTime: '7분',
+    hero: '등록기관, 권한 있는 DNS, Pages custom domain은 서로 다른 역할을 순서대로 연결해야 합니다.',
+    sections: [
+      { heading: '가비아와 Cloudflare의 역할', body: [
+        '가비아는 emfls.com을 구매하고 유지하는 domain registrar입니다. Cloudflare는 이 운영 구조에서 authoritative DNS와 Pages custom domain을 담당합니다.',
+        'GitHub는 source repository, Astro는 site generator입니다. 따라서 가비아에서 구매한 도메인이 GitHub Pages에서 직접 호스팅된다고 설명하지 않습니다.',
+      ] },
+      { heading: 'nameserver를 연결하는 순서', body: [
+        'Cloudflare에서 해당 zone에 할당한 nameserver를 확인한 뒤, 가비아 등록기관 화면에서 기존 nameserver를 Cloudflare가 안내한 값으로 변경합니다. 실제 emfls.com nameserver 값은 저장소에 없으므로 이 글에 적지 않습니다.',
+        '변경 후에는 Cloudflare에서 zone 활성 상태를 확인하고, Pages custom domain에 `emfls.com`을 연결합니다. 이 과정은 개별 A/CNAME 값을 나열하는 작업과 구분해야 합니다.',
+      ] },
+      { heading: 'Cloudflare DNS와 Pages 연결', body: [
+        'nameserver가 Cloudflare를 가리키면 이후 DNS 기준은 가비아의 개별 레코드 화면이 아니라 Cloudflare DNS zone입니다. Pages custom domain 연결은 그 다음 단계입니다.',
+        '현재 사이트의 대표 주소는 `https://emfls.com`이며 실제 record 값과 Dashboard 상태는 저장소만으로 확정할 수 없습니다. 상세 record 확인은 Cloudflare DNS 점검 글로 분리합니다.',
+      ] },
+      { heading: '연결 후 확인할 경계', body: [
+        '등록기관 변경, nameserver 전파, Cloudflare zone 활성화, Pages custom domain 연결은 서로 다른 상태입니다. 한 단계가 완료되었다고 다음 단계까지 완료되었다고 가정하지 않습니다.',
+        '최종 production URL과 HTTPS·redirect 검증은 [Cloudflare Pages 개인 도메인의 HTTPS 진단 글](/articles/how-to-check-https-on-custom-domain/)에서 확인합니다.',
+      ] },
     ],
   },
   {
@@ -626,43 +642,45 @@ export const articles: Article[] = [
   },
 ];
 
-export const categories = Array.from(new Set(articles.map((article) => article.category)));
+const representativeSlugs = new Set([
+  'personal-domain-website-start-checklist',
+  'gabia-domain-cloudflare-dns',
+  'why-astro-for-static-content-site',
+  'adsense-review-essential-pages',
+  'robots-and-sitemap-basics',
+  'after-first-deploy-checklist',
+  'cloudflare-dns-setup-for-beginners',
+  'google-search-console-domain-property-guide',
+  'adsense-review-final-checklist',
+  'github-to-cloudflare-pages-deployment',
+  'how-to-check-https-on-custom-domain',
+]);
+
+export const articles = sourceArticles.filter((article) => representativeSlugs.has(article.slug));
 
 export const categoryMeta: Record<string, { slug: string; description: string }> = {
-  '시작 준비': {
-    slug: 'getting-started',
-    description: '개인 도메인과 웹사이트 주제를 정하기 전에 확인할 기본 기준입니다.',
-  },
-  'GitHub Pages': {
-    slug: 'github-pages',
-    description: 'GitHub Pages의 장단점, 개인 도메인 연결, 정적 호스팅 운영 흐름을 다룹니다.',
-  },
-  '도메인과 DNS': {
-    slug: 'domains-dns',
-    description: '가비아, Cloudflare, 루트 도메인, www 주소, DNS 전파와 레코드 설정을 설명합니다.',
-  },
-  '사이트 제작': {
-    slug: 'site-building',
-    description: 'Astro, 정적 사이트 생성, 404, 문의 페이지, 도구 선택 기준을 정리합니다.',
-  },
-  '운영 기준': {
-    slug: 'operations-policy',
-    description: 'AdSense 심사 준비, 신뢰 페이지, 개인정보처리방침, 미완성 신호 점검을 다룹니다.',
-  },
-  SEO: {
-    slug: 'seo',
-    description: 'Search Console, 사이트맵, robots.txt, 제목과 URL 설계 등 검색 접근성을 다룹니다.',
-  },
-  '배포와 점검': {
-    slug: 'deployment-checks',
-    description: 'Cloudflare Pages 배포, HTTPS 확인, 공개 후 점검 항목을 정리합니다.',
-  },
+  '도메인·DNS': { slug: 'domains-dns', description: '개인 도메인과 DNS를 실제 사이트에 연결하고 문제를 해결하는 방법입니다.' },
+  'Cloudflare·배포': { slug: 'cloudflare-deployment', description: 'GitHub 저장소에서 Cloudflare Pages로 정적 사이트를 배포하는 흐름입니다.' },
+  'HTTPS·사이트 운영': { slug: 'https-operations', description: '배포 후 HTTPS와 실제 서비스 상태를 확인하는 운영 점검입니다.' },
+  '검색·SEO': { slug: 'search-seo', description: 'Search Console, sitemap, robots와 색인 상태를 확인하는 방법입니다.' },
+  AdSense: { slug: 'adsense', description: 'emfls.com의 AdSense 심사 준비와 운영 품질을 점검합니다.' },
 };
 
-export const categoryList = categories.map((name) => ({
-  name,
-  ...categoryMeta[name],
-}));
+export const categoryList = Object.entries(categoryMeta).map(([name, meta]) => ({ name, ...meta }));
+
+export const articleCluster: Record<string, string> = {
+  'personal-domain-website-start-checklist': '도메인·DNS',
+  'gabia-domain-cloudflare-dns': '도메인·DNS',
+  'cloudflare-dns-setup-for-beginners': '도메인·DNS',
+  'why-astro-for-static-content-site': 'Cloudflare·배포',
+  'github-to-cloudflare-pages-deployment': 'Cloudflare·배포',
+  'after-first-deploy-checklist': 'HTTPS·사이트 운영',
+  'how-to-check-https-on-custom-domain': 'HTTPS·사이트 운영',
+  'google-search-console-domain-property-guide': '검색·SEO',
+  'robots-and-sitemap-basics': '검색·SEO',
+  'adsense-review-essential-pages': 'AdSense',
+  'adsense-review-final-checklist': 'AdSense',
+};
 
 export function getCategoryBySlug(slug: string) {
   return categoryList.find((category) => category.slug === slug);
@@ -685,25 +703,29 @@ const tagByCategory: Record<string, string[]> = {
 const tagBySlug: Record<string, string[]> = {
   'personal-domain-website-start-checklist': ['도메인', '기획', '체크리스트'],
   'github-pages-strengths-and-limits': ['GitHub Pages', '정적 호스팅', '한계'],
-  'gabia-domain-dns-github-pages': ['가비아', 'DNS', 'GitHub Pages'],
+  'gabia-domain-cloudflare-dns': ['가비아', 'DNS', 'Cloudflare'],
   'why-astro-for-static-content-site': ['Astro', '정적 사이트', 'SEO'],
   'adsense-review-essential-pages': ['AdSense', '필수 페이지', '신뢰도'],
   'seo-friendly-title-and-url': ['SEO', 'URL', '제목'],
   'robots-and-sitemap-basics': ['robots.txt', '사이트맵', 'Search Console'],
   'privacy-policy-practical-checklist': ['개인정보처리방침', 'AdSense', '쿠키'],
   'why-custom-404-page-matters': ['404', 'UX', '정적 사이트'],
-  'simple-contact-page-for-static-site': ['문의 페이지', '정적 사이트', '개인정보'],
   'after-first-deploy-checklist': ['배포', 'HTTPS', 'Search Console'],
   'unfinished-site-signals-before-adsense': ['AdSense', 'Thin Content', '체크리스트'],
   'cloudflare-dns-setup-for-beginners': ['Cloudflare', 'DNS', '가비아'],
   'google-search-console-domain-property-guide': ['Search Console', '사이트맵', 'SEO'],
   'adsense-review-final-checklist': ['AdSense', '체크리스트', '정책'],
-  'connect-custom-domain-to-github-pages': ['GitHub Pages', '커스텀 도메인', 'DNS'],
+  'github-to-cloudflare-pages-deployment': ['GitHub', 'Cloudflare Pages', '배포'],
   'how-to-check-https-on-custom-domain': ['HTTPS', 'Cloudflare', '보안'],
   'github-pages-vs-wordpress-for-beginners': ['GitHub Pages', 'WordPress', '비교'],
 };
 
 const iconByCategory: Record<string, string> = {
+  '도메인·DNS': 'network',
+  'Cloudflare·배포': 'layout',
+  'HTTPS·사이트 운영': 'rocket',
+  '검색·SEO': 'search',
+  AdSense: 'shield',
   '시작 준비': 'compass',
   'GitHub Pages': 'branch',
   '도메인과 DNS': 'network',
@@ -733,6 +755,7 @@ export function getReadingTimeMinutes(readingTime: string) {
 export function getArticleMeta(article: Article): ArticleMeta {
   return {
     ...article,
+    category: articleCluster[article.slug] ?? article.category,
     summary: article.summary ?? article.description,
     publishedAt: article.date,
     updatedAt: article.updatedAt ?? '2026-06-09',
@@ -740,8 +763,8 @@ export function getArticleMeta(article: Article): ArticleMeta {
     authorName: article.authorName ?? 'EMFLS 운영자',
     tags: article.tags ?? tagBySlug[article.slug] ?? tagByCategory[article.category] ?? [],
     heroImage: article.heroImage ?? '',
-    icon: iconByCategory[article.category] ?? 'document',
-    series: article.series ?? article.category,
+    icon: iconByCategory[articleCluster[article.slug] ?? article.category] ?? 'document',
+    series: article.series ?? articleCluster[article.slug] ?? article.category,
   };
 }
 
