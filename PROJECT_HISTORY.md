@@ -419,10 +419,11 @@
 - build 결과: `npm run build` PASS, 52페이지 생성.
 - 중복 태그 검증: 생성된 homepage·대표 article·Privacy에서 GA4 script 1개와 config 1개 확인. 별도 GTM/GA measurement ID 중복 없음.
 - 회귀 검증: 공개 article 15개, broken article link 0개, 자기 자신 링크 0개, canonical·sitemap·robots·ads.txt 정상. AdSense script는 일반 page에 유지되고 404·tag·HTML sitemap에서 기존 제외 상태를 유지했다.
-- Cloudflare production: 아직 commit/push 및 deployment 확인 전.
-- live tag: 아직 확인 전.
-- GA4 Realtime: Analytics 계정 접근 및 Realtime 수신은 확인하지 못했다. 설치 검증과 Realtime 수신 확인을 구분한다.
-- 다음 권장 작업: commit/push 후 Cloudflare Pages deployment SHA와 live HTML의 GA4 tag를 확인하고, Analytics Realtime은 계정에서 별도로 확인한다.
+- Cloudflare production: commit/push 완료. production deployment `42933779-6ab7-4bc3-b715-c90caadf4ff3`가 build/deploy success이며 commit `4279ded729bf6a0981ae1aae7e204aade82601ec`를 반영했다. custom domain project는 기존 `emfls-site`다.
+- SHA 상태: 확인 시점에 GA4 commit과 Cloudflare canonical deployment SHA가 일치했다.
+- live tag: 현재 실행 환경의 DNS/web fetch 제한으로 `https://emfls.com` HTML의 GA4 ID는 확인 불가. 로컬 generated HTML에서는 확인했다.
+- GA4 Realtime: Analytics 계정 접근 및 Realtime 수신은 확인하지 못했다. `태그 설치 검증 완료 / GA4 Realtime 수신은 사용자 확인 필요`로 구분한다.
+- 다음 권장 작업: 사용자가 Analytics Realtime에서 `G-01CGEVVYHL` 수신 여부를 확인한다.
 
 ## 2026-09-14 — Production·AdSense 최종 상태 진단
 
