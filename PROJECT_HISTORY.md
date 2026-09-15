@@ -408,6 +408,22 @@
 - 최종 AdSense readiness: `NOT_READY` 유지. repository와 Cloudflare SHA는 정상 일치하지만 실제 live homepage와 주요 URL의 최신 응답을 이 환경에서 완전히 확인하지 못했다.
 - 다음 권장 작업: 일반 브라우저 또는 DNS가 정상인 환경에서 `emfls.com` homepage·최근 article 4개·`robots.txt`·sitemap·`ads.txt`의 HTTP와 최신 문구를 한 번에 재확인한다.
 
+## 2026-09-15 — Google Analytics 4 연결
+
+- 목적: `emfls/emfls-site`의 일반 public page에 GA4를 정확히 연결하고 Privacy 문구를 실제 사용 상태와 일치시킨다.
+- Measurement ID: `G-01CGEVVYHL`.
+- 기존 Analytics/GTM 존재 여부: repository 검색 결과 기존 `gtag`, `GTM-*`, `google-analytics.com`, `googletagmanager.com`, `dataLayer` 설치는 없었다. 기존 AdSense script만 존재했다.
+- 설치 위치: 공통 `src/layouts/BaseLayout.astro`의 `<head>`에 Google 공식 `gtag.js` async script와 `dataLayer`·`gtag('js')`·`gtag('config')` 초기화를 1회 추가했다. 수동 `page_view`와 SPA router는 추가하지 않았다.
+- Privacy 변경: `src/pages/privacy.astro`의 “Google Analytics는 사용하지 않습니다” 문구를 GA4 사용 가능성, 방문·이용 관련 정보 처리, Google 개인정보·파트너 사이트 안내로 수정했다.
+- 변경 파일: `src/layouts/BaseLayout.astro`, `src/pages/privacy.astro`, `PROJECT_HISTORY.md`.
+- build 결과: `npm run build` PASS, 52페이지 생성.
+- 중복 태그 검증: 생성된 homepage·대표 article·Privacy에서 GA4 script 1개와 config 1개 확인. 별도 GTM/GA measurement ID 중복 없음.
+- 회귀 검증: 공개 article 15개, broken article link 0개, 자기 자신 링크 0개, canonical·sitemap·robots·ads.txt 정상. AdSense script는 일반 page에 유지되고 404·tag·HTML sitemap에서 기존 제외 상태를 유지했다.
+- Cloudflare production: 아직 commit/push 및 deployment 확인 전.
+- live tag: 아직 확인 전.
+- GA4 Realtime: Analytics 계정 접근 및 Realtime 수신은 확인하지 못했다. 설치 검증과 Realtime 수신 확인을 구분한다.
+- 다음 권장 작업: commit/push 후 Cloudflare Pages deployment SHA와 live HTML의 GA4 tag를 확인하고, Analytics Realtime은 계정에서 별도로 확인한다.
+
 ## 2026-09-14 — Production·AdSense 최종 상태 진단
 
 - 목적: 신규 콘텐츠나 구조 변경 없이 현재 repository build와 emfls.com production 반영 상태, 검색 기본 구조, AdSense 심사 blocker를 최종 점검.
