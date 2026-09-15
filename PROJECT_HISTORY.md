@@ -452,3 +452,15 @@
 - 회귀 검증: 신규·기존 article 생성, canonical, sitemap, category/cluster page 목록, `dist/robots.txt`, 기존 `public/_redirects`, placeholder 0건을 확인했다.
 - 남은 문제: 본문 Markdown 링크를 실제 anchor로 렌더링하는 구조는 이번 범위에서 변경하지 않았다. incoming 링크 수는 의미적 중요도에 따라 비균등하다.
 - 다음 권장 작업: 필요성이 확인된 글에만 본문 문맥형 링크를 별도 설계하고, 현재 자동 related fallback의 배열 순서 의존성을 추가로 검토한다.
+## 2026-09-15 — XML sitemap 공개 URL 정리
+
+- 목적: 공개 sitemap entry point를 `/sitemap-index.xml`에서 `/sitemap.xml`로 통일.
+- 기존 구조: `@astrojs/sitemap`이 build 후 `dist/sitemap-index.xml`과 `dist/sitemap-0.xml`을 생성했고, `public/robots.txt`가 index 파일을 선언했다.
+- 구현: `astro build` 뒤 작은 Node postbuild script가 `dist/sitemap-0.xml`을 `dist/sitemap.xml`로 이름 변경하고 기존 index·원본 파일을 제거하도록 구성했다. `astro.config.mjs`의 기존 filter는 변경하지 않았다.
+- 변경 파일: `package.json`, `scripts/normalize-sitemap.mjs`, `public/robots.txt`, `README.md`, `src/data/articles.ts`, `src/data/articleEnhancements.ts`, `PROJECT_HISTORY.md`.
+- build 결과: `npm run build` PASS, 52페이지 생성.
+- sitemap 검증: `dist/sitemap.xml` 정상 XML, 공개 URL 29개 포함. tag page와 HTML site-map 제외 유지. `dist/sitemap-index.xml`·`dist/sitemap-0.xml`은 최종 산출물에 없음.
+- robots: `Sitemap: https://emfls.com/sitemap.xml`로 변경.
+- 회귀 검증: canonical·GA4·AdSense 구조는 변경하지 않았으며 diff check PASS. live sitemap과 robots HTTP 응답은 push 후 production에서 별도 확인 필요.
+- production: 아직 commit/push 및 Cloudflare deployment 확인 전.
+- 다음 권장 작업: push 후 Cloudflare Pages deployment와 `https://emfls.com/sitemap.xml`, `/robots.txt`의 HTTP/XML 응답을 확인하고 Search Console에 새 sitemap URL을 제출한다.

@@ -125,13 +125,13 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     example: {
       title: 'emfls.com 구조를 진단 예시로 사용하는 범위',
       paragraphs: [
-        'emfls.com의 저장소와 production QA에서 확인된 것은 `https://emfls.com/articles/personal-domain-website-start-checklist/` 형식의 대표 URL, self canonical, `/robots.txt`, `/sitemap-index.xml`, Astro 정적 route와 build 결과입니다. 이 기록에는 해당 URL이 `Discovered - currently not indexed`였다는 Search Console 결과가 없습니다.',
+        'emfls.com의 저장소와 production QA에서 확인된 것은 `https://emfls.com/articles/personal-domain-website-start-checklist/` 형식의 대표 URL, self canonical, `/robots.txt`, `/sitemap.xml`, Astro 정적 route와 build 결과입니다. 이 기록에는 해당 URL이 `Discovered - currently not indexed`였다는 Search Console 결과가 없습니다.',
         '따라서 이 글은 실제 오류 사례를 주장하지 않고, 같은 구조의 정적 사이트에서 HTTP 응답, redirect, robots, canonical, sitemap, 내부 링크를 어떤 순서로 대조할지 보여주는 검증 예시로만 사용합니다.',
       ],
     },
     screenshot: {
       title: '실제 프로젝트 확인 지점',
-      caption: '`astro.config.mjs`, `src/pages/`, `public/robots.txt`, 생성된 `dist/`와 `sitemap-0.xml`을 대조해 URL이 실제로 만들어지고 대표 주소 신호가 일치하는지 확인합니다.',
+      caption: '`astro.config.mjs`, `src/pages/`, `public/robots.txt`, 생성된 `dist/`와 `sitemap.xml`을 대조해 URL이 실제로 만들어지고 대표 주소 신호가 일치하는지 확인합니다.',
     },
     checklist: [
       '상태를 색인 거부가 아니라 발견 후 미크롤링으로 먼저 해석한다.',
@@ -479,7 +479,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     example: {
       title: 'emfls.com에서 세 가지 신호를 분리한 사례',
       paragraphs: [
-        '사람이 보는 `/site-map/`과 검색 엔진에 제출하는 `/sitemap-index.xml`을 분리했습니다. `robots.txt`는 `/robots.txt`에서 크롤링 규칙과 XML 사이트맵 위치만 안내합니다.',
+        '사람이 보는 `/site-map/`과 검색 엔진에 제출하는 `/sitemap.xml`을 분리했습니다. `robots.txt`는 `/robots.txt`에서 크롤링 규칙과 XML 사이트맵 위치만 안내합니다.',
         '색인에서 제외할 유틸리티 페이지는 문서의 robots meta로 처리합니다. 따라서 크롤링 제어, 색인 제어, URL 발견을 한 파일의 역할로 섞지 않습니다.',
       ],
     },
@@ -489,7 +489,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     },
     checklist: [
       '`robots.txt`가 사이트맵 XML 주소를 가리키는지 확인한다.',
-      'Search Console에는 `/sitemap-index.xml`을 제출한다.',
+      'Search Console에는 `/sitemap.xml`을 제출한다.',
       '사람용 사이트맵과 검색엔진용 XML 사이트맵을 구분한다.',
       '빌드 후 `dist`에 사이트맵이 생성되는지 확인한다.',
     ],
@@ -649,7 +649,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       title: '실제 production QA에서 확인한 공개 경로',
       paragraphs: [
         'production QA 기록에서는 `https://emfls.com`의 HTTPS 응답, HTTP→HTTPS redirect, 대표 article 11개의 200 응답과 self canonical을 확인했습니다. `www`의 독립적인 중복 200은 확인되지 않았고, 존재하지 않는 경로는 404를 반환했습니다.',
-        '`/robots.txt`는 200과 sitemap 선언, `/sitemap-index.xml`은 200과 대표 URL 목록, `/ads.txt`는 200과 `text/plain`을 확인했습니다. 과거 redirect 대상 URL도 `public/_redirects`에서 직접 대표 URL로 연결되는지 검사했으며 chain은 없었습니다.',
+        '`/robots.txt`는 200과 sitemap 선언, `/sitemap.xml`은 200과 대표 URL 목록, `/ads.txt`는 200과 `text/plain`을 확인했습니다. 과거 redirect 대상 URL도 `public/_redirects`에서 직접 대표 URL로 연결되는지 검사했으며 chain은 없었습니다.',
       ],
     },
     screenshot: {
@@ -660,7 +660,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       '빌드 로그가 성공인지 확인한다.',
       '`pages.dev` 임시 주소가 열리는지 확인한다.',
       '커스텀 도메인 HTTPS 접속을 확인한다.',
-      'robots.txt와 sitemap-index.xml이 공개되는지 확인한다.',
+      'robots.txt와 sitemap.xml이 공개되는지 확인한다.',
       'AdSense 확인 코드는 최신 배포 후 검증한다.',
     ],
     mistakes: [
@@ -679,7 +679,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       },
       {
         question: '사이트맵은 언제 제출하나요?',
-        answer: '대표 도메인에서 `sitemap-index.xml`이 정상으로 열린 뒤 제출하는 것이 좋습니다.',
+        answer: '대표 도메인에서 `sitemap.xml`이 정상으로 열린 뒤 제출하는 것이 좋습니다.',
       },
     ],
     sources: [
@@ -776,7 +776,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     example: {
       title: 'HTML 사이트맵 오류를 XML 사이트맵 제출로 고친 사례',
       paragraphs: [
-        'Search Console에 `/site-map/`을 제출하면 HTML 페이지라서 오류가 납니다. 이 사이트는 사람이 보는 사이트맵과 검색 엔진용 XML 사이트맵을 분리했고, Search Console에는 `/sitemap-index.xml`을 제출하는 방식으로 정리했습니다.',
+        'Search Console에 `/site-map/`을 제출하면 HTML 페이지라서 오류가 납니다. 이 사이트는 사람이 보는 사이트맵과 검색 엔진용 XML 사이트맵을 분리했고, Search Console에는 `/sitemap.xml`을 제출하는 방식으로 정리했습니다.',
         '사이트맵 인덱스에는 실제 글 URL이 바로 보이지 않을 수 있습니다. 대신 `sitemap-0.xml` 같은 하위 사이트맵 위치가 들어 있고, Google은 그 파일을 따라가 URL 목록을 읽습니다.',
       ],
     },
@@ -787,7 +787,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     checklist: [
       '도메인 속성 또는 URL 접두어 속성을 목적에 맞게 선택한다.',
       '소유권 확인이 완료되었는지 확인한다.',
-      '`sitemap-index.xml`을 제출한다.',
+      '`sitemap.xml`을 제출한다.',
       '홈과 대표 글을 URL 검사로 확인한다.',
     ],
     mistakes: [

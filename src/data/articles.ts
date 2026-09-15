@@ -170,7 +170,7 @@ const sourceArticles: Article[] = [
         heading: '3. canonical과 sitemap 신호를 맞춘다',
         body: [
           '최종 공개 URL의 `rel="canonical"`, redirect 대상, sitemap에 적힌 URL이 서로 다른 주소를 가리키지 않는지 비교합니다. Google은 redirect, canonical link, sitemap을 canonical 선택에 참고하는 신호로 설명하지만, 어느 하나가 색인을 보장한다고 말하지 않습니다.',
-          'emfls.com 저장소에서는 `astro.config.mjs`의 site가 `https://emfls.com`이고 XML sitemap은 `https://emfls.com/sitemap-index.xml`에서 시작합니다. 실제 점검에서는 sitemap에 최종 canonical URL만 들어 있는지 확인하고, HTML 사이트맵과 redirect source를 같은 대상으로 착각하지 않습니다.',
+          'emfls.com 저장소에서는 `astro.config.mjs`의 site가 `https://emfls.com`이고 XML sitemap은 `https://emfls.com/sitemap.xml`에서 제공됩니다. 실제 점검에서는 sitemap에 최종 canonical URL만 들어 있는지 확인하고, HTML 사이트맵과 redirect source를 같은 대상으로 착각하지 않습니다.',
         ],
       },
       {
@@ -495,14 +495,14 @@ const sourceArticles: Article[] = [
       {
         heading: 'emfls.com의 실제 구현',
         body: [
-          '`public/robots.txt`는 전체 crawler를 허용하고 `https://emfls.com/sitemap-index.xml`을 안내합니다. `astro.config.mjs`의 sitemap filter는 태그와 HTML sitemap을 XML sitemap에서 제외합니다.',
+          '`public/robots.txt`는 전체 crawler를 허용하고 `https://emfls.com/sitemap.xml`을 안내합니다. `astro.config.mjs`의 sitemap filter는 태그와 HTML sitemap을 XML sitemap에서 제외합니다.',
           '공통 `BaseLayout.astro`의 robots prop으로 태그·HTML sitemap·404는 `noindex,follow`, 대표 콘텐츠는 `index,follow`가 되도록 구분합니다.'
         ],
       },
       {
         heading: '배포 후 확인 순서',
         body: [
-          '대표 URL에서 `/robots.txt`, `/sitemap-index.xml`, 대표 글의 robots meta를 차례로 확인합니다. 태그와 HTML sitemap이 XML sitemap에 들어가지 않는지도 build output에서 확인합니다.',
+          '대표 URL에서 `/robots.txt`, `/sitemap.xml`, 대표 글의 robots meta를 차례로 확인합니다. 태그와 HTML sitemap이 XML sitemap에 들어가지 않는지도 build output에서 확인합니다.',
           'robots.txt로 noindex 페이지를 동시에 막으면 crawler가 noindex 지시를 읽지 못할 수 있으므로 두 역할을 혼동하지 않습니다.'
         ],
       },
@@ -586,7 +586,7 @@ const sourceArticles: Article[] = [
         heading: '대표 페이지와 공개 파일 확인',
         body: [
           '홈, 글 목록, 대표 글, About, Privacy를 `https://emfls.com` 기준으로 열고 BaseLayout의 canonical을 확인합니다.',
-          '`/robots.txt`, `/sitemap-index.xml`, `/ads.txt`가 공개되는지 확인하고, 404 route와 푸터·관련 글 내부 링크도 점검합니다.'
+          '`/robots.txt`, `/sitemap.xml`, `/ads.txt`가 공개되는지 확인하고, 404 route와 푸터·관련 글 내부 링크도 점검합니다.'
         ],
       },
       {
@@ -664,7 +664,7 @@ const sourceArticles: Article[] = [
       {
         heading: '4. HTTPS와 배포 결과를 확인한다',
         body: [
-          'Cloudflare Pages 배포가 성공한 뒤 `https://emfls.com`, `/robots.txt`, `/ads.txt`, `/sitemap-index.xml`을 확인합니다. 저장소의 Phase 2B build 결과는 51페이지였습니다.',
+          'Cloudflare Pages 배포가 성공한 뒤 `https://emfls.com`, `/robots.txt`, `/ads.txt`, `/sitemap.xml`을 확인합니다. 저장소의 Phase 2B build 결과는 51페이지였습니다.',
           '문제가 남으면 nameserver, DNS record, Pages custom domain, 인증서, 최신 배포를 순서대로 분리해 확인합니다.',
         ],
       },
@@ -697,7 +697,7 @@ const sourceArticles: Article[] = [
       {
         heading: '3. sitemap과 URL을 따로 점검한다',
         body: [
-          '이 저장소의 XML sitemap entry point는 `https://emfls.com/sitemap-index.xml`입니다. 사람이 읽는 `/site-map/`과 구분해 Search Console에 제출합니다. sitemap은 URL 발견을 돕지만 색인을 보장하지 않습니다.',
+          '이 저장소의 XML sitemap URL은 `https://emfls.com/sitemap.xml`입니다. 사람이 읽는 `/site-map/`과 구분해 Search Console에 제출합니다. sitemap은 URL 발견을 돕지만 색인을 보장하지 않습니다.',
           '그 다음 URL Inspection에서 홈, 글 목록, 대표 글의 실제 URL과 canonical, 접근 가능 여부를 확인합니다. 저장소에는 실제 계정의 색인 상태나 마지막 crawl 날짜가 없습니다.',
         ],
       },

@@ -33,7 +33,7 @@ GitHub 저장소를 Cloudflare Pages에 연결해 배포하는 것을 기준으�
 대표 도메인은 `emfls.com`입니다.
 
 - Astro site URL: `https://emfls.com`
-- robots sitemap: `https://emfls.com/sitemap-index.xml`
+- robots sitemap: `https://emfls.com/sitemap.xml`
 
 Cloudflare Pages에서 Custom domain으로 `emfls.com`을 연결합니다. 가비아에서 도메인 네임서버를 Cloudflare가 안내하는 네임서버로 변경하면 DNS를 Cloudflare에서 관리할 수 있습니다.
 
