@@ -542,9 +542,35 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   }
 
   .check-list li {
-    padding-left: 20px;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
     border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    background: rgba(229, 243, 239, 0.42);
     color: var(--muted);
+  }
+
+  .check-list li span {
+    color: var(--accent-strong);
+    font-weight: 900;
+  }
+
+  .project-example {
+    padding: 22px;
+    border: 1px solid rgba(45, 156, 143, 0.3);
+    border-left: 5px solid var(--accent);
+    border-radius: 8px;
+    background: rgba(229, 243, 239, 0.5);
+  }
+
+  .section-label {
+    color: var(--accent-strong);
+    font-size: 0.86rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
   }
 
   .article-shell {
@@ -622,6 +648,7 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   .callout {
     border-left: 5px solid var(--sun);
+    background: rgba(242, 201, 76, 0.12);
   }
 
   .faq-list {
@@ -651,7 +678,60 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   .source-list {
     display: grid;
     gap: 10px;
-    padding-left: 38px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .related-list li,
+  .source-list li {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .related-list a,
+  .source-list a {
+    display: grid;
+    gap: 4px;
+    min-height: 64px;
+    padding: 12px 14px;
+    text-decoration: none;
+  }
+
+  .related-list a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .related-list a span {
+    grid-column: 1 / -1;
+    color: var(--accent-strong);
+    font-size: 0.82rem;
+    font-weight: 800;
+  }
+
+  .related-list strong {
+    font-size: 0.98rem;
+  }
+
+  .related-list em,
+  .source-list em {
+    color: var(--accent-strong);
+    font-size: 1.1rem;
+    font-style: normal;
+    font-weight: 900;
+  }
+
+  .source-list a {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .source-list small {
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 0.8rem;
   }
 
   .info-table {

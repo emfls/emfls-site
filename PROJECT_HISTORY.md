@@ -487,3 +487,14 @@
 - 보호 항목: article 내용, URL, category/cluster, canonical, JSON-LD, sitemap, robots, GA4, AdSense는 변경하지 않았다.
 - 남은 문제: Batch 2 article 본문 visual hierarchy, screenshot 데이터 사용 여부, 카드 visual 반복, Contact 빈 공간, 정확한 320px 검증.
 - 다음 권장 작업: Batch 2에서 article example 영역만 별도 검토.
+
+## 2026-09-15 — 디자인 QA Batch 2
+
+- 목적: article 본문에서 example, checklist, mistakes, FAQ, related, sources의 역할을 공통 디자인 체계 안에서 더 명확하게 구분.
+- 변경 파일: `src/pages/articles/[slug].astro`, `src/layouts/BaseLayout.astro`, `DESIGN_AUDIT.md`, `PROJECT_HISTORY.md`.
+- 변경 내용: example에 실제 프로젝트 사례를 위한 subtle accent를 적용하고, checklist는 비인터랙티브 scan 목록으로 보강했다. mistakes는 약한 warning surface로, related와 sources는 compact link panel로 정리했다. FAQ의 native `details`/`summary`, 외부 링크의 `target`·`rel`, related 선정 로직은 유지했다.
+- 보호한 범위: article 내용, URL, SEO, GA4, AdSense, sitemap, robots, category/cluster, related 선정 로직은 변경하지 않았다. 실제 screenshot 파일이 없어 screenshot 데이터는 렌더링하지 않았다.
+- 검증: `npm run build` PASS, 52페이지 및 공개 article 15개 생성. 대표 article 5개를 실제 브라우저에서 확인했고 example/checklist/FAQ/related/sources 구조, 하단 영역, Tab focus-visible을 확인했다. 생성 HTML에서 canonical·Article JSON-LD·GA4·AdSense, sitemap·robots와 utility AdSense 제외 구조를 점검했다.
+- viewport 결과: 좁은 모바일형 렌더링과 하단 checklist를 확인했으나 현재 브라우저 도구에서 정확한 390×844·320×700 고정은 확인 불가하여 PASS로 기록하지 않았다.
+- 남은 문제: 실제 screenshot 데이터, 반복 카드 visual, Contact 빈 공간, 정확한 320px 측정.
+- 다음 권장 작업: Batch 3에서 homepage·card·category·trust page visual을 별도 검토한다.

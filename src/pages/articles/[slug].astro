@@ -125,14 +125,15 @@ const schema = [
           {section.body.map((paragraph) => <p>{paragraph}</p>)}
         </section>
       ))}
-      {enhancement.checklist.length > 0 && <section>
+      {enhancement.checklist.length > 0 && <section class="project-example">
+        <p class="section-label">실제 프로젝트 확인</p>
         <h2>{enhancement.example.title}</h2>
         {enhancement.example.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
       </section>
-      <section>
+      <section class="checklist-section">
         <h2>실전 점검표</h2>
         <ul class="check-list">
-          {enhancement.checklist.map((item) => <li>{item}</li>)}
+          {enhancement.checklist.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}
         </ul>
       </section>}
       {enhancement.mistakes.length > 0 && <section class="callout">
@@ -152,19 +153,19 @@ const schema = [
           ))}
         </div>
       </section>}
-      <section>
+      <section class="related-section">
         <h2>관련 글</h2>
         <ul class="related-list">
           {related.map((item) => (
-            <li><a href={`/articles/${item.slug}/`}>{item.title}</a></li>
+            <li><a href={`/articles/${item.slug}/`}><span>{item.category}</span><strong>{item.title}</strong><em aria-hidden="true">→</em></a></li>
           ))}
         </ul>
       </section>
-      <section>
+      <section class="sources-section">
         <h2>참고한 공식 문서</h2>
         <ul class="source-list">
           {enhancement.sources.map((source) => (
-            <li><a href={source.url} rel="nofollow noopener" target="_blank">{source.name}</a></li>
+            <li><a href={source.url} rel="nofollow noopener" target="_blank"><span>{source.name}</span><em aria-hidden="true">↗</em><small>외부 공식 문서</small></a></li>
           ))}
         </ul>
       </section>

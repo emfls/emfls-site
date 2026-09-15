@@ -181,3 +181,29 @@ article header와 카드 모두 작성일·수정일·작성자·읽는 시간�
 ### 다음 Batch
 
 Batch 2에서 article 본문의 실제 프로젝트 확인 영역과 example presentation을 별도 검토한다. 이미지나 가짜 screenshot은 추가하지 않는다.
+
+## Batch 2 완료 기록
+
+### 수정 완료
+
+- `src/pages/articles/[slug].astro`에서 example, checklist, related, sources 영역에 역할을 드러내는 최소한의 class와 의미 구조를 추가했다. article 내용, related 선정 로직, URL, SEO 구조는 변경하지 않았다.
+- `src/layouts/BaseLayout.astro`에서 공통 radius·spacing·typography를 유지한 채 example에는 subtle accent surface, checklist에는 비인터랙티브 체크 표시, mistakes에는 약한 warning surface, related와 sources에는 compact link panel을 적용했다.
+- FAQ는 기존 native `details`/`summary` 구조를 유지했고, sources는 외부 링크 표시와 `target`·`rel`을 유지했다.
+- 실제 screenshot 파일이 없으므로 screenshot 데이터는 렌더링하지 않았고 P1 미해결 항목으로 남겼다.
+
+### Batch 2 검증
+
+- `npm run build`: PASS, 52페이지 생성, 공개 article 15개 생성.
+- 대표 article 5개(`static-website-running-cost`, `search-console-discovered-not-indexed`, `cloudflare-pages-build-failure`, `site-migration-ranking-drop`, `how-to-check-https-on-custom-domain`)의 실제 브라우저 렌더링과 접근성 트리를 확인했다.
+- checklist·example·related·sources의 역할 분리, native FAQ, 하단 compact 목록, 하단 영역의 가로 overflow 없음, Tab 이동 시 focus-visible outline을 확인했다.
+- 정확한 고정 viewport를 제공하지 않는 현재 브라우저 도구로 인해 390×844와 320×700의 수치 고정 PASS는 기록하지 않는다. 좁은 모바일형 렌더링은 확인했으며 320px 정확 재검증은 미해결이다.
+- 생성 HTML에서 대표 article canonical·Article JSON-LD·GA4·AdSense를 확인했고, sitemap·robots 및 404/HTML site-map의 AdSense 제외 구조를 확인했다. 실제 article 경로 대상 링크와 자기 자신 링크에 회귀는 없었다.
+
+### 남은 우선순위
+
+- P1: 실제 screenshot 데이터 확보 및 렌더링 정합성, 카드 visual 반복, Contact 빈 공간.
+- P2: 정확한 320px viewport 재검증과 필요 시 관련 글·공식 문서 목록의 추가 polish.
+
+### 다음 Batch
+
+Batch 3에서 homepage·card·category·trust page visual을 별도 검토한다. screenshot은 실제 원본이 확보될 때만 진행한다.
