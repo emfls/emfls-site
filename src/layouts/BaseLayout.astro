@@ -185,6 +185,9 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   }
 
   nav a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
     color: var(--muted);
     font-weight: 700;
     text-decoration: none;
@@ -192,6 +195,11 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   nav a:hover {
     color: var(--ink);
+  }
+
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid var(--sun);
+    outline-offset: 3px;
   }
 
   .section {
@@ -214,8 +222,18 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   }
 
   h1 {
-    font-size: clamp(2.15rem, 4vw, 4.5rem);
+    font-size: clamp(2.15rem, 4vw, 4rem);
     max-width: 880px;
+    text-wrap: balance;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.15rem, 4.5vw, 4.5rem);
+  }
+
+  .article-header h1 {
+    max-width: 760px;
+    font-size: clamp(2rem, 3.4vw, 3.5rem);
   }
 
   h2 {
@@ -234,6 +252,7 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     color: var(--muted);
     font-size: 1.08rem;
     max-width: 720px;
+    text-wrap: pretty;
   }
 
   .hero {
@@ -360,7 +379,7 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   .filter-chip,
   .page-button,
   .text-button {
-    min-height: 36px;
+    min-height: 40px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: #fff;
@@ -567,6 +586,11 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
 
   .article-body p {
     color: #344447;
+    overflow-wrap: break-word;
+  }
+
+  .article-body section {
+    text-wrap: pretty;
   }
 
   .article-body ul,
@@ -616,6 +640,9 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
   }
 
   .faq-list summary {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
     cursor: pointer;
     font-weight: 800;
   }
@@ -702,7 +729,41 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     }
 
     .hero-inner {
-      min-height: 380px;
+      min-height: 340px;
+    }
+
+    .section,
+    .simple-page,
+    .article-shell {
+      padding-top: 40px;
+      padding-bottom: 40px;
+    }
+
+    .article-header {
+      gap: 14px;
+      padding-bottom: 28px;
+    }
+
+    .article-header .meta {
+      gap: 4px 12px;
+      font-size: 0.88rem;
+    }
+
+    .article-body {
+      gap: 28px;
+      padding-top: 28px;
+    }
+
+    .article-body section {
+      gap: 12px;
+    }
+
+    .article-body p {
+      line-height: 1.75;
+    }
+
+    .filter-chip {
+      min-height: 40px;
     }
 
     .content-grid,

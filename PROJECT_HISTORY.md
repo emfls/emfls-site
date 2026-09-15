@@ -465,3 +465,25 @@
 - production: commit `48dbfb55ceb731ac916921a3ad3a5dba1195afa3` push 후 Cloudflare Pages `emfls-site` production deployment `579a2f4f-5fb2-4cf5-9d68-d2b69ce1f2b0` build/deploy success. production branch `main`, build command `npm run build`, output `dist` 확인.
 - live sitemap/robots: 현재 실행 환경에서 live HTTP 응답은 아직 확인하지 못함.
 - 다음 권장 작업: push 후 Cloudflare Pages deployment와 `https://emfls.com/sitemap.xml`, `/robots.txt`의 HTTP/XML 응답을 확인하고 Search Console에 새 sitemap URL을 제출한다.
+## 2026-09-15 — 실제 브라우저 기준 디자인 QA
+
+- 목적: 로컬 production build와 실제 브라우저 렌더링을 기준으로 전체 디자인 완성도와 후속 polish 우선순위를 점검.
+- 확인 범위: homepage, article archive, Cloudflare category, 대표 article 2개, Contact, 전역 CSS, ArticleCard, article detail template.
+- 검증: `npm run build` PASS, 52페이지 생성. 데스크톱 Chrome과 좁은 모바일형 브라우저에서 실제 화면 확인.
+- 주요 발견: P0 없음. P1은 article 본문 시각 계층, 미사용 screenshot 데이터, 반복 카드 visual, 일반 focus-visible 부재, Contact 빈 공간으로 기록했다.
+- 산출물: `DESIGN_AUDIT.md`.
+- 제한: 현재 브라우저 환경에서 정확한 1440×900·1024×768·768×1024·390×844·320×700 viewport를 각각 고정한 검증은 확인 불가로 기록했다. 320px은 후속 확인이 필요하다.
+- 변경하지 않은 범위: CSS, article, 이미지, URL, SEO, GA4, AdSense, sitemap, robots.
+- 다음 권장 작업: 정확한 responsive viewport 재검증 후 Batch 1의 typography·spacing·focus 개선 여부를 별도 결정한다.
+## 2026-09-15 — 디자인 QA Batch 1
+
+- 목적: `DESIGN_AUDIT.md`의 Batch 1 범위인 typography, spacing, responsive, keyboard focus만 개선.
+- 변경 파일: `src/layouts/BaseLayout.astro`, `DESIGN_AUDIT.md`, `PROJECT_HISTORY.md`.
+- typography: homepage hero H1과 article H1을 분리하고 선택적 `text-wrap`, article paragraph `overflow-wrap`, 모바일 metadata/본문 line-height를 조정.
+- spacing/responsive: 모바일 hero·section·simple page·article shell·header/body 간격을 압축하고 40~44px 조작 영역을 보강.
+- focus: 링크·버튼·form control·summary에 공통 `:focus-visible` outline 추가.
+- build: `npm run build` PASS, 52페이지 생성.
+- 브라우저 검증: 데스크톱 및 좁은 모바일형 실제 렌더링에서 homepage H1, article H1, metadata, 본문 줄바꿈, 가로 overflow, Tab focus를 확인. 정확한 1440×900·1024×768·768×1024·390×844·320×700 고정 viewport는 현재 도구 제한으로 확인 불가.
+- 보호 항목: article 내용, URL, category/cluster, canonical, JSON-LD, sitemap, robots, GA4, AdSense는 변경하지 않았다.
+- 남은 문제: Batch 2 article 본문 visual hierarchy, screenshot 데이터 사용 여부, 카드 visual 반복, Contact 빈 공간, 정확한 320px 검증.
+- 다음 권장 작업: Batch 2에서 article example 영역만 별도 검토.
