@@ -513,3 +513,14 @@
 - 모바일 결과: 현재 도구에서 정확한 320·390 고정 viewport는 확인 불가하여 PASS로 기록하지 않았다. 좁은 화면 CSS 분기와 overflow 방지 구조는 확인했다.
 - 남은 문제: 실제 screenshot 데이터와 정확한 모바일 viewport 재검증.
 - 다음 권장 작업: 실제 screenshot/이미지 자산이 확보된 경우에만 Batch 4 이미지 계획을 재검토한다.
+
+## 2026-09-15 — Final Visual QA
+
+- 목적: Batch 1~3 이후 전체 사이트를 실제 렌더링과 build 결과 기준으로 점검하고 디자인 작업 종료 가능 여부를 판정.
+- 확인 범위: Homepage, article archive, 5개 대표 article의 전체 흐름, category 유형, About, Contact, Privacy, Terms, Editorial Policy, Content Methodology, Disclaimer, footer와 좁은 모바일형 화면.
+- 결과: P0 없음. title wrap, metadata, example/checklist/mistakes/FAQ/related/sources, cards, category summary, Contact CTA, 정책 문서 계층과 확인 범위의 overflow를 점검했다.
+- 점수: 기존 72/100에서 82/100. Homepage 86, Article readability 82, Cards 84, Mobile 76, Typography 80, Visual assets 68, Trust pages 86, Accessibility 86, Consistency 88.
+- 최종 판정: `DESIGN_READY_WITH_MINOR_ISSUES`. 남은 항목은 실제 screenshot 데이터와 정확한 320·390 고정 viewport 미검증, 선택적인 hero branded visual 전환 검토다.
+- 이미지 판단: AI illustration은 현재 불필요하다. 실제 screenshot은 원본이 확보될 때만 추가한다. Unsplash hero는 현재 유지하고 장기적으로 self-host 또는 branded illustration 전환을 권장한다.
+- 검증: `npm run build` PASS, 52페이지·article 15개. broken article link 0, self article link 0, canonical 51개, sitemap 29개 URL, robots·GA4·AdSense 유지.
+- 다음 권장 작업: 디자인 구현은 종료하고 실제 screenshot/visual 자산이 생길 때만 Batch 4를 검토한다. 이후에는 콘텐츠와 검색·운영 데이터 관찰을 우선한다.

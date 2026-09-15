@@ -234,3 +234,45 @@ Batch 3에서 homepage·card·category·trust page visual을 별도 검토한다
 ### 다음 Batch
 
 Batch 4에서 실제 screenshot 또는 이미지 자산이 확보된 경우에만 이미지 계획을 재검토한다.
+
+## Final Visual QA — 2026-09-15
+
+### 최종 점수
+
+기존 72/100에서 **82/100**으로 조정했다.
+
+| 영역 | 점수 | 최종 판단 |
+| --- | ---: | --- |
+| Homepage | 86 | hero, CTA, topic list, 최근 글, footer의 구조와 간격이 안정적이다. |
+| Article readability | 82 | 본문 example/checklist/FAQ/related/sources 계층이 구분되고 긴 문단 흐름이 완화됐다. |
+| Cards | 84 | category/icon accent와 정보 우선순위가 반복감을 줄였다. |
+| Mobile | 76 | 좁은 화면에서 header, filter, cards, footer가 쌓이며 확인 범위에서 overflow가 없었다. 정확한 320·390 고정 측정은 불가했다. |
+| Typography | 80 | H1·lead·metadata와 문서형 heading rhythm이 안정적이다. |
+| Visual assets | 68 | CSS 기반 visual만으로 충분하며 실제 screenshot 자산은 아직 없다. |
+| Trust pages | 86 | About·Contact·정책 페이지가 문서형 계층과 목적별 panel을 갖췄다. |
+| Accessibility | 86 | semantic 구조, native FAQ, focus-visible, 링크·버튼 조작 영역을 확인했다. |
+| Consistency | 88 | 기존 cream/deep teal/mint/yellow, radius, spacing 체계가 유지됐다. |
+
+### 최종 판정
+
+**DESIGN_READY_WITH_MINOR_ISSUES**
+
+- P0: 없음.
+- P1: 실제 screenshot 데이터 부재. 원본 screenshot이 확보되기 전까지는 선택적 미해결 항목이다.
+- P2: 정확한 320·390 viewport 측정, 향후 Unsplash hero의 branded visual 전환 검토.
+
+### 이미지 판단
+
+- AI editorial illustration: 현재 추가 필요 없음. CSS/category accent만으로 탐색과 계층이 충분히 개선됐다.
+- 실제 screenshot: 실제 원본이 확보되는 경우에만 선택적으로 추가한다. 현재는 렌더링하지 않는다.
+- Unsplash hero: 현재는 텍스트 대비와 hero 분위기를 돕기 때문에 유지한다. 장기적으로는 self-host 또는 emfls.com 운영 구조를 반영한 branded illustration으로 교체를 권장한다.
+
+### 실제 Visual QA 범위
+
+- Homepage, article archive, category 유형, About, Contact, Privacy, Terms, Editorial Policy, Content Methodology, Disclaimer를 실제 로컬 렌더링으로 확인했다.
+- 대표 article 5개를 처음부터 끝까지 확인해 title, metadata, 본문, example, checklist, mistakes, FAQ, related, sources, footer 흐름을 점검했다.
+- 좁은 모바일형 화면에서 archive filter/chips, navigation wrap, cards, Contact CTA, footer를 확인했다. 현재 도구에서 정확한 320×700·390×844 고정 viewport는 제공되지 않아 해당 수치별 PASS는 기록하지 않는다.
+
+### 디자인 종료 권고
+
+현재 P0와 필수 P1은 없으므로 Batch 1~3의 디자인 구현 작업은 종료 가능하다. 이후 작업은 실제 screenshot 또는 branded visual 자산이 생길 때만 Batch 4로 재개하고, 그 전에는 콘텐츠·검색·운영 데이터 관찰을 우선한다.
