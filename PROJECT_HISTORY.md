@@ -462,5 +462,6 @@
 - sitemap 검증: `dist/sitemap.xml` 정상 XML, 공개 URL 29개 포함. tag page와 HTML site-map 제외 유지. `dist/sitemap-index.xml`·`dist/sitemap-0.xml`은 최종 산출물에 없음.
 - robots: `Sitemap: https://emfls.com/sitemap.xml`로 변경.
 - 회귀 검증: canonical·GA4·AdSense 구조는 변경하지 않았으며 diff check PASS. live sitemap과 robots HTTP 응답은 push 후 production에서 별도 확인 필요.
-- production: 아직 commit/push 및 Cloudflare deployment 확인 전.
+- production: commit `48dbfb55ceb731ac916921a3ad3a5dba1195afa3` push 후 Cloudflare Pages `emfls-site` production deployment `579a2f4f-5fb2-4cf5-9d68-d2b69ce1f2b0` build/deploy success. production branch `main`, build command `npm run build`, output `dist` 확인.
+- live sitemap/robots: 현재 실행 환경에서 live HTTP 응답은 아직 확인하지 못함.
 - 다음 권장 작업: push 후 Cloudflare Pages deployment와 `https://emfls.com/sitemap.xml`, `/robots.txt`의 HTTP/XML 응답을 확인하고 Search Console에 새 sitemap URL을 제출한다.
