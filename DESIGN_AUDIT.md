@@ -207,3 +207,30 @@ Batch 2에서 article 본문의 실제 프로젝트 확인 영역과 example pre
 ### 다음 Batch
 
 Batch 3에서 homepage·card·category·trust page visual을 별도 검토한다. screenshot은 실제 원본이 확보될 때만 진행한다.
+
+## Batch 3 완료 기록
+
+### 수정 완료
+
+- Homepage 주요 범위를 compact topic link list로 정리해 topic 이름·설명·이동 방향을 한눈에 구분했다.
+- `ArticleCard`는 기존 icon/category 정보로 visual tone을 변주하고, category·title·summary·수정일·읽는 시간을 우선 배치했다. 상세 article의 metadata와 SEO 구조는 유지했다.
+- Category page에는 기존 description을 유지한 채 글 수와 읽기 흐름을 compact summary로 추가했다.
+- About은 운영자 정보와 투명성을 panel로 묶었고, Contact는 이메일 CTA·문의 범위·정책 링크를 contact card로 정리했다.
+- Privacy, Terms, Editorial Policy, Content Methodology, Disclaimer에는 공통 문서형 trust-page 폭과 heading rhythm을 적용했다. AI 이미지와 실제 screenshot은 추가하지 않았다.
+
+### Batch 3 검증
+
+- `npm run build`: PASS, 52페이지 생성, 공개 article 15개 생성.
+- 실제 브라우저에서 homepage, category, Contact, Editorial Policy를 확인했고 homepage 카드·topic list, category summary, contact card, 정책 문서 흐름을 확인했다.
+- 생성 HTML 기준 article-to-article broken link 0건, 자기 자신 링크 0건, canonical 유지, sitemap 29개 URL, robots 선언 유지.
+- GA4는 homepage·article·정책/신뢰 페이지에 유지됐고, 일반 page AdSense와 404·tag·HTML site-map 제외 구조도 유지됐다.
+- 현재 브라우저 도구에서 정확한 320·390 고정 viewport를 설정할 수 없어 수치 고정 PASS는 기록하지 않는다. 좁은 화면 CSS 분기와 desktop 렌더링은 확인했으며 모바일 overflow는 생성 구조상 확인 범위에서 발견되지 않았다.
+
+### 남은 우선순위
+
+- P1: 실제 screenshot 데이터 확보. 카드 반복 visual과 Contact 빈 공간은 이번 Batch에서 보강 완료.
+- P2: 정확한 320·390 viewport 재검증, 필요 시 category별 accent 강도 미세 조정.
+
+### 다음 Batch
+
+Batch 4에서 실제 screenshot 또는 이미지 자산이 확보된 경우에만 이미지 계획을 재검토한다.

@@ -12,9 +12,10 @@ const iconLabel: Record<string, string> = {
   document: '□',
 };
 ---
-<a class="article-card" href={`/articles/${article.slug}/`}>
+<a class={`article-card card-${icon}`} href={`/articles/${article.slug}/`}>
   <div class="card-visual" aria-hidden="true">
     <span>{iconLabel[icon] ?? iconLabel.document}</span>
+    <small>{article.category}</small>
   </div>
   <div class="meta">
     <span class="tag">{article.category}</span>
@@ -25,5 +26,5 @@ const iconLabel: Record<string, string> = {
   <div class="tag-row">
     {(article.tags ?? []).slice(0, 3).map((tag) => <span class="mini-tag">{tag}</span>)}
   </div>
-  <span class="meta">작성자 {article.authorName ?? 'EMFLS 운영자'} · 발행 {article.publishedAt ?? article.date} · 수정 {article.updatedAt ?? article.date} · {article.readingTimeMinutes ?? article.readingTime}분</span>
+  <span class="meta card-meta">{article.updatedAt ?? article.date} · {article.readingTimeMinutes ?? article.readingTime}분</span>
 </a>

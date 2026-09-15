@@ -498,3 +498,18 @@
 - viewport 결과: 좁은 모바일형 렌더링과 하단 checklist를 확인했으나 현재 브라우저 도구에서 정확한 390×844·320×700 고정은 확인 불가하여 PASS로 기록하지 않았다.
 - 남은 문제: 실제 screenshot 데이터, 반복 카드 visual, Contact 빈 공간, 정확한 320px 측정.
 - 다음 권장 작업: Batch 3에서 homepage·card·category·trust page visual을 별도 검토한다.
+
+## 2026-09-15 — 디자인 QA Batch 3
+
+- 목적: Homepage, ArticleCard, category, About, Contact, 정책·신뢰 페이지의 시각적 완성도를 높이고 Batch 1·2에서 남은 카드 반복과 Contact 빈 공간을 보강.
+- 변경 파일: `src/layouts/BaseLayout.astro`, `src/components/ArticleCard.astro`, `src/pages/index.astro`, `src/pages/categories/[slug].astro`, `src/pages/about.astro`, `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/terms.astro`, `src/pages/editorial-policy.astro`, `src/pages/content-methodology.astro`, `src/pages/disclaimer.astro`, `DESIGN_AUDIT.md`.
+- Homepage: 기존 palette와 구조를 유지하면서 주요 범위를 topic link list로 정리했다.
+- Card: 기존 category/icon을 이용해 accent를 변주하고 category·title·summary·수정일·읽는 시간을 우선 노출했다. detail metadata와 SEO는 변경하지 않았다.
+- Category: 기존 description과 카드 목록을 유지하고 글 수와 권장 읽기 흐름을 compact summary로 표시했다.
+- About/Contact: 운영자·투명성 panel과 이메일 contact card·정책 링크를 추가해 짧은 페이지의 목적을 명확히 했다.
+- Policy/trust: 다섯 정책 페이지에 공통 trust-page 문서형 폭과 heading rhythm을 적용했다. 내용은 재작성하지 않았다.
+- 보호 범위: AI 이미지·screenshot, URL, category/cluster, related 로직, SEO metadata·canonical·JSON-LD, sitemap·robots, GA4·AdSense, dependency는 변경하지 않았다.
+- 검증: `npm run build` PASS, 52페이지 및 공개 article 15개 생성. 실제 브라우저에서 homepage, category, Contact, Editorial Policy를 확인했고 article link broken 0건, self link 0건, sitemap 29개 URL, canonical·GA4·AdSense 회귀 없음을 확인했다.
+- 모바일 결과: 현재 도구에서 정확한 320·390 고정 viewport는 확인 불가하여 PASS로 기록하지 않았다. 좁은 화면 CSS 분기와 overflow 방지 구조는 확인했다.
+- 남은 문제: 실제 screenshot 데이터와 정확한 모바일 viewport 재검증.
+- 다음 권장 작업: 실제 screenshot/이미지 자산이 확보된 경우에만 Batch 4 이미지 계획을 재검토한다.

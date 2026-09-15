@@ -60,9 +60,9 @@ const schema = [
       </div>
       <div class="panel">
         <h3>주요 범위</h3>
-        <ul class="check-list">
+        <ul class="topic-list">
           {categoryList.map((category) => (
-            <li><a href={`/categories/${category.slug}/`}>{category.name}</a> - {category.description}</li>
+            <li><a href={`/categories/${category.slug}/`}><strong>{category.name}</strong><span>{category.description}</span><em aria-hidden="true">→</em></a></li>
           ))}
         </ul>
       </div>
