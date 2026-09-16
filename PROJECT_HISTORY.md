@@ -524,3 +524,11 @@
 - 이미지 판단: AI illustration은 현재 불필요하다. 실제 screenshot은 원본이 확보될 때만 추가한다. Unsplash hero는 현재 유지하고 장기적으로 self-host 또는 branded illustration 전환을 권장한다.
 - 검증: `npm run build` PASS, 52페이지·article 15개. broken article link 0, self article link 0, canonical 51개, sitemap 29개 URL, robots·GA4·AdSense 유지.
 - 다음 권장 작업: 디자인 구현은 종료하고 실제 screenshot/visual 자산이 생길 때만 Batch 4를 검토한다. 이후에는 콘텐츠와 검색·운영 데이터 관찰을 우선한다.
+
+## 2026-09-16 — LIVE 9 regression: production guard 정합성 수정
+
+- 목적: `emfls-site`의 GA4와 AdSense가 custom production domain에서만 로드되는지 최신 Network QA 기준으로 정합화.
+- `src/layouts/BaseLayout.astro`의 외부 스크립트 직접 삽입을 hostname guard 기반 동적 삽입으로 변경했다. `emfls.com`에서만 GA4 `G-01CGEVVYHL`과 AdSense publisher script가 로드된다.
+- 콘텐츠, 디자인, URL, canonical, sitemap, robots, ads.txt는 변경하지 않았다.
+- `npm install` 및 `npm run build` PASS. Astro static 52 pages와 sitemap normalization을 확인했고 `git diff --check` PASS.
+- Production fresh HTTP와 외부 Search Console/Naver/Daum/IndexNow 상태는 이 실행환경에서 확인하지 못했으므로 완료로 기록하지 않는다.

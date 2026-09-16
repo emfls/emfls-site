@@ -27,17 +27,27 @@ const canonicalUrl = canonical ? `${siteUrl}${canonical}` : siteUrl;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta name="twitter:card" content="summary" />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-01CGEVVYHL"></script>
     <script is:inline>
-      {`window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-01CGEVVYHL');`}
+      {`if (window.location.hostname === 'emfls.com') {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-01CGEVVYHL';
+        document.head.appendChild(script);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-01CGEVVYHL');
+      }`}
     </script>
-    {adsEligible && <script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8830524482034754"
-      crossorigin="anonymous"></script>}
+    {adsEligible && <script is:inline>
+      {`if (window.location.hostname === 'emfls.com') {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8830524482034754';
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+      }`}
+    </script>}
     {
       schema && (
         <script type="application/ld+json" set:html={JSON.stringify(schema)} />
