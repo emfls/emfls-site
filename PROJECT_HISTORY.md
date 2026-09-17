@@ -1,3 +1,33 @@
+## 2026-09-17 — AdSense approval audit remediation
+
+- 목적: 최신 Notion P0 감사 지시에 따라 공개 placeholder, Privacy 운영 정합성, 공개 숫자 모순, legacy 내부 링크를 bounded하게 재점검.
+- 변경 파일: `src/data/articles.ts`, `TASKS.md`, `PROJECT_HISTORY.md`.
+- 변경 내용: 공개 AdSense 체크리스트의 과거 고정 article 수·완료 주장을 최신 build 기준 확인 문구로 교체했다. 공개 article 템플릿에 placeholder 렌더링이 없는 것을 확인했다.
+- Privacy: `src/pages/privacy.astro`의 Cloudflare Pages/GitHub source/GA4/AdSense 설명이 현재 코드 구조와 일치해 변경하지 않았다.
+- Redirect/link: `public/_redirects`의 inbound redirect는 유지하고, 소스의 내부 링크에 legacy article href가 없는 것을 확인했다.
+- 검증: `npm run build` PASS, 52페이지 생성. `dist` placeholder 0건, legacy article href 0건, `dist/sitemap.xml` 29개 URL, `dist/ads.txt` 존재, `dist/robots.txt`의 sitemap URL 정합성을 확인했다.
+- Live QA: `emfls.com` DNS 해석 실패로 fresh HTTP 확인 불가. 미확인 상태를 유지한다.
+- 상태: `READY_FOR_REVIEW` — Production fresh HTTP QA 후 최종 관제 리뷰 필요.
+
+## 2026-09-17 — Next Codex Action · reading time display fix
+
+- Notion의 Owner Request에 따라 홈페이지 카드에서 `10분분`처럼 표시되는 읽기 시간 중복을 재현했다.
+- `src/pages/articles/[slug].astro`가 이미 숫자형 `readingTimeMinutes`를 가진 `articleMeta`를 사용하도록 수정해 `N분` 한 번만 표시한다.
+- 후속 build에서 homepage/category 카드에 남은 `N분분`을 확인해 `src/components/ArticleCard.astro`도 동일한 숫자형 meta 포맷으로 통일했다.
+- 재검증: `npm run build` PASS, 생성물 `분분` 0건, sitemap 29개 URL, `git diff --check` PASS.
+- Fresh Production QA: web fresh 확인에서 `https://emfls.com/`, `/privacy/`, `/articles/`, `/site-map/`은 정상 콘텐츠를 반환했다. `https://www.emfls.com/`은 다른 사이트(“모여봐요 주식의 숲”)를 반환해 canonical/redirect 불일치 blocker를 재현했다.
+- DNS 조치: Cloudflare dashboard의 실제 zone/Pages custom domain 상태를 확인할 수 없어 DNS는 변경하지 않았다. `/sitemap.xml`, `/robots.txt`, `/ads.txt`, 404의 최종 QA는 `www` 설정 확인 후 재실행한다.
+- Cloudflare Dashboard 접근 결과: 로그인 화면으로 중단. zone/Pages 내부 상태를 추측하지 않으며, `www`가 연결된 다른 origin 식별 전에는 어떤 DNS/redirect도 변경하지 않는다.
+
+## 2026-09-17 — www origin confirmed; change held for impact review
+
+- Cloudflare `emfls.com` zone: apex는 `CNAME → emfls-site.pages.dev`(프록시됨).
+- 기존 `www` 레코드는 `CNAME → emfls.github.io`이며, `emfls-site` Pages Custom Domain에는 `emfls.com`만 활성 상태다.
+- Cloudflare의 `emfls-site` Custom Domain 추가 화면이 제안한 최소 DNS 변경은 기존 `www → emfls.github.io`를 `www → emfls-site.pages.dev`로 교체하는 것이다.
+- 영향: 이 변경은 다른 프로젝트 `emfls.github.io`의 현재 `www.emfls.com` 공개 진입점을 끊고 emfls-site로 이동시킨다. 프로젝트 삭제는 아니지만 영향이 명확하므로 사용자 확인 전 변경하지 않았다.
+- 상태: `BLOCKED_FOR_IMPACT_CONFIRMATION`; 확인 후 DNS 변경, www 301 규칙/Pages 동작 설정, 전체 fresh QA를 진행한다.
+- Production 홈페이지에서도 중복 표기를 확인했으며, DNS/HTTP 및 이후 전체 URL Live QA는 별도 fresh resolver 검증이 필요하다.
+
 ## 2026-09-14 — AdSense Approval Phase 0
 
 - 목적: `emfls.com` AdSense 승인 가능성 평가를 위한 현재 저장소 상태 감사.
@@ -452,6 +482,14 @@
 - 회귀 검증: 신규·기존 article 생성, canonical, sitemap, category/cluster page 목록, `dist/robots.txt`, 기존 `public/_redirects`, placeholder 0건을 확인했다.
 - 남은 문제: 본문 Markdown 링크를 실제 anchor로 렌더링하는 구조는 이번 범위에서 변경하지 않았다. incoming 링크 수는 의미적 중요도에 따라 비균등하다.
 - 다음 권장 작업: 필요성이 확인된 글에만 본문 문맥형 링크를 별도 설계하고, 현재 자동 related fallback의 배열 순서 의존성을 추가로 검토한다.
+## 2026-09-17 — www canonical host migration and Production QA
+
+- 변경 전: Cloudflare `emfls.com` zone의 `www`는 `CNAME → emfls.github.io`였고, `www.emfls.com`에서 별도 주식 사이트가 반환됐다. apex는 `CNAME → emfls-site.pages.dev`였으며 nameserver는 `michael.ns.cloudflare.com`, `molly.ns.cloudflare.com`이다.
+- 변경: `www` DNS를 `emfls-site.pages.dev`로 교체하고 `emfls-site` Pages Custom Domain에 `www.emfls.com`을 추가했다. 기존 `emfls.github.io` 프로젝트와 `https://emfls.github.io/`는 건드리지 않았다.
+- redirect: Cloudflare Single Redirect Rule `https://www.* → https://${1}`, 301, query string 유지를 배포했다. 다른 EMFLS 서브도메인 DNS는 변경하지 않았다.
+- fresh QA (2026-09-17): apex `/` 200; www `/`, `/privacy/`, 대표 article path가 동일 path의 apex로 301; `/privacy/`, `/articles/`, `/site-map/`, `/sitemap.xml`, `/robots.txt`, `/ads.txt` 200; 임의 경로 404. 대표 article canonical은 `https://emfls.com/articles/adsense-review-final-checklist/`이며 live sitemap/home에 `www.emfls.com` 참조가 없음을 확인했다.
+- 상태: `READY_FOR_REVIEW`.
+
 ## 2026-09-15 — XML sitemap 공개 URL 정리
 
 - 목적: 공개 sitemap entry point를 `/sitemap-index.xml`에서 `/sitemap.xml`로 통일.
@@ -524,7 +562,6 @@
 - 이미지 판단: AI illustration은 현재 불필요하다. 실제 screenshot은 원본이 확보될 때만 추가한다. Unsplash hero는 현재 유지하고 장기적으로 self-host 또는 branded illustration 전환을 권장한다.
 - 검증: `npm run build` PASS, 52페이지·article 15개. broken article link 0, self article link 0, canonical 51개, sitemap 29개 URL, robots·GA4·AdSense 유지.
 - 다음 권장 작업: 디자인 구현은 종료하고 실제 screenshot/visual 자산이 생길 때만 Batch 4를 검토한다. 이후에는 콘텐츠와 검색·운영 데이터 관찰을 우선한다.
-
 ## 2026-09-16 — LIVE 9 regression: production guard 정합성 수정
 
 - 목적: `emfls-site`의 GA4와 AdSense가 custom production domain에서만 로드되는지 최신 Network QA 기준으로 정합화.
@@ -532,3 +569,13 @@
 - 콘텐츠, 디자인, URL, canonical, sitemap, robots, ads.txt는 변경하지 않았다.
 - `npm install` 및 `npm run build` PASS. Astro static 52 pages와 sitemap normalization을 확인했고 `git diff --check` PASS.
 - Production fresh HTTP와 외부 Search Console/Naver/Daum/IndexNow 상태는 이 실행환경에서 확인하지 못했으므로 완료로 기록하지 않는다.
+
+## 2026-09-17 — STRICT_REAUDIT factual consistency and first-party evidence
+
+- P0 수정: `src/pages/privacy.astro`에 실제 GA4 사용, AdSense/Google·제3자 광고 파트너의 쿠키·유사 기술 및 광고 측정/개인화 가능성, Google 광고 설정 안내를 현재 코드와 과장 없이 맞췄다.
+- P0 수정: `src/data/articles.ts`에서 `Google Analytics 미사용`, 조건형 미래 표현, Phase 1/2B 및 과거 build/article 수 문구를 독자-facing 현재 설명으로 교체했다.
+- P1 수정: `src/pages/articles/[slug].astro`가 `articleEnhancements.screenshot`의 검증 자료를 실제 렌더링하도록 연결했다. `src/data/articleEnhancements.ts`의 미완성 제목을 `검증 자료`로 정리했다.
+- First-party 근거: DNS 오배치(`www CNAME → emfls.github.io`), apex Pages 연결, `www` Pages Custom Domain, Cloudflare Single Redirect 301, path/query 유지와 fresh HTTP 결과를 관련 flagship 글의 검증 자료에 반영했다. 실제 Dashboard를 위장하는 이미지나 새 AI 이미지 자산은 만들지 않았다.
+- 검증: `npm run build` PASS — 52 pages; stale 공개 표현 검색 후 의도된 일반 문맥만 잔존; `git diff --check` 및 canonical/sitemap/internal-link 검사 예정.
+- 남은 작업: 최신 변경을 Production에 배포한 뒤 대표 글·Privacy의 fresh HTTP QA 및 Desktop 1440px/Mobile 390px visual QA.
+- 상태: `READY_FOR_REVIEW` (Production 재배포·최종 fresh QA 전).

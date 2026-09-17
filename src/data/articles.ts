@@ -423,7 +423,7 @@ const sourceArticles: Article[] = [
       {
         heading: '페이지별 실제 정보',
         body: [
-          'About은 사이트 목적과 운영자 정보를, Contact는 `contact@emfls.com` 이메일을 제공합니다. Privacy는 이메일 문의 처리, Cloudflare Pages, GitHub, AdSense, Google Analytics 미사용을 설명합니다.',
+          'About은 사이트 목적과 운영자 정보를, Contact는 `contact@emfls.com` 이메일을 제공합니다. Privacy는 이메일 문의 처리, Cloudflare Pages, GitHub, Google Analytics 4, AdSense와 광고 파트너의 처리 가능성을 설명합니다.',
           'Terms는 콘텐츠 이용·외부 링크·금지 행위를, Editorial Policy는 작성·검토·광고 투명성을, Disclaimer는 정보 제공 범위와 책임 한계를 안내합니다.'
         ],
       },
@@ -521,7 +521,7 @@ const sourceArticles: Article[] = [
         heading: '수집하는 정보 확인',
         body: [
           '사이트가 방문자의 이름, 이메일, 문의 내용을 받는다면 어떤 경로로 수집하는지 적어야 합니다. 단순 이메일 문의만 받는 경우에도 사용자가 자발적으로 보낸 정보가 처리될 수 있습니다.',
-          'Google Analytics나 AdSense를 사용할 예정이라면 쿠키와 광고 식별자에 대한 설명이 필요합니다. 아직 쓰지 않는 도구는 “향후 사용할 수 있음”처럼 모호하게 쓰기보다 실제 적용 시 정책을 갱신하는 편이 낫습니다.'
+          'Google Analytics 4와 AdSense를 사용하는 경우 쿠키나 유사 기술, 분석·광고 측정 및 개인화 가능성을 실제 정책에 설명해야 합니다. 사용 중인 도구의 이름과 연결된 개인정보 안내를 명확히 쓰고, 사용자가 광고 설정을 관리할 수 있는 경로도 함께 제공합니다.'
         ],
       },
       {
@@ -664,7 +664,7 @@ const sourceArticles: Article[] = [
       {
         heading: '4. HTTPS와 배포 결과를 확인한다',
         body: [
-          'Cloudflare Pages 배포가 성공한 뒤 `https://emfls.com`, `/robots.txt`, `/ads.txt`, `/sitemap.xml`을 확인합니다. 저장소의 Phase 2B build 결과는 51페이지였습니다.',
+          'Cloudflare Pages 배포가 성공한 뒤 `https://emfls.com`, `/robots.txt`, `/ads.txt`, `/sitemap.xml`을 확인합니다. 페이지 수처럼 배포마다 달라지는 값보다 실제 응답 상태와 생성된 파일 내용을 기준으로 판정합니다.',
           '문제가 남으면 nameserver, DNS record, Pages custom domain, 인증서, 최신 배포를 순서대로 분리해 확인합니다.',
         ],
       },
@@ -724,7 +724,7 @@ const sourceArticles: Article[] = [
         heading: '현재 프로젝트의 공개 상태',
         body: [
           '현재 저장소는 Astro 정적 출력이며 `astro.config.mjs`의 site 값은 `https://emfls.com`입니다. 소스는 GitHub에서 관리하고 실제 서비스 배포는 Cloudflare Pages를 사용합니다.',
-          'Phase 1에서는 공개 글의 스크린샷 플레이스홀더를 제거하고 Privacy를 실제 운영환경에 맞췄으며 `public/ads.txt`를 추가했습니다. Phase 2B에서는 대표 글 12개와 5개 클러스터를 구성했습니다.',
+          '공개 글의 미완성 스크린샷 영역은 실제 서비스 화면을 가장하지 않도록 제거했고, Privacy·`public/ads.txt`·대표 콘텐츠를 현재 운영 구조에 맞춰 점검했습니다. 공개 글 목록은 고정 숫자로 주장하지 않고 현재 `/articles/`와 sitemap에서 확인합니다.',
         ],
       },
       {
@@ -737,7 +737,7 @@ const sourceArticles: Article[] = [
       {
         heading: '콘텐츠와 색인 구조',
         body: [
-          '현재 18개 글은 Phase 2B에서 고유 검색 의도 중심의 대표 12개로 압축했고, 6개 기존 article URL은 `public/_redirects`에서 대표 URL로 연결했습니다. 태그 archive는 `noindex,follow`입니다.',
+          '기존 글은 고유 검색 의도 중심의 대표 콘텐츠로 통합했고, 이전 article URL은 `public/_redirects`에서 최종 대표 URL로 연결했습니다. 공개 article 수는 고정 숫자로 주장하지 않고 최신 build 결과를 기준으로 확인합니다. 태그 archive는 `noindex,follow`입니다.',
           'XML sitemap은 대표 canonical 페이지 중심으로 생성되며 HTML sitemap과 404는 noindex입니다. 대표 글의 고유한 설명과 실제 운영 근거는 별도로 읽어야 합니다.',
         ],
       },

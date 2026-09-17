@@ -105,7 +105,7 @@ const schema = [
         <span>작성일 {article.date}</span>
         <span>최종 검토 {articleMeta.updatedAt}</span>
         <span>작성자 {site.author.name}</span>
-        <span>{article.readingTime}</span>
+        <span>{articleMeta.readingTimeMinutes}분</span>
       </div>
       <div class="tag-row">
         {articleMeta.tags.map((tag) => (
@@ -125,6 +125,12 @@ const schema = [
           {section.body.map((paragraph) => <p>{paragraph}</p>)}
         </section>
       ))}
+      <section class="project-example evidence-panel">
+        <p class="section-label">검증 자료 · 실제 운영 근거</p>
+        <h2>{enhancement.screenshot.title}</h2>
+        <p>{enhancement.screenshot.caption}</p>
+        <p class="evidence-note">이 글의 검증 자료는 실제 서비스·저장소·HTTP 결과를 확인할 위치를 설명합니다. 실제 Dashboard 화면이 아닌 설명용 패널이며, 확인하지 않은 계정 상태나 수치를 포함하지 않습니다.</p>
+      </section>
       {enhancement.checklist.length > 0 && <section class="project-example">
         <p class="section-label">실제 프로젝트 확인</p>
         <h2>{enhancement.example.title}</h2>

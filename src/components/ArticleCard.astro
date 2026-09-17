@@ -1,5 +1,8 @@
 ---
+import { getArticleMeta } from '../data/articles';
+
 const { article } = Astro.props;
+const articleMeta = getArticleMeta(article);
 const icon = article.icon ?? 'document';
 const iconLabel: Record<string, string> = {
   compass: '◇',
@@ -26,5 +29,5 @@ const iconLabel: Record<string, string> = {
   <div class="tag-row">
     {(article.tags ?? []).slice(0, 3).map((tag) => <span class="mini-tag">{tag}</span>)}
   </div>
-  <span class="meta card-meta">{article.updatedAt ?? article.date} · {article.readingTimeMinutes ?? article.readingTime}분</span>
+  <span class="meta card-meta">{articleMeta.updatedAt} · {articleMeta.readingTimeMinutes}분</span>
 </a>

@@ -232,7 +232,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '도메인, 배포 프로젝트, Search Console 속성, AdSense 등록 주소가 모두 같은 대표 도메인을 기준으로 맞춰진 화면을 캡처하면 추후 점검에 도움이 됩니다.',
     },
     checklist: [
@@ -274,7 +274,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'GitHub 저장소 화면, Pages 배포 로그, Cloudflare Pages 배포 로그를 나란히 비교하면 각 서비스의 역할 차이를 설명하기 좋습니다.',
     },
     checklist: [
@@ -316,7 +316,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '가비아 네임서버 변경 화면과 Cloudflare DNS 레코드 화면을 각각 캡처하면 “레코드 수정”과 “네임서버 변경”의 차이를 설명하기 좋습니다.',
     },
     checklist: [
@@ -358,7 +358,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'Astro 프로젝트 구조, `src/pages`, `src/layouts`, `src/data` 폴더를 보여주는 화면은 정적 사이트가 어떻게 생성되는지 설명하는 데 유용합니다.',
     },
     checklist: [
@@ -400,7 +400,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '푸터에 소개, 문의, 개인정보처리방침, 편집 정책, 면책 고지 링크가 모두 보이는 화면을 캡처하면 사이트 완성도를 점검하기 쉽습니다.',
     },
     checklist: [
@@ -442,7 +442,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '브라우저 주소창, 글 H1, 검색 결과에 표시될 title/description을 함께 보여주면 URL과 제목의 역할 차이를 설명하기 좋습니다.',
     },
     checklist: [
@@ -484,7 +484,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'Search Console에서 HTML 사이트맵 제출 오류와 XML 사이트맵 제출 성공 화면을 비교하면 초보자가 자주 겪는 혼동을 줄일 수 있습니다.',
     },
     checklist: [
@@ -527,7 +527,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '개인정보처리방침에서 문의 이메일, 외부 서비스, 광고 관련 문구가 보이는 부분을 캡처해 정책 점검 자료로 남길 수 있습니다.',
     },
     checklist: [
@@ -548,7 +548,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       },
       {
         question: 'AdSense 승인 전에도 광고 관련 문구를 넣어야 하나요?',
-        answer: '광고 스크립트를 삽입했거나 광고 서비스를 사용할 예정이라면 쿠키와 외부 서비스 가능성을 설명하는 편이 안전합니다.',
+        answer: '광고 스크립트와 광고 서비스를 사용한다면 쿠키 또는 유사 기술과 외부 서비스의 처리 가능성을 실제 정책에 설명하는 편이 안전합니다.',
       },
       {
         question: '정책 문서는 얼마나 자주 수정해야 하나요?',
@@ -569,7 +569,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '존재하지 않는 URL로 접속했을 때 404 페이지가 사이트 디자인 안에서 표시되고 홈/글 링크가 보이는 화면을 캡처합니다.',
     },
     checklist: [
@@ -611,7 +611,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '문의 페이지에서 이메일 주소와 문의 가능 범위가 보이는 화면을 캡처해 운영자 연락 가능성을 확인합니다.',
     },
     checklist: [
@@ -648,12 +648,12 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     example: {
       title: '실제 production QA에서 확인한 공개 경로',
       paragraphs: [
-        'production QA 기록에서는 `https://emfls.com`의 HTTPS 응답, HTTP→HTTPS redirect, 대표 article 11개의 200 응답과 self canonical을 확인했습니다. `www`의 독립적인 중복 200은 확인되지 않았고, 존재하지 않는 경로는 404를 반환했습니다.',
+        'production QA 기록에서는 `https://emfls.com`의 HTTPS 응답, HTTP→HTTPS redirect, 대표 article의 200 응답과 self canonical을 확인했습니다. `www`는 apex로 301 정규화했고, 존재하지 않는 경로는 404를 반환했습니다.',
         '`/robots.txt`는 200과 sitemap 선언, `/sitemap.xml`은 200과 대표 URL 목록, `/ads.txt`는 200과 `text/plain`을 확인했습니다. 과거 redirect 대상 URL도 `public/_redirects`에서 직접 대표 URL로 연결되는지 검사했으며 chain은 없었습니다.',
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'Cloudflare Pages 배포 성공 화면, 커스텀 도메인 활성화 화면, 실제 사이트 HTTPS 접속 화면을 순서대로 캡처합니다.',
     },
     checklist: [
@@ -696,7 +696,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '홈, 글 목록, 글 상세, 정책 페이지, 404 페이지가 모두 정상적으로 이어지는 흐름을 캡처해 심사 전 점검 자료로 남깁니다.',
     },
     checklist: [
@@ -739,7 +739,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'Cloudflare 도메인 Active 화면, DNS 레코드 목록, Pages Custom domains 연결 상태를 순서대로 캡처합니다.',
     },
     checklist: [
@@ -781,7 +781,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'Search Console의 사이트맵 제출 화면, HTML 사이트맵 오류, XML 사이트맵 정상 제출 화면을 비교합니다.',
     },
     checklist: [
@@ -818,12 +818,12 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
     example: {
       title: '저장소와 production QA에서 확인된 심사 준비 상태',
       paragraphs: [
-        '저장소 기준으로 `src/layouts/BaseLayout.astro`의 AdSense publisher 설정, `public/ads.txt`, `public/robots.txt`, XML sitemap 설정, 정책 페이지와 301 redirect를 확인했습니다. 대표 article은 11개이며 태그·HTML sitemap·404는 noindex 정책으로 구분되어 있습니다.',
+        '저장소 기준으로 `src/layouts/BaseLayout.astro`의 AdSense publisher 설정, `public/ads.txt`, `public/robots.txt`, XML sitemap 설정, 정책 페이지와 301 redirect를 확인했습니다. 태그·HTML sitemap·404는 noindex 정책으로 구분되어 있습니다.',
         'production QA에서는 homepage와 대표 article의 AdSense code, canonical, robots, sitemap, ads.txt, HTTPS와 404 응답을 확인했고 blocking issue는 없다고 기록했습니다. 이 결과는 심사 통과를 보장하는 주장이 아니라, 신청 전에 실제로 점검한 항목의 기록입니다.',
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'AdSense 확인 코드 화면, 실제 HTML head에 코드가 들어간 화면, Cloudflare Pages 최신 배포 성공 화면을 함께 보관합니다.',
     },
     checklist: [
@@ -866,7 +866,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: 'GitHub repository 연결, build command `npm run build`, output directory `dist/`를 배포 설정 문서와 함께 확인합니다.',
     },
     checklist: [
@@ -909,7 +909,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '주소창의 HTTPS 표시, Cloudflare SSL/TLS 상태, 실제 페이지 소스의 AdSense 코드 위치를 캡처합니다.',
     },
     checklist: [
@@ -961,7 +961,7 @@ export const articleEnhancements: Record<string, ArticleEnhancement> = {
       ],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '정적 사이트의 GitHub 저장소 구조와 WordPress 관리자 글쓰기 화면을 비교하면 운영 방식 차이를 설명하기 좋습니다.',
     },
     checklist: [
@@ -1003,7 +1003,7 @@ export function getArticleEnhancement(slug: string): ArticleEnhancement {
       paragraphs: ['이 글의 내용을 실제 사이트에 적용할 때는 변경한 값과 확인한 화면을 함께 기록하는 것이 좋습니다.'],
     },
     screenshot: {
-      title: '준비할 스크린샷',
+      title: '검증 자료',
       caption: '설정 전후 화면과 오류 메시지를 함께 캡처해두면 나중에 원인을 추적하기 쉽습니다.',
     },
     checklist: ['대표 도메인 기준으로 접속을 확인한다.', '변경 전후 값을 기록한다.', '공식 문서를 함께 확인한다.'],
