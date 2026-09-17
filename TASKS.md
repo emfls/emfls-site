@@ -11,11 +11,11 @@
 
 이번 작업은 P0 네 가지와 회귀 검증으로 제한한다. URL 구조, 레이아웃, 콘텐츠 대량 생성, 다른 `emfls-*` 저장소는 변경하지 않는다.
 
-## Next Codex Action · Production DNS/HTTP QA
+## Historical Next Codex Action · Production DNS/HTTP QA (resolved 2026-09-17)
 
-- Apex `https://emfls.com/`, `/privacy/`, `/articles/`, `/site-map/`은 fresh web 확인에서 정상 콘텐츠를 반환했다.
-- `https://www.emfls.com/`은 emfls-site가 아닌 다른 사이트를 반환했다. Cloudflare DNS/Pages dashboard의 실제 custom domain·redirect 설정 확인 없이는 수정하지 않는다.
-- `/sitemap.xml`, `/robots.txt`, `/ads.txt`, 404, canonical의 최종 fresh QA는 `www` 문제와 함께 재확인한다.
+- Apex와 주요 경로는 정상 콘텐츠를 반환했다.
+- 당시 `www.emfls.com` 오배치 blocker는 아래 Cloudflare DNS/Pages/Redirect 변경으로 해결했다.
+- 당시 보류했던 sitemap/robots/ads.txt/404/canonical QA도 아래 fresh QA에서 완료했다.
 - Cloudflare Dashboard는 로그인 화면으로 확인되어 `emfls.com` zone 레코드, Pages Custom Domain, 연결 origin을 확인하지 못했다. 로그인 후 해당 세 항목을 확인하고 최소 변경한다.
 - 실제 zone 확인: apex `emfls.com`은 `CNAME → emfls-site.pages.dev`(프록시됨). 변경 전 `www`는 `CNAME → emfls.github.io`였고 다른 사이트를 반환했다.
 - 변경 완료: `www`를 `emfls-site.pages.dev`로 교체하고 Pages Custom Domain을 활성화했다. `emfls.github.io` 프로젝트와 URL 자체는 유지했다.
