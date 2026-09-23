@@ -579,3 +579,15 @@
 - 검증: `npm run build` PASS — 52 pages; stale 공개 표현 검색 후 의도된 일반 문맥만 잔존; `git diff --check` 및 canonical/sitemap/internal-link 검사 예정.
 - 남은 작업: 최신 변경을 Production에 배포한 뒤 대표 글·Privacy의 fresh HTTP QA 및 Desktop 1440px/Mobile 390px visual QA.
 - 상태: `READY_FOR_REVIEW` (Production 재배포·최종 fresh QA 전).
+
+## 2026-09-23 — P2-01 Web Games Common Layout & Design Tokens
+
+- source main SHA: `102bd92d6582d711dd66215280d42421726603cd`.
+- implementation branch: `pivot/web-games-mvp`.
+- implementation commit: `63c6ef93404ea2e8ff5b6e1fc3ffa5921db5bc37`.
+- 생성 파일: `src/layouts/GameLayout.astro`, `src/styles/game-tokens.css`, `src/styles/game-shell.css`.
+- 범위: English-only 공통 문서 shell, `https://emfls.com` canonical/metadata contract, 공통 navigation/footer, accessibility foundation, shared design tokens와 shell CSS.
+- Home 본문, game route, legacy source, redirect, dependency, AdSense, analytics, Cloudflare, DNS, Production은 변경하지 않았다.
+- `git diff --check`: PASS.
+- `npm run build`: PASS — 기존 52개 페이지 생성.
+- 다음 작업: P2-02 Home shell.
