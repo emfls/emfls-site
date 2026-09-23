@@ -1,0 +1,78 @@
+---
+import '../styles/game-tokens.css';
+import '../styles/game-shell.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  robots?: string;
+  ogType?: string;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title = 'EMFLS Games',
+  description = 'Play original browser games at EMFLS Games.',
+  canonical = '/',
+  robots = 'index, follow',
+  ogType = 'website',
+  schema,
+} = Astro.props;
+
+const siteUrl = 'https://emfls.com';
+const pathname = canonical.startsWith('/') ? canonical : `/${canonical}`;
+const canonicalUrl = `${siteUrl}${pathname.endsWith('/') ? pathname : `${pathname}/`}`;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="EMFLS Games" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta name="twitter:card" content="summary" />
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="site-shell">
+      <a class="skip-link" href="#main-content">Skip to main content</a>
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a class="site-brand" href="/" aria-label="EMFLS Games home">EMFLS Games</a>
+          <nav class="site-nav" aria-label="Primary navigation">
+            <a href="/games/">Games</a>
+            <a href="/about/">About</a>
+          </nav>
+        </div>
+      </header>
+      <main class="site-main" id="main-content">
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <div class="site-footer__inner container">
+          <p class="site-footer__brand">EMFLS Games</p>
+          <nav class="site-footer__nav" aria-label="Footer navigation">
+            <a href="/games/">Games</a>
+            <a href="/categories/puzzle/">Puzzle</a>
+            <a href="/categories/arcade/">Arcade</a>
+            <a href="/categories/reflex/">Reflex</a>
+            <a href="/categories/strategy/">Strategy</a>
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
+            <a href="/privacy/">Privacy</a>
+            <a href="/terms/">Terms</a>
+            <a href="/site-map/">Site Map</a>
+          </nav>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
