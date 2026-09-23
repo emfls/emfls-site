@@ -592,6 +592,20 @@
 - `npm run build`: PASS — 기존 52개 페이지 생성.
 - 다음 작업: P2-02 Home shell.
 
+## 2026-09-24 — P2-02 Home Shell
+
+- branch: `pivot/web-games-mvp`.
+- base previous HEAD: `fa6bd3bea0a5de8361b312ba063f34f3de59709e`.
+- implementation commit: `46be1cf209dfbfbef9f8941ce0a5aab8d62f052c`.
+- 변경 파일: `src/pages/index.astro`, `src/styles/home.css`.
+- Home sections: product-first hero, product promises, four featured games, four categories, and a short Pick/Play/Restart guide.
+- English-only Home과 `GameLayout` 사용을 확인했다. planned game/category route 링크는 P2-03~P2-05 전까지 unresolved 상태가 의도된 것이다.
+- `git diff --check`: PASS.
+- `npm run build`: PASS — 52 pages generated.
+- Browser QA: desktop 1440px PASS, mobile 390px PASS. Console-specific inspection was not separately available; no visible blocking browser error occurred.
+- Production unchanged.
+- 다음 작업: P2-03 — `/games/` index shell only.
+
 ## 2026-09-23 — P2-01 Review Fix
 
 - review fix commit: `8d50a72ba891256cb90c322c86c66a8108d09cb6`.
