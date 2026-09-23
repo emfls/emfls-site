@@ -633,7 +633,7 @@
 - 임시 compile fixture와 browser fixture를 사용했고 검증 후 삭제했다. 실제 game detail route와 gameplay logic은 생성하지 않았다.
 - fixture build: PASS — 54 pages. final `npm run build`: PASS — 53 pages.
 - final `git diff --check`: PASS.
-- Browser QA: fixture desktop/mobile structure PASS. Console: `NOT_RUN — console inspection unavailable`.
+- Browser QA: fixture mobile 390px structure PASS; desktop fixture `NOT_RUN — not separately captured`. Console: `NOT_RUN — console inspection unavailable`.
 - Production unchanged.
 - 다음 작업: P2-05 — category routes only.
 
