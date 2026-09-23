@@ -1,5 +1,6 @@
 *,
-*::before {
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -102,7 +103,7 @@ svg {
 .site-footer {
   margin-top: var(--game-space-16);
   background: var(--game-color-text);
-  color: #edf4f5;
+  color: var(--game-color-footer-text);
 }
 
 .site-footer__inner {
@@ -115,7 +116,7 @@ svg {
 }
 
 .site-footer__nav a {
-  color: #d6e3e6;
+  color: var(--game-color-footer-link);
 }
 
 .container {
@@ -137,14 +138,14 @@ svg {
   border: 1px solid var(--game-color-primary);
   border-radius: var(--game-radius-small);
   background: var(--game-color-primary);
-  color: #fff;
+  color: var(--game-color-on-primary);
   font-weight: var(--game-font-weight-medium);
   text-decoration: none;
   transition: background var(--game-motion-fast) var(--game-motion-ease), transform var(--game-motion-fast) var(--game-motion-ease);
 }
 
 .button:hover {
-  background: #125765;
+  background: var(--game-color-primary-hover);
 }
 
 .button:active {
@@ -177,7 +178,7 @@ svg {
   transform: translateY(-150%);
   border-radius: var(--game-radius-small);
   background: var(--game-color-text);
-  color: #fff;
+  color: var(--game-color-on-primary);
   transition: transform var(--game-motion-fast) var(--game-motion-ease);
 }
 
@@ -216,7 +217,8 @@ svg {
   }
 
   *,
-  *::before {
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

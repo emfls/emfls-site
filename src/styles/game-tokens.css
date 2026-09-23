@@ -7,11 +7,15 @@
   --game-color-text-secondary: #53656c;
   --game-color-border: #d5e0e4;
   --game-color-primary: #176b78;
+  --game-color-primary-hover: #125765;
+  --game-color-on-primary: #fff;
   --game-color-secondary: #e5a83b;
   --game-color-success: #267a58;
   --game-color-warning: #9a6411;
   --game-color-danger: #b44545;
   --game-color-focus: #bd6d00;
+  --game-color-footer-text: #edf4f5;
+  --game-color-footer-link: #d6e3e6;
 
   --game-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --game-font-size-body: 1rem;
