@@ -1,80 +1,107 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import ArticleCard from '../components/ArticleCard.astro';
-import { articles, categoryList } from '../data/articles';
-import { site } from '../data/site';
+import GameLayout from '../layouts/GameLayout.astro';
+import '../styles/home.css';
 
-const featured = articles.slice(0, 6);
-const schema = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: site.name,
-    url: site.url,
-    description: '개인 도메인, DNS, 정적 웹사이트, Cloudflare Pages, 검색·SEO와 AdSense 운영을 다루는 한국어 가이드입니다.',
-    inLanguage: 'ko-KR',
-    publisher: {
-      '@type': 'Organization',
-      name: site.name,
-      url: site.url,
-    },
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: site.name,
-    url: site.url,
-    contactPoint: {
-      '@type': 'ContactPoint',
-      email: site.author.email,
-      contactType: 'editorial',
-      availableLanguage: 'Korean',
-    },
-  },
+const description = 'Play original puzzle, reflex, arcade, and strategy games in your browser. No install and no account required.';
+
+const featuredGames = [
+  { name: 'Pulse Junction', href: '/games/pulse-junction/', category: 'Reflex', mode: 'Solo', session: 'Under 1 min', mechanic: 'Time your input as an expanding pulse crosses the target ring.' },
+  { name: 'Mirror Drift', href: '/games/mirror-drift/', category: 'Puzzle', mode: 'Solo', session: '1–2 min', mechanic: 'Move one point while its mirrored partner moves in the opposite direction.' },
+  { name: 'Orbit Slip', href: '/games/orbit-slip/', category: 'Arcade', mode: 'Solo', session: '30–90 sec', mechanic: 'Adjust your orbit radius and slip through gaps without touching the barriers.' },
+  { name: 'Gravity Pact', href: '/games/gravity-pact/', category: 'Strategy', mode: 'Local 2 Player', session: '2–4 min', mechanic: 'Take turns choosing gravity and move every token on the shared board.' },
 ];
+
+const categories = [
+  { name: 'Puzzle', href: '/categories/puzzle/', description: 'Think through spatial, number, and placement challenges.' },
+  { name: 'Arcade', href: '/categories/arcade/', description: 'Quick sessions built around movement, timing, and risk.' },
+  { name: 'Reflex', href: '/categories/reflex/', description: 'Test timing, recognition, and fast decisions.' },
+  { name: 'Strategy', href: '/categories/strategy/', description: 'Make short, meaningful choices with clear trade-offs.' },
+];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'EMFLS Games',
+  url: 'https://emfls.com/',
+  description,
+  inLanguage: 'en',
+};
 ---
-<BaseLayout
-  title="EMFLS Guide | 개인 도메인과 정적 웹사이트 운영 가이드"
-  description="개인 도메인, DNS, 정적 웹사이트, Cloudflare Pages, 검색·SEO와 AdSense 운영을 초보자도 따라갈 수 있게 정리하는 한국어 가이드입니다."
+<GameLayout
+  title="EMFLS Games — Original Browser Games, No Install"
+  description={description}
+  canonical="/"
+  robots="index, follow"
+  ogType="website"
   schema={schema}
 >
-  <section class="hero">
-    <div class="container hero-inner">
-      <p class="eyebrow">개인 웹사이트 운영 가이드</p>
-      <h1>도메인 구매부터 Cloudflare Pages 공개까지 차근차근 정리합니다.</h1>
-      <p class="lead">
-        EMFLS Guide는 개인 도메인, DNS, 정적 사이트 제작, 검색 접근성, 운영 정책을 실제 사이트 운영 관점에서 설명합니다.
-      </p>
-      <div class="hero-actions">
-        <a class="button" href="/articles/">글 목록 보기</a>
-        <a class="button secondary" href="/site-map/">사이트맵 보기</a>
+  <section class="home-hero">
+    <div class="home-hero__inner container">
+      <div class="home-hero__copy">
+        <p class="home-eyebrow">Instant browser games</p>
+        <h1>Original browser games. No install. No account.</h1>
+        <p class="home-lead">Play quick puzzle, reflex, arcade, and strategy games in your browser on phone or desktop.</p>
+        <div class="home-actions">
+          <a class="button" href="/games/">Browse Games</a>
+          <a class="button button--secondary" href="#featured-games">Featured Games</a>
+        </div>
+      </div>
+      <div class="home-hero__signal" aria-hidden="true">
+        <span class="home-hero__signal-ring"></span>
+        <span class="home-hero__signal-dot"></span>
       </div>
     </div>
   </section>
 
-  <section class="section">
-    <div class="container split">
-      <div>
-        <p class="eyebrow">운영 기준</p>
-        <h2>처음 만드는 개인 사이트가 놓치기 쉬운 부분을 먼저 다룹니다.</h2>
-      </div>
-      <div class="panel">
-        <h3>주요 범위</h3>
-        <ul class="topic-list">
-          {categoryList.map((category) => (
-            <li><a href={`/categories/${category.slug}/`}><strong>{category.name}</strong><span>{category.description}</span><em aria-hidden="true">→</em></a></li>
-          ))}
-        </ul>
-      </div>
+  <section class="home-promises" aria-label="Product promises">
+    <div class="container promise-list">
+      <div class="promise-item"><span class="promise-item__mark" aria-hidden="true">✓</span><span>No install</span></div>
+      <div class="promise-item"><span class="promise-item__mark" aria-hidden="true">✓</span><span>No account</span></div>
+      <div class="promise-item"><span class="promise-item__mark" aria-hidden="true">✓</span><span>Mobile &amp; desktop</span></div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="home-section" id="featured-games">
     <div class="container">
-      <p class="eyebrow">최근 글</p>
-      <div class="content-grid">
-        {featured.map((article) => <ArticleCard article={article} />)}
+      <div class="section-heading">
+        <div><p class="home-eyebrow">Start here</p><h2>Featured Games</h2></div>
+        <a class="section-heading__link" href="/games/">View all games</a>
+      </div>
+      <div class="featured-grid">
+        {featuredGames.map((game) => (
+          <article class="game-card">
+            <div class="game-card__topline"><span class="game-card__category">{game.category}</span><span>{game.session}</span></div>
+            <h3>{game.name}</h3>
+            <p>{game.mechanic}</p>
+            <div class="game-card__footer"><span>{game.mode}</span><a class="game-card__link" href={game.href}>Play <span aria-hidden="true">→</span></a></div>
+          </article>
+        ))}
       </div>
     </div>
   </section>
-</BaseLayout>
+
+  <section class="home-section home-section--muted">
+    <div class="container">
+      <div class="section-heading"><div><p class="home-eyebrow">Find your next session</p><h2>Browse by Category</h2></div></div>
+      <div class="category-grid">
+        {categories.map((category) => (
+          <a class="category-card" href={category.href}>
+            <h3>{category.name}</h3><p>{category.description}</p>
+            <span class="category-card__link">Explore <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section home-steps">
+    <div class="container home-steps__inner">
+      <div><p class="home-eyebrow">Keep it simple</p><h2>Pick. Play. Restart.</h2></div>
+      <ol class="home-steps__list">
+        <li><span>01</span><strong>Choose a game</strong></li>
+        <li><span>02</span><strong>Learn the rule quickly</strong></li>
+        <li><span>03</span><strong>Restart or try another</strong></li>
+      </ol>
+    </div>
+  </section>
+</GameLayout>
