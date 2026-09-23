@@ -1,0 +1,8 @@
+---
+import GameCategoryPage from '../../components/GameCategoryPage.astro';
+import { gameCategories } from '../../data/gameCategories';
+
+const category = gameCategories.find((entry) => entry.slug === 'strategy');
+if (!category) throw new Error('Strategy category is not configured.');
+---
+<GameCategoryPage category={category} />

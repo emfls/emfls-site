@@ -1,0 +1,8 @@
+---
+import GameCategoryPage from '../../components/GameCategoryPage.astro';
+import { gameCategories } from '../../data/gameCategories';
+
+const category = gameCategories.find((entry) => entry.slug === 'reflex');
+if (!category) throw new Error('Reflex category is not configured.');
+---
+<GameCategoryPage category={category} />
