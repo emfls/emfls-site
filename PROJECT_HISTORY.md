@@ -622,6 +622,21 @@
 - Production unchanged.
 - 다음 작업: P2-04 — game detail common frame only.
 
+## 2026-09-24 — P2-04 Game Detail Common Frame
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `f3cda785a9b1cfb497bc722886726c8131eedbc5`.
+- implementation commit: `c4c302b0a47a72ecd7a3cfd2947fdab1c7969a12`.
+- 생성 파일: `src/components/GameDetailFrame.astro`, `src/styles/game-detail.css`.
+- `GameDetailFrame`은 `GameLayout`을 composition하고 `GameMeta`를 재사용한다. breadcrumb, game header, mode/session metadata, accessible game stage, How to Play/Controls/Scoring slots, optional Related Games slot, Back to all games 링크를 제공한다.
+- `VideoGame` JSON-LD는 전달받은 `GameMeta`와 visible description에서만 생성하며 canonical은 `game.href`를 사용한다.
+- 임시 compile fixture와 browser fixture를 사용했고 검증 후 삭제했다. 실제 game detail route와 gameplay logic은 생성하지 않았다.
+- fixture build: PASS — 54 pages. final `npm run build`: PASS — 53 pages.
+- final `git diff --check`: PASS.
+- Browser QA: fixture desktop/mobile structure PASS. Console: `NOT_RUN — console inspection unavailable`.
+- Production unchanged.
+- 다음 작업: P2-05 — category routes only.
+
 ## 2026-09-23 — P2-01 Review Fix
 
 - review fix commit: `8d50a72ba891256cb90c322c86c66a8108d09cb6`.
