@@ -1,0 +1,123 @@
+---
+import GameLayout from '../../layouts/GameLayout.astro';
+import { games } from '../../data/games';
+import '../../styles/games-index.css';
+
+const description = 'Browse all original EMFLS browser games, including puzzle, reflex, arcade, and strategy games. Play instantly with no install or account.';
+const categories = ['All', 'Puzzle', 'Arcade', 'Reflex', 'Strategy'];
+const modes = ['All', 'Solo', 'Local 2 Player'];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Browser Games — Puzzle, Arcade, Reflex & Strategy | EMFLS Games',
+  url: 'https://emfls.com/games/',
+  description,
+  inLanguage: 'en',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: games.length,
+    itemListElement: games.map((game, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'VideoGame',
+        name: game.name,
+        url: `https://emfls.com${game.href}`,
+        description: game.description,
+      },
+    })),
+  },
+};
+---
+<GameLayout
+  title="Browser Games — Puzzle, Arcade, Reflex & Strategy | EMFLS Games"
+  description={description}
+  canonical="/games/"
+  robots="index, follow"
+  ogType="website"
+  schema={schema}
+>
+  <div class="games-page">
+    <section class="games-intro container">
+      <p class="games-eyebrow">All games</p>
+      <h1>Pick a game and start playing.</h1>
+      <p>Browse eight original browser games built for quick sessions on phone and desktop.</p>
+    </section>
+
+    <section class="games-directory container" aria-labelledby="games-list-heading">
+      <div class="games-filter-panel" aria-label="Filter games">
+        <div class="games-filter-group" role="group" aria-labelledby="category-filter-label">
+          <span class="games-filter-label" id="category-filter-label">Category</span>
+          <div class="filter-buttons">
+            {categories.map((category, index) => (
+              <button class:list={['filter-button', { 'is-active': index === 0 }]} type="button" data-filter-group="category" data-filter-value={category} aria-pressed={index === 0 ? 'true' : 'false'}>{category}</button>
+            ))}
+          </div>
+        </div>
+        <div class="games-filter-group" role="group" aria-labelledby="mode-filter-label">
+          <span class="games-filter-label" id="mode-filter-label">Mode</span>
+          <div class="filter-buttons">
+            {modes.map((mode, index) => (
+              <button class:list={['filter-button', { 'is-active': index === 0 }]} type="button" data-filter-group="mode" data-filter-value={mode} aria-pressed={index === 0 ? 'true' : 'false'}>{mode}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="games-toolbar">
+        <h2 id="games-list-heading">All games</h2>
+        <p class="games-count" aria-live="polite"><span data-games-count>{games.length}</span> games</p>
+      </div>
+
+      <div class="games-grid">
+        {games.map((game) => (
+          <article class="games-card" data-game-card data-categories={game.categories.join(',')} data-mode={game.mode}>
+            <div class="games-card__meta"><span class="games-card__primary">{game.primaryCategory}</span><span>{game.session}</span></div>
+            <h3>{game.name}</h3>
+            <p>{game.description}</p>
+            <div class="games-card__categories" aria-label={`Categories: ${game.categories.join(', ')}`}>
+              {game.categories.map((category) => <span>{category}</span>)}
+            </div>
+            <div class="games-card__footer"><span>{game.mode}</span><a class="games-card__play" href={game.href}>Play <span aria-hidden="true">→</span></a></div>
+          </article>
+        ))}
+      </div>
+      <p class="games-empty" hidden>No games match these filters.</p>
+    </section>
+  </div>
+</GameLayout>
+
+<script>
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-game-card]'));
+  const count = document.querySelector<HTMLElement>('[data-games-count]');
+  const empty = document.querySelector<HTMLElement>('.games-empty');
+  const filters = { category: 'All', mode: 'All' };
+
+  const updateGames = () => {
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const categories = card.dataset.categories?.split(',') ?? [];
+      const categoryMatch = filters.category === 'All' || categories.includes(filters.category);
+      const modeMatch = filters.mode === 'All' || card.dataset.mode === filters.mode;
+      const visible = categoryMatch && modeMatch;
+      card.hidden = !visible;
+      if (visible) visibleCount += 1;
+    });
+    if (count) count.textContent = String(visibleCount);
+    if (empty) empty.hidden = visibleCount !== 0;
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-filter-group]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const group = button.dataset.filterGroup as 'category' | 'mode';
+      filters[group] = button.dataset.filterValue ?? 'All';
+      document.querySelectorAll<HTMLButtonElement>(`[data-filter-group="${group}"]`).forEach((peer) => {
+        const active = peer === button;
+        peer.classList.toggle('is-active', active);
+        peer.setAttribute('aria-pressed', String(active));
+      });
+      updateGames();
+    });
+  });
+</script>

@@ -1,0 +1,35 @@
+.games-page { background: var(--game-color-background); }
+.games-intro { max-width: var(--game-readable-max-width); padding-block: var(--game-space-12) var(--game-space-8); }
+.games-eyebrow { margin: 0 0 var(--game-space-3); color: var(--game-color-primary); font-size: var(--game-font-size-small); font-weight: var(--game-font-weight-bold); letter-spacing: 0.08em; text-transform: uppercase; }
+.games-intro h1 { margin: 0; font-size: var(--game-font-size-h1); line-height: var(--game-line-height-heading); letter-spacing: -0.04em; }
+.games-intro > p:last-child { margin: var(--game-space-5) 0 0; color: var(--game-color-text-secondary); font-size: var(--game-font-size-large); }
+.games-directory { padding-bottom: var(--game-space-16); }
+.games-filter-panel { min-width: 0; display: grid; gap: var(--game-space-5); padding: var(--game-space-5); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); }
+.games-filter-group { display: flex; align-items: center; gap: var(--game-space-5); }
+.games-filter-label { min-width: 5rem; color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); font-weight: var(--game-font-weight-bold); }
+.filter-buttons { display: flex; flex-wrap: wrap; gap: var(--game-space-2); }
+.filter-button { min-height: var(--game-control-min-size); padding: var(--game-space-2) var(--game-space-4); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-pill); background: transparent; color: var(--game-color-text-secondary); font-weight: var(--game-font-weight-medium); }
+.filter-button:hover, .filter-button.is-active { border-color: var(--game-color-primary); background: var(--game-color-primary); color: var(--game-color-on-primary); }
+.games-toolbar { display: flex; align-items: end; justify-content: space-between; gap: var(--game-space-4); margin: var(--game-space-10) 0 var(--game-space-5); }
+.games-toolbar h2 { margin: 0; font-size: var(--game-font-size-h2); line-height: var(--game-line-height-heading); }
+.games-count { margin: 0; color: var(--game-color-text-secondary); font-weight: var(--game-font-weight-medium); }
+.games-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--game-space-5); }
+.games-card { min-width: 0; min-height: 18rem; display: flex; flex-direction: column; padding: var(--game-space-5); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); box-shadow: var(--game-shadow); }
+.games-card__meta, .games-card__footer { display: flex; align-items: center; justify-content: space-between; gap: var(--game-space-2); color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
+.games-card__primary { color: var(--game-color-primary); font-weight: var(--game-font-weight-bold); }
+.games-card h3 { min-width: 0; margin: var(--game-space-6) 0 var(--game-space-3); font-size: var(--game-font-size-h3); line-height: var(--game-line-height-heading); overflow-wrap: anywhere; }
+.games-card p { min-width: 0; margin: 0; color: var(--game-color-text-secondary); overflow-wrap: anywhere; }
+.games-card__categories { display: flex; flex-wrap: wrap; gap: var(--game-space-2); margin-top: var(--game-space-5); }
+.games-card__categories span { padding: var(--game-space-1) var(--game-space-2); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-pill); color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
+.games-card__footer { margin-top: auto; padding-top: var(--game-space-6); }
+.games-card__play { min-height: var(--game-control-min-size); display: inline-flex; align-items: center; gap: var(--game-space-2); font-weight: var(--game-font-weight-bold); text-decoration: none; }
+.games-empty { padding: var(--game-space-10); border: 1px dashed var(--game-color-border); border-radius: var(--game-radius-medium); color: var(--game-color-text-secondary); text-align: center; }
+
+@media (max-width: 64rem) { .games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 40rem) {
+  .games-intro { padding-block: var(--game-space-10) var(--game-space-6); }
+  .games-filter-group { align-items: flex-start; flex-direction: column; gap: var(--game-space-2); }
+  .games-filter-label { min-width: 0; }
+  .games-toolbar { align-items: flex-start; flex-direction: column; margin-top: var(--game-space-8); }
+  .games-grid { grid-template-columns: 1fr; }
+}
