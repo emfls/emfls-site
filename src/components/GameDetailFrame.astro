@@ -1,0 +1,89 @@
+---
+import GameLayout from '../layouts/GameLayout.astro';
+import type { GameMeta } from '../data/games';
+import '../styles/game-detail.css';
+
+interface Props {
+  game: GameMeta;
+  pageDescription?: string;
+  robots?: string;
+  scoringLabel?: string;
+}
+
+const {
+  game,
+  pageDescription = game.description,
+  robots = 'index, follow',
+  scoringLabel = 'Scoring',
+} = Astro.props;
+
+const title = `${game.name} — Play Free in Your Browser | EMFLS Games`;
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: game.name,
+  url: `https://emfls.com${game.href}`,
+  description: pageDescription,
+  inLanguage: 'en',
+  genre: game.categories,
+  gamePlatform: 'Web Browser',
+};
+---
+<GameLayout title={title} description={pageDescription} canonical={game.href} robots={robots} ogType="website" schema={schema}>
+  <div class="game-detail">
+    <div class="container">
+      <nav class="game-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">→</span>
+        <a href="/games/">Games</a>
+        <span aria-hidden="true">→</span>
+        <span aria-current="page">{game.name}</span>
+      </nav>
+
+      <header class="game-detail__header">
+        <p class="game-detail__eyebrow">{game.primaryCategory}</p>
+        <h1>{game.name}</h1>
+        <p class="game-detail__description">{pageDescription}</p>
+        <div class="game-detail__meta" aria-label="Game information">
+          <span class="game-detail__meta-item"><strong>Mode</strong> {game.mode}</span>
+          <span class="game-detail__meta-item"><strong>Session</strong> {game.session}</span>
+        </div>
+      </header>
+
+      <section class="game-detail__stage-section" aria-labelledby="game-play-heading">
+        <h2 class="visually-hidden" id="game-play-heading">Play {game.name}</h2>
+        <div class="game-detail__stage"><slot name="game" /></div>
+      </section>
+
+      <div class="game-detail__guides">
+        {Astro.slots.has('how-to-play') && (
+          <section class="game-detail__guide" aria-labelledby="how-to-play-heading">
+            <h2 id="how-to-play-heading">How to Play</h2>
+            <slot name="how-to-play" />
+          </section>
+        )}
+        {Astro.slots.has('controls') && (
+          <section class="game-detail__guide" aria-labelledby="controls-heading">
+            <h2 id="controls-heading">Controls</h2>
+            <slot name="controls" />
+          </section>
+        )}
+        {Astro.slots.has('scoring') && (
+          <section class="game-detail__guide" aria-labelledby="scoring-heading">
+            <h2 id="scoring-heading">{scoringLabel}</h2>
+            <slot name="scoring" />
+          </section>
+        )}
+      </div>
+
+      {Astro.slots.has('related-games') && (
+        <section class="game-detail__related" aria-labelledby="related-games-heading">
+          <h2 id="related-games-heading">Related Games</h2>
+          <slot name="related-games" />
+        </section>
+      )}
+
+      <a class="game-detail__back" href="/games/">← Back to all games</a>
+    </div>
+  </div>
+</GameLayout>

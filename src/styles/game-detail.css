@@ -1,0 +1,27 @@
+.game-detail { padding-block: var(--game-space-8) var(--game-space-16); background: var(--game-color-background); }
+.game-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--game-space-2); color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
+.game-breadcrumb a { min-height: var(--game-control-min-size); display: inline-flex; align-items: center; }
+.game-breadcrumb [aria-current='page'] { color: var(--game-color-text); font-weight: var(--game-font-weight-medium); }
+.game-detail__header { max-width: var(--game-readable-max-width); padding-block: var(--game-space-10) var(--game-space-8); }
+.game-detail__eyebrow { margin: 0 0 var(--game-space-3); color: var(--game-color-primary); font-size: var(--game-font-size-small); font-weight: var(--game-font-weight-bold); letter-spacing: 0.08em; text-transform: uppercase; }
+.game-detail__header h1 { margin: 0; font-size: var(--game-font-size-h1); line-height: var(--game-line-height-heading); letter-spacing: -0.04em; }
+.game-detail__description { margin: var(--game-space-5) 0 0; color: var(--game-color-text-secondary); font-size: var(--game-font-size-large); }
+.game-detail__meta { display: flex; flex-wrap: wrap; gap: var(--game-space-3) var(--game-space-6); margin-top: var(--game-space-6); color: var(--game-color-text-secondary); }
+.game-detail__meta-item { min-height: var(--game-control-min-size); display: inline-flex; align-items: center; gap: var(--game-space-2); }
+.game-detail__meta-item strong { color: var(--game-color-text); }
+.game-detail__stage-section { margin-inline: auto; max-width: var(--game-frame-max-width); }
+.game-detail__stage { min-height: clamp(18rem, 52vw, 34rem); display: grid; place-items: center; overflow: hidden; border: 1px solid var(--game-color-border); border-radius: var(--game-radius-large); background: var(--game-color-surface); box-shadow: var(--game-shadow-elevated); }
+.game-detail__guides { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--game-space-5); max-width: var(--game-frame-max-width); margin: var(--game-space-10) auto 0; }
+.game-detail__guide, .game-detail__related { padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); }
+.game-detail__guide h2, .game-detail__related h2 { margin: 0 0 var(--game-space-4); font-size: var(--game-font-size-h3); line-height: var(--game-line-height-heading); }
+.game-detail__guide p, .game-detail__related p { margin: 0; color: var(--game-color-text-secondary); }
+.game-detail__related { max-width: var(--game-frame-max-width); margin: var(--game-space-5) auto 0; }
+.game-detail__back { min-height: var(--game-control-min-size); display: inline-flex; align-items: center; margin-top: var(--game-space-10); font-weight: var(--game-font-weight-bold); }
+
+@media (max-width: 56rem) { .game-detail__guides { grid-template-columns: 1fr; } }
+@media (max-width: 40rem) {
+  .game-detail { padding-top: var(--game-space-4); }
+  .game-detail__header { padding-block: var(--game-space-8) var(--game-space-6); }
+  .game-detail__stage { min-height: 18rem; }
+  .game-detail__meta { gap: var(--game-space-2) var(--game-space-4); }
+}
