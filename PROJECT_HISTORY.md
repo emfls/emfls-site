@@ -637,6 +637,21 @@
 - Production unchanged.
 - 다음 작업: P2-05 — category routes only.
 
+## 2026-09-24 — P2-05 Game Category Routes
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `fcd0b0a1c4b9c436b3adfc99d395a979a7bdc284`.
+- implementation commit: `2d0b3631b64ddfe212974a03f33466a1de176e9c`.
+- 4개 static route 생성: `/categories/puzzle/`, `/categories/arcade/`, `/categories/reflex/`, `/categories/strategy/`.
+- `GameCategoryPage.astro`가 `GameLayout`과 shared `games.ts`를 재사용하고, `gameCategories.ts`는 `GameCategory` type만 재사용한다.
+- category membership: Puzzle 3, Arcade 3, Reflex 3, Strategy 4. 각 page는 initial HTML game cards, breadcrumb, category-specific intro, canonical game href, CollectionPage/ItemList schema를 제공한다.
+- 기존 `src/pages/categories/[slug].astro`와 legacy categories는 변경하지 않았다. `/categories/two-player/`와 실제 game detail route도 생성하지 않았다.
+- `git diff --check`: PASS.
+- `npm run build`: PASS — 57 pages generated.
+- Browser QA: Puzzle/Strategy desktop 1440px PASS; Arcade/Reflex mobile 390px PASS. Console: `NOT_RUN — console inspection unavailable`.
+- Production unchanged.
+- 다음 작업: P2-06 — About / Contact / Privacy / Terms update only.
+
 ## 2026-09-23 — P2-01 Review Fix
 
 - review fix commit: `8d50a72ba891256cb90c322c86c66a8108d09cb6`.
