@@ -591,3 +591,13 @@
 - `git diff --check`: PASS.
 - `npm run build`: PASS — 기존 52개 페이지 생성.
 - 다음 작업: P2-02 Home shell.
+
+## 2026-09-23 — P2-01 Review Fix
+
+- review fix commit: `8d50a72ba891256cb90c322c86c66a8108d09cb6`.
+- `game-shell.css`의 box-sizing reset과 reduced-motion selector를 `*`, `*::before`, `*::after`로 통일했다.
+- 공통 색상 4개를 `game-tokens.css`의 semantic token으로 이동했다: primary hover, on primary, footer text, footer link.
+- `GameLayout.astro` 및 legacy source, redirects, dependencies, Cloudflare, DNS, Production은 변경하지 않았다.
+- `git diff --check`: PASS.
+- `npm run build`: PASS — 기존 52개 페이지 생성.
+- 다음 작업: P2-02 Home shell.
