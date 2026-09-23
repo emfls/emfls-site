@@ -606,6 +606,22 @@
 - Production unchanged.
 - 다음 작업: P2-03 — `/games/` index shell only.
 
+## 2026-09-24 — P2-03 Games Index Shell
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `bdc5acf2da2a537380ccb7af15b2776e70290ad1`.
+- implementation commit: `6bf95620ac8fd4d3cc20abee2d308f370804bb7d`.
+- 변경 파일: `src/pages/games/index.astro`, `src/styles/games-index.css`, `src/data/games.ts`.
+- shared catalog: 8 games; Puzzle 3, Arcade 3, Reflex 3, Strategy 4; Solo 7, Local 2 Player 1.
+- `/games/`는 GameLayout 기반으로 8개 카드를 initial HTML에 정적으로 렌더링하고, category/mode plain client filtering, result count, zero-result empty state를 제공한다.
+- no-JS 카드 렌더, CollectionPage/ItemList schema, English-only metadata를 확인했다.
+- game detail/category 링크는 P2-04~P2-05 전까지 unresolved 상태가 의도된 것이다. `/categories/two-player/`는 생성하거나 링크하지 않았다.
+- `git diff --check`: PASS.
+- `npm run build`: PASS — 53 pages generated.
+- Browser QA: desktop 1440px PASS, mobile 390px PASS. Console: `NOT_RUN — console inspection unavailable`.
+- Production unchanged.
+- 다음 작업: P2-04 — game detail common frame only.
+
 ## 2026-09-23 — P2-01 Review Fix
 
 - review fix commit: `8d50a72ba891256cb90c322c86c66a8108d09cb6`.
