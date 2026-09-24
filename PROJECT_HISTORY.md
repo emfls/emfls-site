@@ -770,3 +770,15 @@
 - `git diff --check`: PASS.
 - `npm run build`: PASS — 기존 52개 페이지 생성.
 - 다음 작업: P2-02 Home shell.
+## 2026-09-25 — P3-G01-D Pulse Junction Gameplay Input
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `40267a9491dfc27008f33f4a6094cee4ad26acf6`.
+- implementation commit: `eb92398` (`feat: add Pulse Junction gameplay input`).
+- added `input.ts` with Pointer Events-only Canvas input, primary-pointer tracking, multi-touch suppression, Space input with interactive-target guard, timestamp normalization, resize/orientation cancellation, and complete listener cleanup.
+- updated `controller.ts` with earliest timestamp arbitration, exact input-time motion/judgement using `judgeRadii()`, pulse-end race handling, one judgement per round, preserved automatic Miss flow, and ACTIVE/FEEDBACK visibility pause.
+- Resume preserves the current round/config and restarts the Pulse after 3→2→1; score, combo, storage, audio, ads, and analytics remain unchanged/absent.
+- added scoped Canvas `touch-action: none` and `user-select: none`.
+- source-level QA confirmed no `touchstart`, `mousedown`, gameplay click listener, duplicated judgement thresholds, scoring, combo, storage, audio, ads, or analytics. Runtime browser QA was not run in this environment.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages generated. Production unchanged.
+- next task: P3-G01-E.
