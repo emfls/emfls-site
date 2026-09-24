@@ -782,3 +782,11 @@
 - source-level QA confirmed no `touchstart`, `mousedown`, gameplay click listener, duplicated judgement thresholds, scoring, combo, storage, audio, ads, or analytics. Runtime browser QA was not run in this environment.
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages generated. Production unchanged.
 - next task: P3-G01-E.
+## 2026-09-25 — P3-G01-D Runtime Verification
+
+- branch: `pivot/web-games-mvp`; base HEAD: `b022a7aae5efdca372d9a3bfcad3cc43be062006`.
+- no product source modifications and no temporary QA files retained.
+- local preview loaded `/games/pulse-junction/`; initial IDLE shell showed Round 1 / 20, Score 0, Combo 0. Start button activation and 3→2→1 countdown were observed; automatic round progression reached later rounds with Miss feedback and Score/Combo remaining 0.
+- Canvas coordinate pointer injection, Space key injection, viewport resizing, visibility lifecycle simulation, and console inspection were unavailable through the connected browser automation surface. Mobile 390 pointer, button Space guards, active visibility pause/resume, resize/orientation, multi-touch, pointer+Space arbitration, and pulse-end precision remain NOT_RUN.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages generated. Production unchanged.
+- P3-G01-D remains PARTIAL; do not advance to P3-G01-E. Next: P3-G01-D-VERIFY retry with browser controls that expose pointer coordinates, keyboard events, visibility, and viewport emulation.
