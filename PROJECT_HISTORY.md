@@ -624,6 +624,19 @@
 - Accessibility checks: skip links, heading hierarchy, keyboard-native filter controls, `aria-pressed`, fixture button/link structure, and focus-visible styles are present in source; console inspection unavailable. Horizontal overflow was not observed in the inspected desktop/mobile shell states.
 - P2-07 QA PARTIAL — fixes required. Production unchanged.
 
+## 2026-09-24 — P2-07-FIX Site Map and 404
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `feb48ce0ec93d81f806e743be406315240fde1cd`.
+- implementation commit: `1ab8e69c78828930dd0604322aeeea62ce1f7b22`.
+- ISSUE P2-07-01 fixed: `/site-map/` now uses the English `GameLayout`, `noindex, follow`, and the exact 18-destination final IA contract: Home, Games, 8 games from `games.ts`, 4 categories from `gameCategories.ts`, and About/Contact/Privacy/Terms. Legacy article, tag, guide, and disclaimer links are absent.
+- ISSUE P2-07-02 fixed: custom 404 now uses the English GameLayout with Page Not Found copy, Home and Games CTAs, no article recommendations, `noindex, follow`, and no forced canonical or `og:url`.
+- `GameLayout.astro` changed only to support `canonical={null}`. Existing canonical strings remain unchanged for Home, Games, Puzzle, About, Contact, Privacy, and Terms.
+- HTTP QA: `/` 200, `/games/` 200, `/site-map/` 200, `/this-route-does-not-exist-p2-07-fix/` 404.
+- Browser QA: Site Map and custom 404 loaded in the English GameLayout at desktop/mobile-capable local preview. 1440px and 390px verified; 320px: NOT_RUN. Horizontal overflow was not observed. Console: `NOT_RUN — console inspection unavailable`.
+- `git diff --check`: PASS. `npm run build`: PASS — 57 pages generated.
+- Production, main, legacy source, redirects, dependencies, Cloudflare, and DNS unchanged.
+
 ## 2026-09-24 — P2-02 Home Shell
 
 - branch: `pivot/web-games-mvp`.
