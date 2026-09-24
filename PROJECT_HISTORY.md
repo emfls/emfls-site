@@ -676,6 +676,18 @@
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages generated. Forbidden-pattern/static checks PASS. Browser route/shell structure PASS at local preview; Start interaction and console: `NOT_RUN — console inspection unavailable` because the connected browser surface did not expose button interaction/console APIs. 320px: NOT_RUN.
 - Production unchanged.
 - next task: P3-G01-C — Pulse Junction core mechanic / RNG / renderer only.
+
+## 2026-09-24 — P3-G01-B Controller Fix
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `9de0457db8524e37333875b42861d605e351bad8`.
+- implementation commit: `cc69de2165e0bd04871f24f67eea26bb9543538b`.
+- root cause: controller compared six `GameState` values with five overlay panels. ACTIVE intentionally has no overlay because Canvas and HUD remain visible while all overlays are hidden.
+- validation now requires exactly the five overlay states `IDLE`, `COUNTDOWN`, `FEEDBACK`, `PAUSED`, and `RESULT`, with no duplicate or unexpected panel values. The unused frontmatter controller import was removed; the client script import remains.
+- fresh preview runtime: initial IDLE; Start → COUNTDOWN with 3, then 2, then 1, then ACTIVE after 1950ms; ACTIVE kept Canvas/HUD and hid all overlays. Rapid duplicate Start produced one countdown chain and one ACTIVE transition. Console errors: 0.
+- responsive runtime checks: 1440px, 390px, and 320px all had no horizontal overflow. `git diff --check`: PASS. `npm run build`: PASS — 58 pages.
+- gameplay mechanic, input, judgement, scoring, RNG, storage, and rendering remain absent. Production unchanged.
+- P3-G01-B FINAL PASS. Next task: P3-G01-C — Pulse Junction core mechanic / RNG / renderer only.
 - 다음 작업: P2-03 — `/games/` index shell only.
 
 ## 2026-09-24 — P2-03 Games Index Shell
