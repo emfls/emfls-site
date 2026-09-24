@@ -663,6 +663,19 @@
 - `npm run build`: PASS — 52 pages generated.
 - Browser QA: desktop 1440px PASS, mobile 390px PASS. Console-specific inspection was not separately available; no visible blocking browser error occurred.
 - Production unchanged.
+
+## 2026-09-24 — P3-G01-B Pulse Junction State Shell
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `323d110ff5c1013fa6227538f688c9d3f090f02c`.
+- implementation commit: `c5d434b33a4dc3a1a34dd8ae02526d6489e66104`.
+- created `/games/pulse-junction/` using the existing `games.ts` lookup and `GameDetailFrame`; canonical and inherited `VideoGame` schema are correct. Related Games remains deferred.
+- added `PulseJunctionGame.astro`, token-based game CSS, structural types/constants, and a scoped controller. The shell includes blank Canvas, Round/Score/Combo HUD, IDLE, COUNTDOWN, ACTIVE, FEEDBACK, PAUSED, and RESULT panels with Start/Resume/Play Again controls.
+- implemented only the structural IDLE → COUNTDOWN → ACTIVE flow with 3/2/1 at 650ms steps and duplicate Start protection. No pulse rendering, target/decoy, gameplay input, judgement, scoring, combo, RNG, storage, visibility pause, resize gameplay, audio, ads, or analytics was added.
+- intentionally did not create `logic.ts`, `rng.ts`, `renderer.ts`, `input.ts`, or `storage.ts`; the other 7 game routes remain unresolved.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages generated. Forbidden-pattern/static checks PASS. Browser route/shell structure PASS at local preview; Start interaction and console: `NOT_RUN — console inspection unavailable` because the connected browser surface did not expose button interaction/console APIs. 320px: NOT_RUN.
+- Production unchanged.
+- next task: P3-G01-C — Pulse Junction core mechanic / RNG / renderer only.
 - 다음 작업: P2-03 — `/games/` index shell only.
 
 ## 2026-09-24 — P2-03 Games Index Shell
