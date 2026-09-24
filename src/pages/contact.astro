@@ -1,21 +1,15 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import GameLayout from '../layouts/GameLayout.astro';
+import '../styles/trust-pages.css';
 ---
-<BaseLayout
-  title="문의 | EMFLS Guide"
-  description="EMFLS Guide 운영자에게 문의하는 방법을 안내합니다."
-  canonical="/contact/"
->
-  <section class="simple-page trust-page contact-page">
-    <p class="eyebrow">문의</p>
-    <h1>문의하기</h1>
-    <p class="lead">
-      사이트 내용 오류, 링크 문제, 운영 관련 문의는 이메일로 보내주세요.
-    </p>
-    <div class="contact-card"><p class="section-label">이메일 문의</p><a class="contact-email" href="mailto:contact@emfls.com">contact@emfls.com</a><p>사이트 내용 오류, 링크 문제, 운영 관련 문의를 보내주세요.</p></div>
-    <p class="contact-note">
-      답변이 필요한 문의에는 가능한 범위에서 순차적으로 회신합니다. 광고 클릭 요청, 자동화 트래픽 요청, 저작권 침해 자료 공유 요청에는 답변하지 않습니다.
-    </p>
-    <p class="policy-links">문의 전 <a href="/editorial-policy/">편집 정책</a>과 <a href="/disclaimer/">면책 고지</a>를 확인할 수 있습니다.</p>
-  </section>
-</BaseLayout>
+<GameLayout title="Contact EMFLS Games" description="Contact EMFLS Games about gameplay issues, accessibility, site problems, privacy questions, or general feedback." canonical="/contact/" robots="index, follow" ogType="website">
+  <div class="trust-page"><div class="container trust-page__inner">
+    <header class="trust-page__header"><p class="trust-page__eyebrow">Contact</p><h1>Contact EMFLS Games</h1><p class="trust-page__lead">Send feedback or report a problem with a game or the site.</p></header>
+    <div class="trust-page__content">
+      <section class="contact-card"><p class="trust-page__eyebrow">Email</p><h2>Send us a message</h2><a class="contact-email" href="mailto:contact@emfls.com">contact@emfls.com</a><p class="contact-note">We read messages sent to this address, but we cannot guarantee an individual response to every message.</p></section>
+      <section class="trust-section"><h2>What to include</h2><ul class="trust-list"><li>The game name, if applicable</li><li>Your device and browser</li><li>What you expected to happen</li><li>What happened instead</li><li>Steps to reproduce the problem</li></ul></section>
+      <section class="trust-section"><h2>You can also contact us about</h2><ul class="trust-list"><li>Accessibility</li><li>Privacy questions</li><li>Broken links</li><li>General site feedback</li></ul></section>
+      <nav class="trust-actions" aria-label="Policy links"><a class="button button--secondary" href="/privacy/">Privacy</a><a class="button button--secondary" href="/terms/">Terms</a></nav>
+    </div>
+  </div></div>
+</GameLayout>

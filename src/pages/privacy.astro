@@ -1,38 +1,17 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import GameLayout from '../layouts/GameLayout.astro';
+import '../styles/trust-pages.css';
 ---
-<BaseLayout
-  title="개인정보처리방침 | EMFLS Guide"
-  description="EMFLS Guide의 개인정보 수집, 이용, 보관, 외부 서비스 이용 기준을 안내합니다."
-  canonical="/privacy/"
->
-  <section class="simple-page trust-page">
-    <p class="eyebrow">정책</p>
-    <h1>개인정보처리방침</h1>
-    <p>시행일: 2026년 6월 8일 · 최종 검토일: 2026년 9월 17일</p>
-    <h2>수집하는 개인정보</h2>
-    <p>
-      EMFLS Guide는 회원가입 기능을 운영하지 않습니다. 사용자가 이메일로 문의하는 경우, 답변을 위해 이메일 주소와 문의 내용이 처리될 수 있습니다.
-    </p>
-    <h2>이용 목적</h2>
-    <p>
-      수집된 정보는 문의 확인, 답변, 사이트 오류 신고 처리, 분쟁 대응을 위해 사용됩니다.
-    </p>
-    <h2>보관 및 삭제</h2>
-    <p>
-      문의 기록은 답변과 운영상 필요한 기간 동안 보관될 수 있으며, 삭제 요청이 있는 경우 법령상 보관이 필요한 경우를 제외하고 합리적인 범위에서 삭제합니다.
-    </p>
-    <h2>외부 서비스</h2>
-    <p>
-      본 사이트는 Cloudflare Pages를 통해 제공되며, 사이트 소스코드와 배포 관련 파일은 GitHub로 관리합니다. 사이트 운영 및 이용 현황을 분석하기 위해 Google Analytics 4를 사용합니다. Google Analytics는 방문·이용 정보와 기기·브라우저 관련 정보를 처리할 수 있습니다. 자세한 내용은 <a href="https://policies.google.com/privacy" rel="nofollow noopener" target="_blank">Google 개인정보처리방침</a>과 <a href="https://policies.google.com/technologies/partner-sites" rel="nofollow noopener" target="_blank">Google 파트너 사이트 정보</a>를 확인할 수 있습니다.
-    </p>
-    <h2>광고 서비스</h2>
-    <p>
-      본 사이트는 Google AdSense를 통해 광고를 제공합니다. Google 및 광고 파트너는 광고 제공, 광고 개인화, 광고 성과 측정 및 사기 방지를 위해 쿠키 또는 유사 기술을 사용할 수 있습니다. 이전 방문 정보나 광고 상호작용 정보가 이후 광고 제공·측정에 이용될 수 있습니다. 사용자는 <a href="https://adssettings.google.com/" rel="nofollow noopener" target="_blank">Google 광고 설정</a>에서 광고 개인화를 관리할 수 있으며, Google의 <a href="https://policies.google.com/technologies/ads" rel="nofollow noopener" target="_blank">광고 관련 개인정보 안내</a>에서 자세한 내용을 확인할 수 있습니다.
-    </p>
-    <h2>문의</h2>
-    <p>
-      개인정보 관련 문의는 <a href="mailto:contact@emfls.com">contact@emfls.com</a>으로 보낼 수 있습니다.
-    </p>
-  </section>
-</BaseLayout>
+<GameLayout title="Privacy Policy | EMFLS Games" description="Read how EMFLS Games handles contact information and the current privacy behavior of its browser-game site." canonical="/privacy/" robots="index, follow" ogType="website">
+  <div class="trust-page"><div class="container trust-page__inner">
+    <header class="trust-page__header"><p class="trust-page__eyebrow">Privacy</p><h1>Privacy Policy</h1><p class="trust-meta">Last updated: September 24, 2026</p></header>
+    <div class="trust-page__content">
+      <section class="trust-panel"><h2>Privacy at a glance</h2><ul class="trust-list"><li>No account or registration is required.</li><li>There is no server-side player profile or cloud save.</li><li>There is no leaderboard account or payment profile.</li><li>Contact information is received only when you voluntarily email us.</li></ul></section>
+      <section class="trust-section"><h2>Information you provide</h2><p>If you email <a href="mailto:contact@emfls.com">contact@emfls.com</a>, we may process your email address, message contents, and any information you choose to include so we can understand and respond to your message. Please avoid sending information that is not needed for your question.</p></section>
+      <section class="trust-section"><h2>Game and account data</h2><p>EMFLS Games does not currently require account registration, maintain a cloud player profile, provide a leaderboard account, or process a payment profile. The game site does not promise preservation of local or session results.</p></section>
+      <section class="trust-section"><h2>Analytics and advertising</h2><p>EMFLS Games does not currently use Google Analytics or display Google AdSense ads on its game pages. If analytics, advertising, browser storage, or another data behavior is added later, this policy should be reviewed and updated before that behavior is part of the public product.</p></section>
+      <section class="trust-section"><h2>Hosting and technical delivery</h2><p>The site is delivered through web hosting and infrastructure providers that may process ordinary technical request information needed to deliver and protect the service. This page does not claim a specific retention period for that technical information.</p></section>
+      <section class="trust-section"><h2>Privacy questions</h2><p>For a privacy question, email <a href="mailto:contact@emfls.com">contact@emfls.com</a>.</p></section>
+    </div>
+  </div></div>
+</GameLayout>

@@ -1,30 +1,19 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import GameLayout from '../layouts/GameLayout.astro';
+import '../styles/trust-pages.css';
 ---
-<BaseLayout
-  title="이용약관 및 면책 고지 | EMFLS Guide"
-  description="EMFLS Guide 콘텐츠 이용 기준과 면책 사항을 안내합니다."
-  canonical="/terms/"
->
-  <section class="simple-page trust-page">
-    <p class="eyebrow">정책</p>
-    <h1>이용약관 및 면책 고지</h1>
-    <p>시행일: 2026년 6월 8일</p>
-    <h2>콘텐츠 이용</h2>
-    <p>
-      이 사이트의 글은 개인 웹사이트 운영과 관련된 일반 정보 제공을 목적으로 작성됩니다. 내용을 인용할 때는 출처와 원문 링크를 함께 표시해 주세요.
-    </p>
-    <h2>정보의 정확성</h2>
-    <p>
-      도메인, GitHub Pages, 검색 도구, 광고 정책은 시간이 지나며 변경될 수 있습니다. 중요한 설정을 적용하기 전에는 각 서비스의 최신 공식 문서를 함께 확인해야 합니다.
-    </p>
-    <h2>외부 링크</h2>
-    <p>
-      글에는 참고를 위한 외부 링크가 포함될 수 있습니다. 외부 사이트의 내용, 정책, 서비스 변경에 대해서는 EMFLS Guide가 책임지지 않습니다.
-    </p>
-    <h2>금지 행위</h2>
-    <p>
-      사이트 콘텐츠를 무단으로 대량 복제하거나, 광고 클릭을 유도하거나, 자동화된 방법으로 비정상 트래픽을 발생시키는 행위를 금지합니다.
-    </p>
-  </section>
-</BaseLayout>
+<GameLayout title="Terms of Use | EMFLS Games" description="Read the basic terms for using EMFLS Games and its browser-based games." canonical="/terms/" robots="index, follow" ogType="website">
+  <div class="trust-page"><div class="container trust-page__inner">
+    <header class="trust-page__header"><p class="trust-page__eyebrow">Terms</p><h1>Terms of Use</h1><p class="trust-meta">Last updated: September 24, 2026</p></header>
+    <div class="trust-page__content">
+      <section class="trust-section"><h2>Using EMFLS Games</h2><p>You may use EMFLS Games and its browser games for personal, lawful use. Do not interfere with the operation, security, or availability of the site.</p></section>
+      <section class="trust-section"><h2>Games and availability</h2><p>Games and features may change, and permanent availability is not guaranteed. Browsers and devices can behave differently, and the service may be updated or temporarily unavailable.</p></section>
+      <section class="trust-section"><h2>Game results</h2><p>Scores and results are entertainment features. They do not represent monetary prizes, gambling, or a guarantee that local or session results will be preserved.</p></section>
+      <section class="trust-section"><h2>Acceptable use</h2><ul class="trust-list"><li>Do not deliberately disrupt the site.</li><li>Do not send abusive automated requests.</li><li>Do not attempt to bypass technical restrictions.</li><li>Do not use the service for unlawful activity.</li><li>Do not redistribute substantial original site or game content as if it were your own.</li></ul></section>
+      <section class="trust-section"><h2>Original content</h2><p>Unless otherwise stated, original text, interface design, and game materials on EMFLS Games are provided as part of this site and should not be republished or commercially redistributed in substantial form without permission.</p></section>
+      <section class="trust-section"><h2>External links</h2><p>External links, if provided, lead to services that operate under their own terms and privacy policies.</p></section>
+      <section class="trust-section"><h2>Changes to these terms</h2><p>These terms may be updated as the site and its features change. The date above indicates the latest update.</p></section>
+      <section class="trust-section"><h2>Contact</h2><p>Questions about these terms can be sent to <a href="mailto:contact@emfls.com">contact@emfls.com</a>.</p></section>
+    </div>
+  </div></div>
+</GameLayout>
