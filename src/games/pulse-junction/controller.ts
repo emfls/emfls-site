@@ -1,7 +1,7 @@
 import type { GameState } from './types';
 import { COUNTDOWN_STEP_MS } from './types';
 
-const states: GameState[] = ['IDLE', 'COUNTDOWN', 'ACTIVE', 'FEEDBACK', 'PAUSED', 'RESULT'];
+const panelStates = ['IDLE', 'COUNTDOWN', 'FEEDBACK', 'PAUSED', 'RESULT'] as const;
 
 type ControllerElements = {
   countdown: HTMLElement;
@@ -17,7 +17,10 @@ const getElements = (root: HTMLElement): ControllerElements => {
   const start = root.querySelector<HTMLButtonElement>('[data-action="start"]');
   const resume = root.querySelector<HTMLButtonElement>('[data-action="resume"]');
   const restart = root.querySelector<HTMLButtonElement>('[data-action="restart"]');
-  if (!countdown || !start || !resume || !restart || panels.length !== states.length) {
+  const actualPanelStates = Array.from(panels, (panel) => panel.dataset.panel);
+  const hasExpectedPanels = panelStates.every((state) => actualPanelStates.filter((value) => value === state).length === 1);
+  const hasOnlyExpectedPanels = actualPanelStates.every((state) => state && panelStates.includes(state as typeof panelStates[number]));
+  if (!countdown || !start || !resume || !restart || panels.length !== panelStates.length || !hasExpectedPanels || !hasOnlyExpectedPanels) {
     throw new Error('Pulse Junction state shell is incomplete.');
   }
   return { countdown, panels, start, resume, restart };
