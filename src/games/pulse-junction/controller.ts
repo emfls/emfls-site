@@ -1,8 +1,8 @@
-import type { GameState } from './types';
+import type { GameState, RoundConfig } from './types';
 import { COUNTDOWN_STEP_MS, FEEDBACK_DURATION_MS, PULSE_END_RADIUS, TOTAL_ROUNDS } from './types';
 import { getPulseMotionAtElapsed } from './logic';
 import { generateRoundConfig } from './rng';
-import type { RandomSource, RoundConfig } from './rng';
+import type { RandomSource } from './rng';
 import { createPulseJunctionRenderer } from './renderer';
 
 const panelStates = ['IDLE', 'COUNTDOWN', 'FEEDBACK', 'PAUSED', 'RESULT'] as const;
