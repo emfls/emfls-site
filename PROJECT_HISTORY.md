@@ -637,6 +637,20 @@
 - `git diff --check`: PASS. `npm run build`: PASS — 57 pages generated.
 - Production, main, legacy source, redirects, dependencies, Cloudflare, and DNS unchanged.
 
+## 2026-09-24 — P3-G01-A Pulse Junction Implementation Plan
+
+- branch: `pivot/web-games-mvp`.
+- base HEAD: `b64b5b09fedc6f20bb84910636b9c918cfe60b1a`.
+- Planning-only result: canonical route `/games/pulse-junction/`; no route, game code, CSS, fixture, data, dependency, or product source was created or modified.
+- Frozen contract: Pulse Junction, Reflex/Arcade, Solo, 30–60 sec, mobile portrait primary, exactly 20 rounds, normalized pulse radius 0.08→1.00, target range 0.35–0.82, Perfect `<=0.025`, Good `>0.025 && <=0.060`, Miss `>0.060`, 360ms feedback, 3×650ms countdown.
+- Frozen implementation constants: difficulty blocks Learn 0.46, Vary 0.50–0.60, Pressure 0.58–0.70 with acceleration `-0.06/0/+0.06`, Read 0.66–0.78 with `0/+0.05`, Final 0.74–0.88 with `0/+0.04/+0.08`; decoys 0/0/0/1/1–2 with bounded separation rules and injected deterministic RNG.
+- Frozen scoring order: judge, increment combo for Perfect/Good, calculate updated-combo multiplier, then score. Tiers are ×1.00, ×1.25, ×1.50, ×1.75, ×2.00; theoretical all-Perfect maximum is 2,850 points.
+- Frozen state/input behavior: IDLE, COUNTDOWN, ACTIVE, FEEDBACK, PAUSED, RESULT; visibility pause restarts the current round after Resume countdown; pointer/Space input is deduplicated, guarded, timestamp-aware, and outside-canvas clicks are ignored; resize preserves normalized state; DPR is capped at 2.
+- Future file ownership: route `src/pages/games/pulse-junction.astro`; UI `src/components/games/PulseJunctionGame.astro`; CSS `src/styles/games/pulse-junction.css`; modules `types.ts`, `logic.ts`, `rng.ts`, `renderer.ts`, `input.ts`, `storage.ts`, `controller.ts` under `src/games/pulse-junction/`.
+- Future phase split: B shell/state structure; C core mechanic/RNG/renderer; D input/pause/resize; E scoring/result/storage; F responsive/visual polish; G full QA. No audio, ads, analytics, Related Games, or framework dependency in B–G.
+- Storage plan: optional `emfls:pulse-junction:best:v1` with best score/combo only, safe try/catch. Privacy must be re-audited before production if storage ships; Privacy was not modified in A.
+- Verification: `git diff --check` PASS; `npm run build` PASS — 57 pages; `/games/pulse-junction/` absent; dependency diff empty; product source unchanged. Production unchanged.
+
 ## 2026-09-24 — P2-02 Home Shell
 
 - branch: `pivot/web-games-mvp`.
