@@ -690,6 +690,18 @@
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages. `input.ts` and `storage.ts` remain absent. Production unchanged.
 - next task: P3-G01-D — Pulse Junction mobile pointer / desktop click + Space input only.
 
+## 2026-09-24 — P3-G01-C Type Import Fix
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `67ad69f9f9d9194c77e63d6557925918104eb5c7`.
+- implementation commit: `2519cf6466dfe22cf7c4e2ce3ad9f05977395882`.
+- root cause: `controller.ts` imported `RoundConfig` from `rng.ts`, although ownership and export are in `types.ts`. `RandomSource` remains owned by `rng.ts`.
+- corrected imports only; no runtime or gameplay behavior changed. `rng.ts`, `types.ts`, and all mechanic modules remain otherwise unchanged.
+- existing semantic checker: `NOT_RUN — no existing semantic type-check command/dependency`.
+- runtime sanity: route loaded, Start entered COUNTDOWN, 3→2→1→ACTIVE behavior remained functional, first automatic Miss occurred, round progression continued, and console errors were 0.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
+- P3-G01-C FINAL PASS. Next task: P3-G01-D — Pulse Junction mobile pointer / desktop click + Space input only.
+
 ## 2026-09-24 — P3-G01-B Controller Fix
 
 - branch: `pivot/web-games-mvp`.
