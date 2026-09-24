@@ -607,6 +607,23 @@
 - Production, Cloudflare, DNS, main, legacy pages, redirects, dependencies unchanged.
 - 다음 작업: P2-07 — full shell mobile/desktop QA.
 
+## 2026-09-24 — P2-07 Full Shell QA
+
+- branch: `pivot/web-games-mvp`.
+- base HEAD: `dad6ff31ca3825a6b58ba6ebaf10d320d6b9f11a`.
+- QA-only 범위로 source product 파일은 수정하지 않았다. 임시 `GameDetailFrame` fixture는 생성 후 검증하고 삭제했다.
+- `git diff --check`: PASS. `npm run build`: PASS — 57 pages generated, Astro error/warning 없음.
+- QA routes: Home, `/games/`, four game category routes, About, Contact, Privacy, Terms, `/site-map/`, custom 404, and temporary GameDetailFrame fixture.
+- Desktop 1440px와 mobile 390px 기준으로 core shell, header/footer, trust pages, category pages, Games index, and fixture rendering을 확인했다. 320px compact QA는 별도 실행하지 않았다.
+- `/games/` initial count 8; filter matrix verified by games data and runtime logic: All 8, Puzzle 3, Arcade 3, Reflex 3, Strategy 4, Solo 7, Local 2 Player 1, Strategy + Solo 3, Strategy + Local 2 Player 1, Puzzle + Local 2 Player 0, reset 8. `aria-pressed`, zero-result state, hidden-card behavior, and 8 intentional unresolved game detail links are present.
+- Category membership verified: Puzzle — Mirror Drift, Twin Ledger, Field Bloom; Arcade — Pulse Junction, Orbit Slip, Glass Bloom; Reflex — Pulse Junction, Orbit Slip, Signal Sweep; Strategy — Gravity Pact, Twin Ledger, Field Bloom, Glass Bloom.
+- Trust pages verified as English-only GameLayout pages with expected copy, links, metadata, and footer. GameDetailFrame fixture verified breadcrumb, H1, description, Mode, Session, game stage, How to Play, Controls, Scoring, Related Games, Back to all games, canonical, and VideoGame schema.
+- Metadata verified for core game routes: absolute trailing-slash canonicals, unique English titles/descriptions, expected robots, and matching OG URLs. Structured data verified for Home WebSite, Games CollectionPage/ItemList, categories CollectionPage/ItemList, and fixture VideoGame. No fake ratings, reviews, offers, or player counts.
+- ISSUE P2-07-01 — MAJOR. Route `/site-map/`, all viewports. Expected final English GameLayout game sitemap with Home, Games, 8 games, 4 categories, About, Contact, Privacy, Terms and no legacy links. Actual legacy BaseLayout Korean `EMFLS Guide` sitemap with articles, tags, Webmaster links, and legacy footer. Recommended next microtask: P2-07-FIX — migrate `/site-map/` to the final game-site IA contract only.
+- ISSUE P2-07-02 — MAJOR. Custom 404, all viewports. Expected English GameLayout 404 with real 404 status, noindex, Home and Games CTAs, and no legacy article recommendations. Actual legacy Korean BaseLayout page with recent article list and no Games CTA. Recommended next microtask: P2-07-FIX — replace custom 404 with the final game-site 404 shell.
+- Accessibility checks: skip links, heading hierarchy, keyboard-native filter controls, `aria-pressed`, fixture button/link structure, and focus-visible styles are present in source; console inspection unavailable. Horizontal overflow was not observed in the inspected desktop/mobile shell states.
+- P2-07 QA PARTIAL — fixes required. Production unchanged.
+
 ## 2026-09-24 — P2-02 Home Shell
 
 - branch: `pivot/web-games-mvp`.
