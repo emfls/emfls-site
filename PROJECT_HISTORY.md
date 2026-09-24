@@ -790,3 +790,15 @@
 - Canvas coordinate pointer injection, Space key injection, viewport resizing, visibility lifecycle simulation, and console inspection were unavailable through the connected browser automation surface. Mobile 390 pointer, button Space guards, active visibility pause/resume, resize/orientation, multi-touch, pointer+Space arbitration, and pulse-end precision remain NOT_RUN.
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages generated. Production unchanged.
 - P3-G01-D remains PARTIAL; do not advance to P3-G01-E. Next: P3-G01-D-VERIFY retry with browser controls that expose pointer coordinates, keyboard events, visibility, and viewport emulation.
+## 2026-09-25 — P3-G01-D Headless Runtime Verification
+
+- base HEAD: `82346122a484a4823b9d4fb64faf5570951de53f` on `pivot/web-games-mvp`.
+- capability: existing Google Chrome headless binary with built-in Node 24 WebSocket/CDP; Playwright and Puppeteer were not resolvable. No dependency was installed.
+- product source was unchanged. Temporary CDP scripts under `/tmp` were deleted before completion.
+- Desktop 1440×900: Start → 3→2→1→ACTIVE, Canvas PointerEvent produced one feedback and one round transition; rapid pointer/multi-touch and pointer+Space produced one judgement per round. Outside-Canvas input did not judge.
+- Mobile 390×844: Canvas PointerEvent produced one feedback, one round transition, and no horizontal overflow.
+- Space gameplay produced one feedback and `defaultPrevented: true`; Start button-targeted Space remained IDLE with no feedback. Score and Combo remained `0`.
+- ACTIVE visibility simulation produced PAUSED with unchanged round and no Miss/advance; visible state remained PAUSED; Resume produced COUNTDOWN and ACTIVE on the same round. Resize/orientation events preserved ACTIVE state and round.
+- CDP Runtime/Log capture reported no page exception, console error, or unhandled blocking runtime error. Precise pulse-end race, FEEDBACK-hidden pause, orientation viewport rotation, and stale-pointer-across-pause were not separately exercised.
+- initial/final `git diff --check`: PASS. initial/final `npm run build`: PASS — 58 pages. Production unchanged.
+- P3-G01-D FINAL PASS. Next: P3-G01-E.
