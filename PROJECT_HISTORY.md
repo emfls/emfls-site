@@ -592,6 +592,21 @@
 - `npm run build`: PASS — 기존 52개 페이지 생성.
 - 다음 작업: P2-02 Home shell.
 
+## 2026-09-24 — P2-06 Game Site Trust Pages
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `35f24f751d27877506b6d0e598c29df7f0ed5d6d`.
+- implementation commit: `32aeaf9fd8b02b7cb5e1dc833a00c9537af0f8c9`.
+- 변경 파일: `src/pages/about.astro`, `src/pages/contact.astro`, `src/pages/privacy.astro`, `src/pages/terms.astro`, `src/styles/trust-pages.css`.
+- `/about/`, `/contact/`, `/privacy/`, `/terms/`를 `GameLayout` 기반의 English-only 신뢰 페이지로 갱신했다. About에는 EMFLS Games identity와 `/games/`, `/contact/` 링크를, Contact에는 `contact@emfls.com` mailto와 Privacy/Terms 링크를 제공한다.
+- Privacy는 현재 동작에 맞춰 계정·로그인·등록·cloud save·leaderboard·payment profile을 전제하지 않고, Google Analytics와 Google AdSense가 게임 페이지에 없음을 명시했다. Terms는 브라우저 게임 이용, 결과의 비보장, acceptable use, original content, external links, 변경 및 문의 기준을 통합했다.
+- `/disclaimer/` redirect는 이 작업에서 구현하지 않았다. 향후 browser storage, analytics, advertising 또는 기타 data behavior가 추가되기 전 Privacy 재검토가 필요하다.
+- `git diff --check`: PASS.
+- `npm run build`: PASS — 57 pages generated.
+- Browser QA: `/about/`, `/privacy/` desktop 1440px PASS; `/contact/`, `/terms/` mobile 390px PASS. Console: `NOT_RUN — console inspection unavailable`.
+- Production, Cloudflare, DNS, main, legacy pages, redirects, dependencies unchanged.
+- 다음 작업: P2-07 — full shell mobile/desktop QA.
+
 ## 2026-09-24 — P2-02 Home Shell
 
 - branch: `pivot/web-games-mvp`.
