@@ -677,6 +677,19 @@
 - Production unchanged.
 - next task: P3-G01-C — Pulse Junction core mechanic / RNG / renderer only.
 
+## 2026-09-24 — P3-G01-C Pulse Junction Core Mechanic
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `fcc3115b74a1f09fe8d04d17da4dfb8f92fde8c7`.
+- implementation commit: `69ea7ab89a07f07f0bf308b8dbc133521e251488`.
+- added pure judgement/motion/difficulty logic, injected and seeded RNG, bounded target/decoy generation, and token-based Canvas Target/Pulse/Decoy renderer.
+- difficulty blocks, exact thresholds, frame-rate-independent elapsed motion, analytic/binary-search pulse end time, decoy separation/retry, and 20-round config generation follow the frozen contract.
+- controller now runs the ACTIVE `requestAnimationFrame` loop, automatic Miss at pulse end, 360ms FEEDBACK, fresh next-round generation through round 20, structural RESULT, and Play Again mechanic reset. No gameplay input, scoring/combo, storage, pause, audio, analytics, or ads were added.
+- temporary pure assertion fixture passed judgement boundaries, difficulty boundaries, seeded RNG reproducibility/range, round config ranges, decoy constraints, motion monotonicity/clamps, and pulse end-time checks, then was deleted.
+- runtime QA: no-input session progressed through round 20 to RESULT with Score/Combo remaining 0; Play Again returned to COUNTDOWN at round 1. Console errors: 0. Desktop 1440 and mobile 390 route checks passed; 320px: NOT RUN. Direct decoy visual observation: NOT RUN.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages. `input.ts` and `storage.ts` remain absent. Production unchanged.
+- next task: P3-G01-D — Pulse Junction mobile pointer / desktop click + Space input only.
+
 ## 2026-09-24 — P3-G01-B Controller Fix
 
 - branch: `pivot/web-games-mvp`.
