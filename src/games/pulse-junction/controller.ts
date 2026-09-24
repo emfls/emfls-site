@@ -1,9 +1,12 @@
 import type { GameState, RoundConfig } from './types';
 import { COUNTDOWN_STEP_MS, FEEDBACK_DURATION_MS, PULSE_END_RADIUS, TOTAL_ROUNDS } from './types';
 import { getPulseMotionAtElapsed } from './logic';
+import { getPulseEndTimeSeconds, judgeRadii } from './logic';
 import { generateRoundConfig } from './rng';
 import type { RandomSource } from './rng';
 import { createPulseJunctionRenderer } from './renderer';
+import { createPulseJunctionInput } from './input';
+import type { GameplayInputCandidate } from './input';
 
 const panelStates = ['IDLE', 'COUNTDOWN', 'FEEDBACK', 'PAUSED', 'RESULT'] as const;
 
@@ -49,6 +52,10 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
   let feedbackTimer: number | undefined;
   let animationFrame: number | undefined;
   let roundStartTimestamp: number | undefined;
+  let roundEndTimestamp: number | undefined;
+  let pendingInput: GameplayInputCandidate | undefined;
+  let roundInputResolved = false;
+  let reuseCurrentRoundConfig = false;
 
   const clearCountdown = () => {
     if (countdownTimer !== undefined) window.clearTimeout(countdownTimer);
@@ -64,6 +71,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     if (animationFrame !== undefined) window.cancelAnimationFrame(animationFrame);
     animationFrame = undefined;
     roundStartTimestamp = undefined;
+    roundEndTimestamp = undefined;
   };
 
   const syncState = (state: GameState) => {
@@ -74,10 +82,12 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
 
   const updateRound = () => { elements.round.textContent = `${currentRound} / ${TOTAL_ROUNDS}`; };
 
-  const finishAutomaticMiss = () => {
+  const finishJudgement = (judgement: 'PERFECT' | 'GOOD' | 'MISS') => {
     clearAnimation();
+    pendingInput = undefined;
+    roundInputResolved = true;
     syncState('FEEDBACK');
-    elements.feedback.textContent = 'Miss';
+    elements.feedback.textContent = judgement === 'PERFECT' ? 'Perfect' : judgement === 'GOOD' ? 'Good' : 'Miss';
     feedbackTimer = window.setTimeout(() => {
       feedbackTimer = undefined;
       if (currentRound >= TOTAL_ROUNDS) { syncState('RESULT'); return; }
@@ -87,8 +97,28 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     }, FEEDBACK_DURATION_MS);
   };
 
+  const finishAutomaticMiss = () => finishJudgement('MISS');
+
+  const handleInput = (candidate: GameplayInputCandidate) => {
+    if (currentState !== 'ACTIVE' || document.visibilityState === 'hidden' || roundInputResolved) return;
+    if (!pendingInput || candidate.timestamp < pendingInput.timestamp) pendingInput = candidate;
+  };
+
   const animateRound = (timestamp: number) => {
     if (currentState !== 'ACTIVE' || !roundConfig) return;
+    if (pendingInput) {
+      const candidate = pendingInput;
+      pendingInput = undefined;
+      if (roundEndTimestamp !== undefined && candidate.timestamp <= roundEndTimestamp) {
+        const elapsedSeconds = (candidate.timestamp - (roundStartTimestamp ?? timestamp)) / 1000;
+        const motion = getPulseMotionAtElapsed(roundConfig, Math.max(0, elapsedSeconds));
+        finishJudgement(judgeRadii(motion.radius, roundConfig.targetRadius));
+        return;
+      }
+      finishAutomaticMiss();
+      return;
+    }
+    if (roundEndTimestamp !== undefined && timestamp >= roundEndTimestamp) { finishAutomaticMiss(); return; }
     roundStartTimestamp ??= timestamp;
     const elapsedSeconds = (timestamp - roundStartTimestamp) / 1000;
     const motion = getPulseMotionAtElapsed(roundConfig, elapsedSeconds);
@@ -100,8 +130,12 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
   const enterActive = () => {
     clearFeedback();
     countdownTimer = undefined;
-    roundConfig = generateRoundConfig(currentRound, random);
-    roundStartTimestamp = undefined;
+    if (!reuseCurrentRoundConfig || !roundConfig) roundConfig = generateRoundConfig(currentRound, random);
+    reuseCurrentRoundConfig = false;
+    roundStartTimestamp = performance.now();
+    roundEndTimestamp = roundStartTimestamp + getPulseEndTimeSeconds(roundConfig) * 1000;
+    pendingInput = undefined;
+    roundInputResolved = false;
     syncState('ACTIVE');
     animationFrame = window.requestAnimationFrame(animateRound);
   };
@@ -111,7 +145,8 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     clearCountdown();
     clearFeedback();
     clearAnimation();
-    if (currentState === 'RESULT') { currentRound = 1; updateRound(); }
+    if (currentState === 'RESULT') { currentRound = 1; reuseCurrentRoundConfig = false; updateRound(); }
+    if (currentState === 'PAUSED') reuseCurrentRoundConfig = true;
     syncState('COUNTDOWN');
     let step = 3;
     elements.countdown.textContent = String(step);
@@ -127,10 +162,19 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
   const handleResume = () => { if (currentState === 'PAUSED') startCountdown(); };
   const handleRestart = () => { if (currentState === 'RESULT') startCountdown(); };
   const handleStart = () => { if (currentState === 'IDLE') startCountdown(); };
+  const handleVisibilityChange = () => {
+    if (document.visibilityState !== 'hidden' || (currentState !== 'ACTIVE' && currentState !== 'FEEDBACK')) return;
+    clearAnimation();
+    clearFeedback();
+    pendingInput = undefined;
+    syncState('PAUSED');
+  };
 
   elements.start.addEventListener('click', handleStart);
   elements.resume.addEventListener('click', handleResume);
   elements.restart.addEventListener('click', handleRestart);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  const input = createPulseJunctionInput({ canvas: elements.canvas, isEnabled: () => currentState === 'ACTIVE' && document.visibilityState === 'visible', onInput: handleInput });
   updateRound();
   syncState('IDLE');
 
@@ -138,6 +182,9 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     clearCountdown();
     clearFeedback();
     clearAnimation();
+    pendingInput = undefined;
+    input.destroy();
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
     renderer.clear();
     elements.start.removeEventListener('click', handleStart);
     elements.resume.removeEventListener('click', handleResume);

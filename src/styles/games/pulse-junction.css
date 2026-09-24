@@ -4,7 +4,7 @@
 .pulse-junction__hud-item span { color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
 .pulse-junction__hud-item strong { color: var(--game-color-text); font-size: var(--game-font-size-large); }
 .pulse-junction__surface { position: relative; aspect-ratio: 1 / 1; width: 100%; overflow: hidden; border: 1px solid var(--game-color-border); border-radius: var(--game-radius-large); background: var(--game-color-background); }
-.pulse-junction__canvas { display: block; width: 100%; height: 100%; }
+.pulse-junction__canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; }
 .pulse-junction__overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--game-space-6); background: var(--game-color-surface); }
 .pulse-junction__panel { display: grid; gap: var(--game-space-4); width: min(100%, 24rem); padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-large); background: var(--game-color-surface-elevated); box-shadow: var(--game-shadow-elevated); text-align: center; }
 .pulse-junction__panel h3 { margin: 0; color: var(--game-color-text); font-size: var(--game-font-size-h2); }
