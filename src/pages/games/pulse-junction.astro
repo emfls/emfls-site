@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import PulseJunctionGame from '../../components/games/PulseJunctionGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'pulse-junction');
+if (!game) throw new Error('Pulse Junction is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <PulseJunctionGame slot="game" />
+  <p slot="how-to-play">Watch the pulse expand from the center. Tap when it crosses the marked target ring. Each round is judged as Perfect, Good, or Miss based on how closely the pulse matches the target. Complete 20 rounds and build a combo for a higher score.</p>
+  <p slot="controls">Mobile: Tap anywhere inside the game area during an active round. Desktop: Press Space or click inside the game area during an active round. Start, Resume, and Play Again use their own buttons.</p>
+  <p slot="scoring">Perfect earns 100 base points. Good earns 60. Miss earns 0 and resets the combo. Perfect and Good increase the combo, unlocking higher score multipliers as the streak grows.</p>
+</GameDetailFrame>

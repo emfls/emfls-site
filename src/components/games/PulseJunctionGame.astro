@@ -1,0 +1,59 @@
+---
+import { createPulseJunctionController } from '../../games/pulse-junction/controller';
+import '../../styles/games/pulse-junction.css';
+---
+<div class="pulse-junction" data-pulse-junction data-state="IDLE">
+  <div class="pulse-junction__hud" aria-label="Game status">
+    <div class="pulse-junction__hud-item"><span>Round</span><strong data-round>1 / 20</strong></div>
+    <div class="pulse-junction__hud-item"><span>Score</span><strong data-score>0</strong></div>
+    <div class="pulse-junction__hud-item"><span>Combo</span><strong data-combo>0</strong></div>
+  </div>
+
+  <div class="pulse-junction__surface">
+    <canvas class="pulse-junction__canvas" data-game-canvas width="640" height="640" aria-label="Pulse Junction game area">Your browser does not support the canvas element.</canvas>
+    <div class="pulse-junction__overlay pulse-junction__overlay--idle" data-panel="IDLE">
+      <section class="pulse-junction__panel" aria-labelledby="pulse-junction-start-heading">
+        <h3 id="pulse-junction-start-heading">Ready?</h3>
+        <p>Time your input when the pulse reaches the marked target ring.</p>
+        <button class="button" type="button" data-action="start">Start Game</button>
+      </section>
+    </div>
+    <div class="pulse-junction__overlay" data-panel="COUNTDOWN" hidden>
+      <p class="pulse-junction__countdown" data-countdown aria-live="polite">3</p>
+    </div>
+    <div class="pulse-junction__overlay" data-panel="FEEDBACK" hidden>
+      <p class="pulse-junction__feedback" data-feedback aria-live="polite"></p>
+    </div>
+    <div class="pulse-junction__overlay" data-panel="PAUSED" hidden>
+      <section class="pulse-junction__panel" aria-labelledby="pulse-junction-paused-heading">
+        <h3 id="pulse-junction-paused-heading">Paused</h3>
+        <p>Resume when you are ready.</p>
+        <button class="button" type="button" data-action="resume">Resume</button>
+      </section>
+    </div>
+    <div class="pulse-junction__overlay" data-panel="RESULT" hidden>
+      <section class="pulse-junction__panel" aria-labelledby="pulse-junction-result-heading">
+        <h3 id="pulse-junction-result-heading">Results</h3>
+        <dl class="pulse-junction__result-grid">
+          <div><dt>Total Score</dt><dd data-result="score">0</dd></div>
+          <div><dt>Perfect</dt><dd data-result="perfect">0</dd></div>
+          <div><dt>Good</dt><dd data-result="good">0</dd></div>
+          <div><dt>Miss</dt><dd data-result="miss">0</dd></div>
+          <div><dt>Max Combo</dt><dd data-result="max-combo">0</dd></div>
+        </dl>
+        <button class="button" type="button" data-action="restart">Play Again</button>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { createPulseJunctionController } from '../../games/pulse-junction/controller';
+
+  document.querySelectorAll<HTMLElement>('[data-pulse-junction]').forEach((root) => {
+    if (!root.dataset.controllerReady) {
+      createPulseJunctionController(root);
+      root.dataset.controllerReady = 'true';
+    }
+  });
+</script>
