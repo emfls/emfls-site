@@ -5,7 +5,7 @@ import '../styles/game-shell.css';
 interface Props {
   title?: string;
   description?: string;
-  canonical?: string;
+  canonical?: string | null;
   robots?: string;
   ogType?: string;
   schema?: Record<string, unknown> | Record<string, unknown>[];
@@ -21,8 +21,8 @@ const {
 } = Astro.props;
 
 const siteUrl = 'https://emfls.com';
-const pathname = canonical.startsWith('/') ? canonical : `/${canonical}`;
-const canonicalUrl = `${siteUrl}${pathname.endsWith('/') ? pathname : `${pathname}/`}`;
+const pathname = canonical ? (canonical.startsWith('/') ? canonical : `/${canonical}`) : null;
+const canonicalUrl = pathname ? `${siteUrl}${pathname.endsWith('/') ? pathname : `${pathname}/`}` : null;
 ---
 <!doctype html>
 <html lang="en">
@@ -31,12 +31,12 @@ const canonicalUrl = `${siteUrl}${pathname.endsWith('/') ? pathname : `${pathnam
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="robots" content={robots} />
-    <link rel="canonical" href={canonicalUrl} />
+    {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="EMFLS Games" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonicalUrl} />
+    {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     <meta name="twitter:card" content="summary" />
     {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
     <title>{title}</title>

@@ -1,0 +1,19 @@
+.support-page { min-height: 100%; padding: var(--game-space-12) 0 var(--game-space-16); }
+.support-page__inner { display: grid; gap: var(--game-space-10); }
+.support-page__header { max-width: 44rem; }
+.support-page__eyebrow { margin: 0 0 var(--game-space-3); color: var(--game-color-primary); font-size: var(--game-font-size-xs); font-weight: var(--game-font-weight-bold); letter-spacing: var(--game-letter-spacing-wide); text-transform: uppercase; }
+.support-page h1 { max-width: 16ch; margin: 0; color: var(--game-color-text); font-size: clamp(var(--game-font-size-4xl), 8vw, var(--game-font-size-6xl)); line-height: var(--game-line-height-tight); }
+.support-page__lead { max-width: 42rem; margin: var(--game-space-5) 0 0; color: var(--game-color-text-secondary); font-size: var(--game-font-size-lg); line-height: var(--game-line-height-relaxed); }
+.support-page__sections { display: grid; gap: var(--game-space-8); max-width: 60rem; }
+.support-section { display: grid; gap: var(--game-space-4); }
+.support-section h2 { margin: 0; color: var(--game-color-text); font-size: var(--game-font-size-2xl); }
+.support-link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--game-space-3); }
+.support-link-card { display: flex; align-items: center; min-height: 2.75rem; padding: var(--game-space-4) var(--game-space-5); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-md); background: var(--game-color-surface); color: var(--game-color-text); font-weight: var(--game-font-weight-semibold); text-decoration: none; transition: border-color var(--game-motion-fast) ease, color var(--game-motion-fast) ease, transform var(--game-motion-fast) ease; }
+.support-link-card:hover { border-color: var(--game-color-primary); color: var(--game-color-primary); transform: translateY(-1px); }
+.support-link-card:focus-visible { outline: var(--game-focus-ring); outline-offset: var(--game-focus-offset); }
+.error-page .support-page__inner { min-height: min(36rem, 70vh); place-items: center; }
+.error-page__content { max-width: 42rem; text-align: center; }
+.error-page__content h1 { margin-inline: auto; }
+.error-page__lead { margin-inline: auto; }
+.error-page__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--game-space-3); margin-top: var(--game-space-7); }
+@media (max-width: 40rem) { .support-page { padding-block: var(--game-space-8) var(--game-space-12); } .support-link-grid { grid-template-columns: 1fr; } .error-page__actions { flex-direction: column; align-items: stretch; } .error-page__actions .button { justify-content: center; } }

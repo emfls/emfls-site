@@ -1,46 +1,30 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { articles, categoryList, slugifyTag, tagList } from '../data/articles';
+import GameLayout from '../layouts/GameLayout.astro';
+import { games } from '../data/games';
+import { gameCategories } from '../data/gameCategories';
+import '../styles/support-pages.css';
+
+const informationLinks = [
+  { label: 'About', href: '/about/' },
+  { label: 'Contact', href: '/contact/' },
+  { label: 'Privacy', href: '/privacy/' },
+  { label: 'Terms', href: '/terms/' },
+];
 ---
-<BaseLayout
-  title="사이트맵 | EMFLS Guide"
-  description="EMFLS Guide의 주요 페이지와 전체 글 링크를 한 곳에서 확인할 수 있습니다."
-  canonical="/site-map/"
-  robots="noindex, follow"
-  adsEligible={false}
->
-  <section class="simple-page">
-    <p class="eyebrow">사이트맵</p>
-    <h1>사이트 전체 보기</h1>
-    <h2>주요 페이지</h2>
-    <ul class="link-list">
-      <li><a href="/">홈</a></li>
-      <li><a href="/articles/">글 목록</a></li>
-      <li><a href="/about/">소개</a></li>
-      <li><a href="/contact/">문의</a></li>
-      <li><a href="/editorial-policy/">편집 정책</a></li>
-      <li><a href="/content-methodology/">콘텐츠 작성 기준</a></li>
-      <li><a href="/disclaimer/">면책 고지</a></li>
-      <li><a href="/privacy/">개인정보처리방침</a></li>
-      <li><a href="/terms/">이용약관 및 면책 고지</a></li>
-    </ul>
-    <h2>주제별 글 모음</h2>
-    <ul class="link-list">
-      {categoryList.map((category) => (
-        <li><a href={`/categories/${category.slug}/`}>{category.name}</a></li>
-      ))}
-    </ul>
-    <h2>태그별 글 모음</h2>
-    <ul class="link-list">
-      {tagList.map((tag) => (
-        <li><a href={`/tags/${slugifyTag(tag)}/`}>{tag}</a></li>
-      ))}
-    </ul>
-    <h2>글</h2>
-    <ul class="link-list">
-      {articles.map((article) => (
-        <li><a href={`/articles/${article.slug}/`}>{article.title}</a></li>
-      ))}
-    </ul>
-  </section>
-</BaseLayout>
+<GameLayout title="Site Map | EMFLS Games" description="Browse the main game, category, and information pages available on EMFLS Games." canonical="/site-map/" robots="noindex, follow" ogType="website">
+  <div class="support-page">
+    <div class="container support-page__inner">
+      <header class="support-page__header">
+        <p class="support-page__eyebrow">Site map</p>
+        <h1>EMFLS Games Site Map</h1>
+        <p class="support-page__lead">Find the main games, categories, and information pages on EMFLS Games.</p>
+      </header>
+      <div class="support-page__sections">
+        <section class="support-section" aria-labelledby="support-main-heading"><h2 id="support-main-heading">Main</h2><nav class="support-link-grid" aria-label="Main pages"><a class="support-link-card" href="/">Home</a><a class="support-link-card" href="/games/">Games</a></nav></section>
+        <section class="support-section" aria-labelledby="support-games-heading"><h2 id="support-games-heading">Games</h2><nav class="support-link-grid" aria-label="Games">{games.map((game) => <a class="support-link-card" href={game.href}>{game.name}</a>)}</nav></section>
+        <section class="support-section" aria-labelledby="support-categories-heading"><h2 id="support-categories-heading">Categories</h2><nav class="support-link-grid" aria-label="Game categories">{gameCategories.map((category) => <a class="support-link-card" href={`/categories/${category.slug}/`}>{category.name}</a>)}</nav></section>
+        <section class="support-section" aria-labelledby="support-information-heading"><h2 id="support-information-heading">Information</h2><nav class="support-link-grid" aria-label="Information pages">{informationLinks.map((link) => <a class="support-link-card" href={link.href}>{link.label}</a>)}</nav></section>
+      </div>
+    </div>
+  </div>
+</GameLayout>
