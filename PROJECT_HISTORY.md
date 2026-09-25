@@ -812,3 +812,12 @@
 - privacy.astro was intentionally unchanged. Privacy Policy must be reviewed/updated before optional browser storage behavior ships to Production.
 - temporary QA fixtures/scripts were deleted. `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
 - next task: P3-G01-F.
+## 2026-09-25 — P3-G01-F Pulse Junction Responsive and Visual Polish
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `a5e753a387b15aefb1c91f8345532deb2b0ff3bc`.
+- renderer now separates logical CSS size from Canvas backing size, uses `DPR_CAP` 2, synchronizes only on size/DPR changes, projects normalized geometry with stable `0.42` max-radius basis, and cleans up ResizeObserver/resize/orientation listeners.
+- added game-local max width, compact 320px HUD/result layout, overflow-safe overlays, semantic Perfect/Good/Miss visual treatments with retained text, modest feedback motion, and reduced-motion suppression for decorative animation only. No audio was added.
+- Chrome headless + Node/CDP QA: DPR1 backing 638×638 for 638 CSS px; DPR2 backing 1276×1276; DPR3 reported devicePixelRatio 3 but remained capped at 1276×1276. 1440, 390, and 320 layouts had no horizontal overflow; 320 RESULT exposed all seven fields and Play Again. Resize/orientation-like transitions preserved ACTIVE and round. Reduced-motion feedback reported animation `none`; console exceptions were 0.
+- input, logic, RNG, storage, types, route, privacy, scoring, pause, and storage semantics remain unchanged. Temporary QA scripts were deleted.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
+- next task: P3-G01-G.
