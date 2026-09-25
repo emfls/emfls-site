@@ -222,6 +222,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     if (document.visibilityState !== 'hidden' || (currentState !== 'ACTIVE' && currentState !== 'FEEDBACK')) return;
     clearAnimation();
     clearFeedback();
+    input.cancelPointer();
     pendingInput = undefined;
     pendingJudgement = undefined;
     delete elements.feedback.dataset.judgement;
