@@ -1,12 +1,13 @@
-import type { GameState, RoundConfig } from './types';
+import type { BestStats, GameState, Judgement, RoundConfig, SessionStats } from './types';
 import { COUNTDOWN_STEP_MS, FEEDBACK_DURATION_MS, PULSE_END_RADIUS, TOTAL_ROUNDS } from './types';
-import { getPulseMotionAtElapsed } from './logic';
+import { applyJudgementToStats, createInitialSessionStats, getPulseMotionAtElapsed } from './logic';
 import { getPulseEndTimeSeconds, judgeRadii } from './logic';
 import { generateRoundConfig } from './rng';
 import type { RandomSource } from './rng';
 import { createPulseJunctionRenderer } from './renderer';
 import { createPulseJunctionInput } from './input';
 import type { GameplayInputCandidate } from './input';
+import { getImprovedBestStats, loadBestStats, saveBestStats } from './storage';
 
 const panelStates = ['IDLE', 'COUNTDOWN', 'FEEDBACK', 'PAUSED', 'RESULT'] as const;
 
@@ -19,6 +20,9 @@ type ControllerElements = {
   round: HTMLElement;
   feedback: HTMLElement;
   canvas: HTMLCanvasElement;
+  score: HTMLElement;
+  combo: HTMLElement;
+  results: Record<'score' | 'perfect' | 'good' | 'miss' | 'maxCombo' | 'bestScore' | 'bestCombo', HTMLElement>;
 };
 
 const getElements = (root: HTMLElement): ControllerElements => {
@@ -30,13 +34,24 @@ const getElements = (root: HTMLElement): ControllerElements => {
   const round = root.querySelector<HTMLElement>('[data-round]');
   const feedback = root.querySelector<HTMLElement>('[data-feedback]');
   const canvas = root.querySelector<HTMLCanvasElement>('[data-game-canvas]');
+  const score = root.querySelector<HTMLElement>('[data-score]');
+  const combo = root.querySelector<HTMLElement>('[data-combo]');
+  const resultElements = {
+    score: root.querySelector<HTMLElement>('[data-result="score"]'),
+    perfect: root.querySelector<HTMLElement>('[data-result="perfect"]'),
+    good: root.querySelector<HTMLElement>('[data-result="good"]'),
+    miss: root.querySelector<HTMLElement>('[data-result="miss"]'),
+    maxCombo: root.querySelector<HTMLElement>('[data-result="max-combo"]'),
+    bestScore: root.querySelector<HTMLElement>('[data-result="best-score"]'),
+    bestCombo: root.querySelector<HTMLElement>('[data-result="best-combo"]'),
+  };
   const actualPanelStates = Array.from(panels, (panel) => panel.dataset.panel);
   const hasExpectedPanels = panelStates.every((state) => actualPanelStates.filter((value) => value === state).length === 1);
   const hasOnlyExpectedPanels = actualPanelStates.every((state) => state && panelStates.includes(state as typeof panelStates[number]));
-  if (!countdown || !start || !resume || !restart || !round || !feedback || !canvas || panels.length !== panelStates.length || !hasExpectedPanels || !hasOnlyExpectedPanels) {
+  if (!countdown || !start || !resume || !restart || !round || !feedback || !canvas || !score || !combo || Object.values(resultElements).some((element) => !element) || panels.length !== panelStates.length || !hasExpectedPanels || !hasOnlyExpectedPanels) {
     throw new Error('Pulse Junction state shell is incomplete.');
   }
-  return { countdown, panels, start, resume, restart, round, feedback, canvas };
+  return { countdown, panels, start, resume, restart, round, feedback, canvas, score, combo, results: resultElements as ControllerElements['results'] };
 };
 
 export type PulseJunctionControllerOptions = { random?: RandomSource };
@@ -56,6 +71,9 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
   let pendingInput: GameplayInputCandidate | undefined;
   let roundInputResolved = false;
   let reuseCurrentRoundConfig = false;
+  let sessionStats: SessionStats = createInitialSessionStats();
+  let bestStats: BestStats = loadBestStats();
+  let pendingJudgement: Judgement | undefined;
 
   const clearCountdown = () => {
     if (countdownTimer !== undefined) window.clearTimeout(countdownTimer);
@@ -82,15 +100,52 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
 
   const updateRound = () => { elements.round.textContent = `${currentRound} / ${TOTAL_ROUNDS}`; };
 
-  const finishJudgement = (judgement: 'PERFECT' | 'GOOD' | 'MISS') => {
+  const updateHud = () => {
+    elements.score.textContent = String(sessionStats.score);
+    elements.combo.textContent = String(sessionStats.combo);
+  };
+
+  const updateResult = () => {
+    elements.results.score.textContent = String(sessionStats.score);
+    elements.results.perfect.textContent = String(sessionStats.perfect);
+    elements.results.good.textContent = String(sessionStats.good);
+    elements.results.miss.textContent = String(sessionStats.miss);
+    elements.results.maxCombo.textContent = String(sessionStats.maxCombo);
+    elements.results.bestScore.textContent = String(bestStats.score);
+    elements.results.bestCombo.textContent = String(bestStats.combo);
+  };
+
+  const resetSession = () => {
+    sessionStats = createInitialSessionStats();
+    pendingJudgement = undefined;
+    updateHud();
+    updateResult();
+  };
+
+  const commitPendingJudgement = () => {
+    if (!pendingJudgement) return;
+    sessionStats = applyJudgementToStats(sessionStats, pendingJudgement).stats;
+    pendingJudgement = undefined;
+    updateHud();
+  };
+
+  const finishJudgement = (judgement: Judgement) => {
     clearAnimation();
     pendingInput = undefined;
+    pendingJudgement = judgement;
     roundInputResolved = true;
     syncState('FEEDBACK');
     elements.feedback.textContent = judgement === 'PERFECT' ? 'Perfect' : judgement === 'GOOD' ? 'Good' : 'Miss';
     feedbackTimer = window.setTimeout(() => {
       feedbackTimer = undefined;
-      if (currentRound >= TOTAL_ROUNDS) { syncState('RESULT'); return; }
+      commitPendingJudgement();
+      if (currentRound >= TOTAL_ROUNDS) {
+        bestStats = getImprovedBestStats(bestStats, sessionStats);
+        saveBestStats(bestStats);
+        updateResult();
+        syncState('RESULT');
+        return;
+      }
       currentRound += 1;
       updateRound();
       enterActive();
@@ -145,7 +200,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     clearCountdown();
     clearFeedback();
     clearAnimation();
-    if (currentState === 'RESULT') { currentRound = 1; reuseCurrentRoundConfig = false; updateRound(); }
+    if (currentState === 'RESULT') { currentRound = 1; reuseCurrentRoundConfig = false; resetSession(); updateRound(); }
     if (currentState === 'PAUSED') reuseCurrentRoundConfig = true;
     syncState('COUNTDOWN');
     let step = 3;
@@ -167,6 +222,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     clearAnimation();
     clearFeedback();
     pendingInput = undefined;
+    pendingJudgement = undefined;
     syncState('PAUSED');
   };
 
@@ -176,6 +232,8 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
   document.addEventListener('visibilitychange', handleVisibilityChange);
   const input = createPulseJunctionInput({ canvas: elements.canvas, isEnabled: () => currentState === 'ACTIVE' && document.visibilityState === 'visible', onInput: handleInput });
   updateRound();
+  updateHud();
+  updateResult();
   syncState('IDLE');
 
   return () => {
@@ -183,6 +241,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     clearFeedback();
     clearAnimation();
     pendingInput = undefined;
+    pendingJudgement = undefined;
     input.destroy();
     document.removeEventListener('visibilitychange', handleVisibilityChange);
     renderer.clear();

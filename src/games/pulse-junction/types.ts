@@ -16,6 +16,13 @@ export type ResultSnapshot = {
   maxCombo: number;
 };
 
+export type SessionStats = ResultSnapshot & { combo: number };
+
+export type BestStats = {
+  score: number;
+  combo: number;
+};
+
 export type DifficultyId = 'learn' | 'vary' | 'pressure' | 'read' | 'final';
 
 export type DifficultyConfig = {

@@ -4,7 +4,7 @@ import {
   PULSE_END_RADIUS,
   PULSE_START_RADIUS,
 } from './types';
-import type { DifficultyConfig, Judgement, PulseMotion, RoundConfig } from './types';
+import type { BestStats, DifficultyConfig, Judgement, PulseMotion, RoundConfig, SessionStats } from './types';
 
 const difficultyConfigs: DifficultyConfig[] = [
   { id: 'learn', targetMin: 0.45, targetMax: 0.70, speedMin: 0.46, speedMax: 0.46, accelerationChoices: [0], minSpeed: 0.46, maxSpeed: 0.46, decoyMin: 0, decoyMax: 0 },
@@ -22,6 +22,38 @@ export const judgeError = (error: number): Judgement => {
 };
 
 export const judgeRadii = (pulseRadius: number, targetRadius: number): Judgement => judgeError(Math.abs(pulseRadius - targetRadius));
+
+export const createInitialSessionStats = (): SessionStats => ({ score: 0, combo: 0, maxCombo: 0, perfect: 0, good: 0, miss: 0 });
+
+export const getComboMultiplier = (combo: number): number => {
+  if (combo >= 20) return 2;
+  if (combo >= 15) return 1.75;
+  if (combo >= 10) return 1.5;
+  if (combo >= 5) return 1.25;
+  return 1;
+};
+
+export const applyJudgementToStats = (stats: SessionStats, judgement: Judgement) => {
+  if (judgement === 'MISS') {
+    return { stats: { ...stats, combo: 0, miss: stats.miss + 1 }, roundScore: 0, multiplier: 1 };
+  }
+  const combo = stats.combo + 1;
+  const multiplier = getComboMultiplier(combo);
+  const baseScore = judgement === 'PERFECT' ? 100 : 60;
+  const roundScore = Math.round(baseScore * multiplier);
+  return {
+    stats: {
+      ...stats,
+      score: stats.score + roundScore,
+      combo,
+      maxCombo: Math.max(stats.maxCombo, combo),
+      perfect: stats.perfect + (judgement === 'PERFECT' ? 1 : 0),
+      good: stats.good + (judgement === 'GOOD' ? 1 : 0),
+    },
+    roundScore,
+    multiplier,
+  };
+};
 
 export const getDifficulty = (round: number): DifficultyConfig => {
   if (!Number.isInteger(round) || round < 1 || round > 20) throw new RangeError('Pulse Junction round must be between 1 and 20.');
