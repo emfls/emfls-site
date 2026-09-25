@@ -802,3 +802,13 @@
 - CDP Runtime/Log capture reported no page exception, console error, or unhandled blocking runtime error. Precise pulse-end race, FEEDBACK-hidden pause, orientation viewport rotation, and stale-pointer-across-pause were not separately exercised.
 - initial/final `git diff --check`: PASS. initial/final `npm run build`: PASS — 58 pages. Production unchanged.
 - P3-G01-D FINAL PASS. Next: P3-G01-E.
+## 2026-09-25 — P3-G01-E Pulse Junction Scoring and Best Stats
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `4ef00741846e992810844d9271ec3f2ad6752c79`.
+- implementation adds `SessionStats`/`BestStats`, pure scoring in `logic.ts`, safe versioned `storage.ts`, delayed FEEDBACK commit, HUD/result updates, independent Best Score/Best Combo, and full Play Again session reset. `input.ts`, RNG, renderer, mechanics, route, and privacy page were not modified.
+- scoring contract: Perfect 100, Good 60, Miss 0; combo increments before multiplier; tiers 1.00 / 1.25 / 1.50 / 1.75 / 2.00. Pure assertions passed for all-Perfect 2850, all-Good 1710, Miss reset/maxCombo preservation, independent best maxima, malformed storage, invalid values, and throwing storage.
+- pending judgement is committed only after the 360ms FEEDBACK timer; FEEDBACK hidden→PAUSED discards the pending outcome and Resume replays the same round without double scoring.
+- Chrome headless + Node/CDP runtime QA: successful Perfect reached Score 100 / Combo 1; 20 immediate Miss rounds reached RESULT with Score 0, Miss 20, Max Combo 0; Play Again reset session fields; valid best preload showed 1234 / 9; malformed preload safely fell back to 0 / 0; pause/resume preserved committed HUD values.
+- privacy.astro was intentionally unchanged. Privacy Policy must be reviewed/updated before optional browser storage behavior ships to Production.
+- temporary QA fixtures/scripts were deleted. `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
+- next task: P3-G01-F.
