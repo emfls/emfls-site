@@ -10,7 +10,7 @@
 .pulse-junction__panel h3 { margin: 0; color: var(--game-color-text); font-size: var(--game-font-size-h2); }
 .pulse-junction__panel p { margin: 0; color: var(--game-color-text-secondary); line-height: var(--game-line-height-body); }
 .pulse-junction__countdown, .pulse-junction__feedback { margin: 0; color: var(--game-color-text); font-size: var(--game-font-size-h1); font-weight: var(--game-font-weight-bold); }
-.pulse-junction__feedback { animation: pulse-junction-feedback-in var(--game-motion-duration-standard, 180ms) var(--game-motion-easing-standard, ease-out); }
+.pulse-junction__feedback { animation: pulse-junction-feedback-in var(--game-motion-normal) var(--game-motion-ease); }
 .pulse-junction__feedback[data-judgement="perfect"] { color: var(--game-color-success); }
 .pulse-junction__feedback[data-judgement="good"] { color: var(--game-color-warning); }
 .pulse-junction__feedback[data-judgement="miss"] { color: var(--game-color-danger); }
