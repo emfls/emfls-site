@@ -135,6 +135,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     pendingJudgement = judgement;
     roundInputResolved = true;
     syncState('FEEDBACK');
+    elements.feedback.dataset.judgement = judgement.toLowerCase();
     elements.feedback.textContent = judgement === 'PERFECT' ? 'Perfect' : judgement === 'GOOD' ? 'Good' : 'Miss';
     feedbackTimer = window.setTimeout(() => {
       feedbackTimer = undefined;
@@ -223,6 +224,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     clearFeedback();
     pendingInput = undefined;
     pendingJudgement = undefined;
+    delete elements.feedback.dataset.judgement;
     syncState('PAUSED');
   };
 
@@ -243,6 +245,7 @@ export const createPulseJunctionController = (root: HTMLElement, options: PulseJ
     pendingInput = undefined;
     pendingJudgement = undefined;
     input.destroy();
+    renderer.destroy();
     document.removeEventListener('visibilitychange', handleVisibilityChange);
     renderer.clear();
     elements.start.removeEventListener('click', handleStart);
