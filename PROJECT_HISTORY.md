@@ -845,3 +845,12 @@
 - exact stale-pointer repro now passed without releasing pointerId 1: hidden → PAUSED → Resume → new pointerId 2 produced FEEDBACK. Normal pointer, mobile 390 pointer/multi-touch, Space, ACTIVE pause, and FEEDBACK pause regressions passed; runtime exceptions were 0.
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Product scope was limited to `controller.ts`; Production unchanged.
 - P3-G01-G-FIX targeted defect PASS. Full G completion QA remains required. Next: P3-G01-G-VERIFY.
+## 2026-09-25 — P3-G01-G Verification — FIX REQUIRED
+
+- Pulse Junction 최종 QA를 `pivot/web-games-mvp`에서 수행했다. 제품 소스는 수정하지 않았고, 임시 QA 검증 파일은 실행 후 제거했다.
+- 정적 검증: route/metadata/VideoGame JSON-LD, 접근성 기본 구조, 공개 카피, 20-round result schema, threshold/difficulty/RNG/motion 로직을 확인했다.
+- 브라우저 검증: desktop/mobile/320px overflow, pointer/touch, Space, multi-input dedupe, pointer+Space dedupe, stale pointer pause/resume, ACTIVE/FEEDBACK pause, 20회 Miss 결과, localStorage best, Play Again, reduced-motion 및 responsive 상태 보존을 확인했다.
+- 필수 stale-pointer 재현: pointerId 1 미해제 → hidden pause → visible/resume → pointerId 2 입력 후 정상 FEEDBACK을 확인했다.
+- 검증: `git diff --check` PASS, `npm run build` PASS, 58페이지 생성. 핵심 Pulse Junction 런타임 JS exception은 없었으나 브라우저 console에 반복된 404 리소스 오류 7건이 확인되어 console-errors gate를 PASS 처리하지 않았다.
+- 상태: `P3-G01-G INCOMPLETE` — `P3-G01-G-FIX-2 REQUIRED`.
+- 후속: 404 리소스의 정확한 요청 대상을 확인하고 허용 범위 내 수정 후 P3-G01-G를 재검증한다.
