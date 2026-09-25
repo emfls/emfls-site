@@ -830,3 +830,10 @@
 - renderer, controller behavior, input, scoring, storage, DPR, responsive layout, and all other protected files remain unchanged.
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
 - P3-G01-F FINAL PASS. Next: P3-G01-G.
+## 2026-09-25 — P3-G01-G Final QA — FIX REQUIRED
+
+- branch: `pivot/web-games-mvp`; base HEAD: `8038444d1dc421e3cba0c8ecf20f828b4aa84cef`.
+- QA-only execution used existing Google Chrome headless with Node 24 WebSocket/CDP. Product source was not modified; temporary QA script was deleted.
+- confirmed defect: stale pointer across visibility pause. Reproduction: ACTIVE → Canvas `pointerdown` with `pointerId=1` without release → hidden/`visibilitychange` → PAUSED → visible → Resume → 3→2→1→ACTIVE → new primary Canvas `pointerdown` with `pointerId=2`. Expected one new judgement/FEEDBACK; actual state remained ACTIVE with no feedback because `activePointerId` was not cleared by the visibility-pause path. Likely source area: `src/games/pulse-junction/input.ts` plus controller pause integration. Severity: HIGH; blocks completion.
+- Initial baseline `git diff --check`: PASS. `npm run build`: PASS — 58 pages. No dependency or product changes. Production unchanged.
+- P3-G01-G remains incomplete. Next: P3-G01-G-FIX — stale pointer across pause only.
