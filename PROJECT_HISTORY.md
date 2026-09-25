@@ -837,3 +837,11 @@
 - confirmed defect: stale pointer across visibility pause. Reproduction: ACTIVE → Canvas `pointerdown` with `pointerId=1` without release → hidden/`visibilitychange` → PAUSED → visible → Resume → 3→2→1→ACTIVE → new primary Canvas `pointerdown` with `pointerId=2`. Expected one new judgement/FEEDBACK; actual state remained ACTIVE with no feedback because `activePointerId` was not cleared by the visibility-pause path. Likely source area: `src/games/pulse-junction/input.ts` plus controller pause integration. Severity: HIGH; blocks completion.
 - Initial baseline `git diff --check`: PASS. `npm run build`: PASS — 58 pages. No dependency or product changes. Production unchanged.
 - P3-G01-G remains incomplete. Next: P3-G01-G-FIX — stale pointer across pause only.
+## 2026-09-25 — P3-G01-G Stale Pointer Pause Fix
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `69f1966e2d3609e6e4787ca4ed523448f5c6fe88`.
+- root cause: `activePointerId` in the existing input module survived visibility pause because the controller did not call its existing `input.cancelPointer()` API.
+- controller visibility pause now cancels pointer ownership for ACTIVE and FEEDBACK pauses. `input.ts` was unchanged.
+- exact stale-pointer repro now passed without releasing pointerId 1: hidden → PAUSED → Resume → new pointerId 2 produced FEEDBACK. Normal pointer, mobile 390 pointer/multi-touch, Space, ACTIVE pause, and FEEDBACK pause regressions passed; runtime exceptions were 0.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Product scope was limited to `controller.ts`; Production unchanged.
+- P3-G01-G-FIX targeted defect PASS. Full G completion QA remains required. Next: P3-G01-G-VERIFY.
