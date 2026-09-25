@@ -821,3 +821,12 @@
 - input, logic, RNG, storage, types, route, privacy, scoring, pause, and storage semantics remain unchanged. Temporary QA scripts were deleted.
 - `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
 - next task: P3-G01-G.
+## 2026-09-25 — P3-G01-F Motion Token Fix
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `8f76c17c4712a981eac6163c3522f9fba34f04c6`.
+- root cause: feedback animation referenced undefined `--game-motion-duration-standard` and `--game-motion-easing-standard` names with fallbacks instead of the shared motion-token contract.
+- corrected only `pulse-junction.css` to use `var(--game-motion-normal)` and `var(--game-motion-ease)`. Keyframes, outcome colors/text, reduced-motion rule, and 360ms gameplay feedback timing were unchanged.
+- Chrome/CDP sanity: normal feedback reported animation name `pulse-junction-feedback-in`, shared token resolved to `.2s`/200ms and shared easing; reduced motion reported animation `none`; route and gameplay feedback loaded with zero runtime exceptions.
+- renderer, controller behavior, input, scoring, storage, DPR, responsive layout, and all other protected files remain unchanged.
+- `git diff --check`: PASS. `npm run build`: PASS — 58 pages. Production unchanged.
+- P3-G01-F FINAL PASS. Next: P3-G01-G.
