@@ -895,3 +895,14 @@
 - privacy follow-up: optional Mirror Drift browser best storage requires Privacy Policy review/update before Production; no Privacy change in A.
 - status: `P3-G02-A PLAN RECORDED`.
 - next: `P3-G02-B — Mirror Drift empty route / UI shell / state structure only`.
+## 2026-09-26 — P3-G02-B Mirror Drift Game Shell
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `7dee7bb272ceabc2b04c4f840665103349fd52a2`; implementation: `a99888c8cfe0a7b6463e00e4254ab1c99deb7c97`.
+- added canonical `/games/mirror-drift/` by reusing the existing catalog record and `GameDetailFrame`; public game copy is English only and no Related Games slot was added.
+- added the empty Canvas shell, accessible name, Stage/Score/Strikes/Time HUD, seven state type values, and six overlay panels; ACTIVE deliberately has no panel.
+- shell flow: IDLE Start enters `STAGE_INTRO` for 600ms then ACTIVE; duplicate Start is ignored. Resume and Play Again handlers exist only for future states and no fail/clear/pause/result state is naturally reachable yet.
+- no mechanics added: no reflection geometry, stage data, obstacles, input, timer, target hold, strikes, scoring, storage, renderer, visibility/orientation lifecycle, analytics, ads, or audio.
+- runtime QA: desktop, 390px, and 320px had readable shell/no horizontal overflow; Start transition passed; title/canonical/VideoGame schema/accessibility structure passed; page-caused 404/5xx, runtime exception, and blocking console error counts were zero.
+- validation: `git diff --check` PASS, `npm run build` PASS, 59 pages. Production unchanged.
+- status: `P3-G02-B implemented`.
+- next: `P3-G02-C — fixed stages / pure geometry / swept collision / renderer / timer-target-hold core only`.
