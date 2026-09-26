@@ -7,6 +7,26 @@ export type GameState =
   | 'PAUSED'
   | 'RESULT';
 
+export type FailureReason = 'COLLISION' | 'TIMEOUT';
+
+export type SessionStats = {
+  score: number;
+  totalStrikes: number;
+  fastestClearMs: number | null;
+};
+
+export type BestStats = {
+  score: number;
+  fewestStrikes: number | null;
+};
+
+export type StageClearSnapshot = {
+  stage: number;
+  stageScore: number;
+  remainingMs: number;
+  elapsedMs: number;
+};
+
 export const TOTAL_STAGES = 12;
 export const STAGE_INTRO_MS = 600;
 

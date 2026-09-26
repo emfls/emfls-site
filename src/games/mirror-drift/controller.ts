@@ -1,11 +1,12 @@
 import { MIRROR_DRIFT_STAGES } from './stages';
 import { assertValidStageDefinitions, areBothDotsInsideTargets, checkMirroredMovementCollision } from './geometry';
-import { formatRemainingTime, getRemainingMs, updateTargetHold } from './logic';
+import { applyStageClearToSession, calculateStageScore, createInitialSessionStats, formatFastestClear, formatRemainingTime, getRemainingMs, resolveClearDeadline, resolveFailureReason, updateTargetHold } from './logic';
 import { createMirrorDriftRenderer } from './renderer';
 import { createMirrorDriftInput } from './input';
 import type { DragMoveCandidate } from './input';
-import { STAGE_INTRO_MS, TOTAL_STAGES } from './types';
-import type { GameState, Vec2 } from './types';
+import { getImprovedBestStats, loadBestStats, saveBestStats } from './storage';
+import { CLEAR_FEEDBACK_MS, FAIL_FEEDBACK_MS, STAGE_INTRO_MS, TARGET_HOLD_MS, TOTAL_STAGES } from './types';
+import type { BestStats, FailureReason, GameState, SessionStats, StageClearSnapshot, Vec2 } from './types';
 
 const panelStates = ['IDLE', 'STAGE_INTRO', 'FAIL_FEEDBACK', 'CLEAR_FEEDBACK', 'PAUSED', 'RESULT'] as const;
 
@@ -17,6 +18,13 @@ type Elements = {
   strikes: HTMLElement;
   time: HTMLElement;
   stageIntro: HTMLElement;
+  failFeedback: HTMLElement;
+  stageScore: HTMLElement;
+  resultScore: HTMLElement;
+  resultStrikes: HTMLElement;
+  resultFastestClear: HTMLElement;
+  resultBestScore: HTMLElement;
+  resultFewestStrikes: HTMLElement;
   start: HTMLButtonElement;
   resume: HTMLButtonElement;
   restart: HTMLButtonElement;
@@ -34,13 +42,20 @@ const getElements = (root: HTMLElement): Elements => {
   const strikes = root.querySelector<HTMLElement>('[data-strikes]');
   const time = root.querySelector<HTMLElement>('[data-time]');
   const stageIntro = root.querySelector<HTMLElement>('[data-stage-intro]');
+  const failFeedback = root.querySelector<HTMLElement>('[data-feedback="fail"]');
+  const stageScore = root.querySelector<HTMLElement>('[data-stage-score]');
+  const resultScore = root.querySelector<HTMLElement>('[data-result="score"]');
+  const resultStrikes = root.querySelector<HTMLElement>('[data-result="strikes"]');
+  const resultFastestClear = root.querySelector<HTMLElement>('[data-result="fastest-clear"]');
+  const resultBestScore = root.querySelector<HTMLElement>('[data-result="best-score"]');
+  const resultFewestStrikes = root.querySelector<HTMLElement>('[data-result="fewest-strikes"]');
   const start = root.querySelector<HTMLButtonElement>('[data-action="start"]');
   const resume = root.querySelector<HTMLButtonElement>('[data-action="resume"]');
   const restart = root.querySelector<HTMLButtonElement>('[data-action="restart"]');
-  if (!validPanels || !canvas || !stage || !score || !strikes || !time || !stageIntro || !start || !resume || !restart) {
+  if (!validPanels || !canvas || !stage || !score || !strikes || !time || !stageIntro || !failFeedback || !stageScore || !resultScore || !resultStrikes || !resultFastestClear || !resultBestScore || !resultFewestStrikes || !start || !resume || !restart) {
     throw new Error('Mirror Drift shell is incomplete.');
   }
-  return { panels, canvas, stage, score, strikes, time, stageIntro, start, resume, restart };
+  return { panels, canvas, stage, score, strikes, time, stageIntro, failFeedback, stageScore, resultScore, resultStrikes, resultFastestClear, resultBestScore, resultFewestStrikes, start, resume, restart };
 };
 
 export const createMirrorDriftController = (root: HTMLElement) => {
@@ -53,8 +68,15 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   let stageIntroTimeout: number | undefined;
   let animationFrame: number | undefined;
   let attemptStartTimestamp: number | undefined;
+  let attemptDeadlineTimestamp: number | undefined;
   let targetHold: ReturnType<typeof updateTargetHold> | undefined;
   let input: ReturnType<typeof createMirrorDriftInput>;
+  let stageStrikes = 0;
+  let sessionStats: SessionStats = createInitialSessionStats();
+  let bestStats: BestStats = loadBestStats();
+  let feedbackTimeout: number | undefined;
+  let clearSnapshot: StageClearSnapshot | undefined;
+  let pauseContinuation: 'RESTART_STAGE' | 'AFTER_CLEAR' | undefined;
 
   const activeStage = () => MIRROR_DRIFT_STAGES[currentStage - 1];
 
@@ -63,10 +85,16 @@ export const createMirrorDriftController = (root: HTMLElement) => {
     stageIntroTimeout = undefined;
   };
 
+  const clearFeedback = () => {
+    if (feedbackTimeout !== undefined) window.clearTimeout(feedbackTimeout);
+    feedbackTimeout = undefined;
+  };
+
   const clearAnimation = () => {
     if (animationFrame !== undefined) window.cancelAnimationFrame(animationFrame);
     animationFrame = undefined;
     attemptStartTimestamp = undefined;
+    attemptDeadlineTimestamp = undefined;
   };
 
   const syncState = (state: GameState) => {
@@ -77,15 +105,24 @@ export const createMirrorDriftController = (root: HTMLElement) => {
 
   const updateHud = () => {
     elements.stage.textContent = `${currentStage} / ${TOTAL_STAGES}`;
-    elements.score.textContent = '0';
-    elements.strikes.textContent = '0';
+    elements.score.textContent = String(sessionStats.score);
+    elements.strikes.textContent = String(sessionStats.totalStrikes);
     elements.time.textContent = '—';
+  };
+
+  const updateResult = () => {
+    elements.resultScore.textContent = String(sessionStats.score);
+    elements.resultStrikes.textContent = String(sessionStats.totalStrikes);
+    elements.resultFastestClear.textContent = formatFastestClear(sessionStats.fastestClearMs);
+    elements.resultBestScore.textContent = String(bestStats.score);
+    elements.resultFewestStrikes.textContent = bestStats.fewestStrikes === null ? '—' : String(bestStats.fewestStrikes);
   };
 
   const prepareStage = () => {
     const stage = activeStage();
     currentPositionA = { ...stage.startA };
     targetHold = undefined;
+    elements.stageScore.textContent = '—';
     elements.time.textContent = formatRemainingTime(stage.timeLimitMs);
     renderer.render({ stage, positionA: currentPositionA, holdProgress: 0 });
   };
@@ -93,17 +130,30 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   const animate = (timestamp: number) => {
     if (currentState !== 'ACTIVE' || attemptStartTimestamp === undefined) return;
     const stage = activeStage();
+    const deadlineTimestamp = attemptDeadlineTimestamp ?? attemptStartTimestamp + stage.timeLimitMs;
     const elapsedMs = Math.max(0, timestamp - attemptStartTimestamp);
     const remainingMs = getRemainingMs(stage.timeLimitMs, elapsedMs);
     elements.time.textContent = formatRemainingTime(remainingMs);
     targetHold = updateTargetHold(targetHold, areBothDotsInsideTargets(currentPositionA, stage.targetA), timestamp);
+    if (targetHold.complete && targetHold.startedAt !== undefined) {
+      const clearTimestamp = targetHold.startedAt + TARGET_HOLD_MS;
+      if (resolveClearDeadline(clearTimestamp, deadlineTimestamp) === 'CLEAR') {
+        commitStageClear(clearTimestamp);
+        return;
+      }
+    }
+    if (timestamp >= deadlineTimestamp) {
+      failAttempt('TIMEOUT');
+      return;
+    }
     renderer.render({ stage, positionA: currentPositionA, holdProgress: targetHold.progress });
-    if (remainingMs > 0) animationFrame = window.requestAnimationFrame(animate);
+    animationFrame = window.requestAnimationFrame(animate);
   };
 
   const enterActive = () => {
     clearAnimation();
     attemptStartTimestamp = performance.now();
+    attemptDeadlineTimestamp = attemptStartTimestamp + activeStage().timeLimitMs;
     targetHold = undefined;
     syncState('ACTIVE');
     animationFrame = window.requestAnimationFrame(animate);
@@ -111,8 +161,11 @@ export const createMirrorDriftController = (root: HTMLElement) => {
 
   const enterStageIntro = () => {
     clearStageIntro();
+    clearFeedback();
     clearAnimation();
     input?.cancelPointer();
+    clearSnapshot = undefined;
+    pauseContinuation = undefined;
     prepareStage();
     elements.stageIntro.textContent = `Stage ${currentStage}`;
     syncState('STAGE_INTRO');
@@ -123,11 +176,28 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   };
 
   const handleStart = () => { if (currentState === 'IDLE') enterStageIntro(); };
-  const handleResume = () => { if (currentState === 'PAUSED') enterStageIntro(); };
+  const handleResume = () => {
+    if (currentState !== 'PAUSED') return;
+    if (pauseContinuation === 'AFTER_CLEAR') {
+      finishClearContinuation();
+      return;
+    }
+    enterStageIntro();
+  };
   const handleMove = (candidate: DragMoveCandidate) => {
-    if (currentState !== 'ACTIVE') return;
+    if (currentState !== 'ACTIVE' || attemptDeadlineTimestamp === undefined) return;
     const stage = activeStage();
-    if (checkMirroredMovementCollision(currentPositionA, candidate.desiredA, stage.obstacles).collided) return;
+    const now = performance.now();
+    const candidateTimestamp = Math.abs(candidate.timestamp - now) <= 60_000 ? candidate.timestamp : now;
+    const failureReason = resolveFailureReason(
+      checkMirroredMovementCollision(currentPositionA, candidate.desiredA, stage.obstacles).collided,
+      candidateTimestamp,
+      attemptDeadlineTimestamp,
+    );
+    if (failureReason) {
+      failAttempt(failureReason);
+      return;
+    }
     currentPositionA = candidate.desiredA;
     renderer.render({ stage, positionA: currentPositionA, holdProgress: targetHold?.progress ?? 0 });
   };
@@ -135,8 +205,74 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   const handleRestart = () => {
     if (currentState !== 'RESULT') return;
     currentStage = 1;
+    stageStrikes = 0;
+    sessionStats = createInitialSessionStats();
+    clearSnapshot = undefined;
+    pauseContinuation = undefined;
     updateHud();
+    updateResult();
     enterStageIntro();
+  };
+
+  const failAttempt = (reason: FailureReason) => {
+    if (currentState !== 'ACTIVE') return;
+    clearAnimation();
+    input.cancelPointer();
+    targetHold = undefined;
+    stageStrikes += 1;
+    sessionStats = { ...sessionStats, totalStrikes: sessionStats.totalStrikes + 1 };
+    updateHud();
+    elements.failFeedback.textContent = reason === 'COLLISION' ? 'Hit' : 'Time';
+    syncState('FAIL_FEEDBACK');
+    clearFeedback();
+    feedbackTimeout = window.setTimeout(() => {
+      feedbackTimeout = undefined;
+      enterStageIntro();
+    }, FAIL_FEEDBACK_MS);
+  };
+
+  const commitStageClear = (clearTimestamp: number) => {
+    if (currentState !== 'ACTIVE' || attemptStartTimestamp === undefined || attemptDeadlineTimestamp === undefined) return;
+    if (resolveClearDeadline(clearTimestamp, attemptDeadlineTimestamp) === 'TIMEOUT') {
+      failAttempt('TIMEOUT');
+      return;
+    }
+    const elapsedMs = Math.max(0, clearTimestamp - attemptStartTimestamp);
+    const remainingMs = Math.max(0, attemptDeadlineTimestamp - clearTimestamp);
+    const stageScore = calculateStageScore(remainingMs, stageStrikes);
+    clearAnimation();
+    input.cancelPointer();
+    targetHold = undefined;
+    clearSnapshot = { stage: currentStage, stageScore, remainingMs, elapsedMs };
+    sessionStats = applyStageClearToSession(sessionStats, stageScore, elapsedMs);
+    updateHud();
+    elements.stageScore.textContent = `+${stageScore}`;
+    syncState('CLEAR_FEEDBACK');
+    clearFeedback();
+    feedbackTimeout = window.setTimeout(() => {
+      feedbackTimeout = undefined;
+      finishClearContinuation();
+    }, CLEAR_FEEDBACK_MS);
+  };
+
+  const finishClearContinuation = () => {
+    if (!clearSnapshot) {
+      enterStageIntro();
+      return;
+    }
+    clearSnapshot = undefined;
+    pauseContinuation = undefined;
+    if (currentStage < TOTAL_STAGES) {
+      currentStage += 1;
+      stageStrikes = 0;
+      updateHud();
+      enterStageIntro();
+      return;
+    }
+    bestStats = getImprovedBestStats(bestStats, sessionStats);
+    saveBestStats(bestStats);
+    updateResult();
+    syncState('RESULT');
   };
 
   elements.start.addEventListener('click', handleStart);
@@ -150,11 +286,24 @@ export const createMirrorDriftController = (root: HTMLElement) => {
     onCancel: handleInputCancel,
   });
   const handleVisibilityChange = () => {
-    if (document.visibilityState !== 'hidden' || (currentState !== 'ACTIVE' && currentState !== 'STAGE_INTRO')) return;
-    clearStageIntro();
-    clearAnimation();
-    input.cancelPointer();
-    targetHold = undefined;
+    if (document.visibilityState !== 'hidden') return;
+    if (currentState === 'ACTIVE') {
+      clearAnimation();
+      input.cancelPointer();
+      targetHold = undefined;
+      pauseContinuation = 'RESTART_STAGE';
+    } else if (currentState === 'STAGE_INTRO') {
+      clearStageIntro();
+      pauseContinuation = 'RESTART_STAGE';
+    } else if (currentState === 'FAIL_FEEDBACK') {
+      clearFeedback();
+      pauseContinuation = 'RESTART_STAGE';
+    } else if (currentState === 'CLEAR_FEEDBACK') {
+      clearFeedback();
+      pauseContinuation = 'AFTER_CLEAR';
+    } else {
+      return;
+    }
     syncState('PAUSED');
   };
   const handleViewportChange = () => {
@@ -167,10 +316,12 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   window.addEventListener('resize', handleViewportChange);
   window.addEventListener('orientationchange', handleViewportChange);
   updateHud();
+  updateResult();
   syncState('IDLE');
 
   return () => {
     clearStageIntro();
+    clearFeedback();
     clearAnimation();
     renderer.destroy();
     input.destroy();
