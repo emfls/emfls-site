@@ -929,3 +929,17 @@
 - lifecycle: `visibilitychange` hidden에서 ACTIVE/STAGE_INTRO를 PAUSED로 전환하고 자동 재개하지 않는다. active drag 중 resize/orientationchange는 pointer를 취소하고 STAGE_INTRO부터 재시작하며, 비드래그 resize는 상태를 유지한다. 숨겨진 Mirror Drift overlay가 canvas 입력을 가리지 않도록 scoped `[hidden]` display rule을 추가했다.
 - 검증: `git diff --check` PASS, `npm run build` PASS, 59페이지 생성. 로컬 브라우저에서 실제 Pointer Events/capture, pointerup/cancel, multi-touch rejection, collision rejection, visibility pause/resume, resize/orientation restart, 390/320 viewport overflow 및 console/network 오류 부재를 확인했다.
 - 상태: P3-G02-D 구현 완료. 다음 단계는 P3-G02-E다.
+## 2026-09-26 — P3-G02-E Mirror Drift Scoring and Results
+
+- branch: `pivot/web-games-mvp`.
+- previous HEAD: `541f55fd8470d27ac76fcd850c9adc958f4e86e5`.
+- implementation: `efeb89792386789ceb3599145e75019af3fdb0af` (`feat: add Mirror Drift scoring and results`).
+- 변경 파일: `src/games/mirror-drift/types.ts`, `src/games/mirror-drift/logic.ts`, `src/games/mirror-drift/storage.ts`, `src/games/mirror-drift/controller.ts`.
+- failure/strikes: `COLLISION`과 `TIMEOUT`만 strike reason으로 사용한다. collision이 timeout보다 우선하며, 실패당 한 번만 `stageStrikes`와 cumulative `totalStrikes`를 증가시킨다. collision은 `Hit`, timeout은 `Time`이고 FAIL feedback은 `FAIL_FEEDBACK_MS` 400ms다. retry는 같은 stage이며 stageStrikes/totalStrikes/session score를 보존한다.
+- clear/scoring: `TARGET_HOLD_MS` 150ms를 연속 만족하면 clear를 한 번 commit한다. logical clear timestamp는 hold 시작 + 150ms이며, clear timestamp가 deadline 이전 또는 정확히 같으면 CLEAR, 이후면 TIMEOUT이다. stage score는 `max(100, 500 + min(500, floor(remainingMs / 100) * 5) - 100 * stageStrikes)` 고정식이다. clear score는 session score에 누적하고, 성공한 ACTIVE elapsed만 Fastest Clear 후보로 사용한다. CLEAR feedback은 400ms이며 `+stageScore`를 표시한다.
+- progression/result: stage 1→12를 진행하고 새 stage에서만 stageStrikes를 0으로 reset한다. stage 12 clear feedback 뒤 stage 13 없이 RESULT로 간다. RESULT에는 Total Score, Total Strikes, Fastest Clear, Best Score, Fewest Strikes를 표시한다. Play Again은 session/stage를 초기화하고 best stats는 보존한다.
+- storage: key는 `emfls:mirror-drift:best:v1`, JSON shape은 `{ score, fewestStrikes }`뿐이다. score/fewestStrikes 검증, malformed JSON, undefined storage, getItem/setItem throw를 모두 안전 fallback/no-op 처리한다. Best Score와 Fewest Strikes는 독립적으로 비교하며, 완료된 12-stage session의 RESULT 경로에서만 저장한다. session 복원은 하지 않는다.
+- lifecycle: ACTIVE/STAGE_INTRO/FAIL_FEEDBACK/CLEAR_FEEDBACK pause continuation을 명시적으로 구분했다. FAIL pause는 같은 stage retry, CLEAR pause는 clear된 stage를 replay하지 않고 다음 stage 또는 RESULT로 이어간다. pointercancel/lost capture/resize/orientation은 기존처럼 no-strike다. feedback timer와 intro/rAF/input/renderer/listener cleanup을 통합했다.
+- 검증: pure scoring/storage assertions PASS, 실제 브라우저에서 timeout/collision/feedback/strike dedupe, FAIL/CLEAR visibility pause, pointercancel/resize, under-150ms hold reset, 150ms clear, 두 번의 실제 12-stage session, RESULT, valid/malformed preload, reload, Play Again, page-caused 404/5xx/runtime/console 오류를 확인했다. 최종 `git diff --check` PASS, `npm run build` PASS, 59 pages.
+- 금지 범위 유지: `input.ts`, `stages.ts`, `geometry.ts`, `renderer.ts`, component, CSS, route, shared layout/tokens, Pulse Junction, dependency, DPR/responsive polish, audio, ads, analytics, Related Games는 수정하지 않았다.
+- 상태: P3-G02-E implemented. Privacy pre-Production storage follow-up remains pending. 다음 단계는 P3-G02-F — Mirror Drift responsive / DPR / accessibility / feedback visual polish only.
