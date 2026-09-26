@@ -19,13 +19,13 @@ import '../../styles/games/mirror-drift.css';
       </section>
     </div>
     <div class="mirror-drift__overlay" data-panel="STAGE_INTRO" hidden>
-      <p class="mirror-drift__stage-intro" data-stage-intro aria-live="polite">Stage 1</p>
+      <p class="mirror-drift__stage-intro" data-stage-intro role="status" aria-live="polite" aria-atomic="true">Stage 1</p>
     </div>
     <div class="mirror-drift__overlay" data-panel="FAIL_FEEDBACK" hidden>
-      <p class="mirror-drift__feedback" data-feedback="fail" aria-live="polite">Hit</p>
+      <p class="mirror-drift__feedback" data-feedback="fail" role="status" aria-live="polite" aria-atomic="true">Hit</p>
     </div>
     <div class="mirror-drift__overlay" data-panel="CLEAR_FEEDBACK" hidden>
-      <div class="mirror-drift__feedback-group"><p class="mirror-drift__feedback" aria-live="polite">Stage Clear</p><p data-stage-score>—</p></div>
+      <div class="mirror-drift__feedback-group" role="status" aria-live="polite" aria-atomic="true"><p class="mirror-drift__feedback">Stage Clear</p><p data-stage-score>—</p></div>
     </div>
     <div class="mirror-drift__overlay" data-panel="PAUSED" hidden>
       <section class="mirror-drift__panel" aria-labelledby="mirror-drift-paused-heading">
