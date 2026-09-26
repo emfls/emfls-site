@@ -919,3 +919,13 @@
 - validation: `git diff --check` PASS, `npm run build` PASS, 59 pages. Temporary QA route/scripts were deleted. Production unchanged.
 - status: `P3-G02-C implemented`.
 - next: `P3-G02-D — Mirror Drift Pointer drag / capture / offset / multi-touch / swept movement integration / pause-orientation lifecycle only`.
+## 2026-09-26 — P3-G02-D Mirror Drift Drag Input and Lifecycle
+
+- 목적: `pivot/web-games-mvp`의 Mirror Drift P3-G02-D 범위인 Pointer Events 드래그 입력, pointer capture, 다중 터치 배제, 충돌 후보 거부, pause/resize/orientation lifecycle을 구현했다.
+- 구현 커밋: `790fccf` (`feat: add Mirror Drift drag input`).
+- 변경 파일: `src/games/mirror-drift/input.ts`, `src/games/mirror-drift/controller.ts`, `src/styles/games/mirror-drift.css`.
+- 입력 계약: A dot만 primary pointer로 취득하고 최소 44 CSS px hit target을 적용했다. client 좌표를 정규화 좌표로 변환하고 pointer offset을 보존하며, pointer capture와 pointerup/pointercancel/lostpointercapture/manual cancel/destroy 정리를 구현했다. `touch-action: none`은 Mirror Drift canvas에만 적용했다.
+- 이동 계약: 기존 clamp와 A+B swept collision helper를 사용한다. 충돌 후보는 마지막 안전 위치를 유지한 채 drag를 계속하고, B-only 및 tunneling 후보도 같은 경로에서 거부한다. strike/fail/scoring/storage/stage progression은 구현하지 않았다.
+- lifecycle: `visibilitychange` hidden에서 ACTIVE/STAGE_INTRO를 PAUSED로 전환하고 자동 재개하지 않는다. active drag 중 resize/orientationchange는 pointer를 취소하고 STAGE_INTRO부터 재시작하며, 비드래그 resize는 상태를 유지한다. 숨겨진 Mirror Drift overlay가 canvas 입력을 가리지 않도록 scoped `[hidden]` display rule을 추가했다.
+- 검증: `git diff --check` PASS, `npm run build` PASS, 59페이지 생성. 로컬 브라우저에서 실제 Pointer Events/capture, pointerup/cancel, multi-touch rejection, collision rejection, visibility pause/resume, resize/orientation restart, 390/320 viewport overflow 및 console/network 오류 부재를 확인했다.
+- 상태: P3-G02-D 구현 완료. 다음 단계는 P3-G02-E다.
