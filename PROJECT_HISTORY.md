@@ -1021,7 +1021,7 @@
 - status: `P3-G03-B IMPLEMENTED`.
 - next: `P3-G03-C — six fixed layouts / validator / deterministic global movement / legal directions / witness QA only`.
 
-## 2026-09-27 — P3-G03-C Gravity Pact Movement Core
+## 2026-09-26 — P3-G03-C Gravity Pact Movement Core
 
 - branch: `pivot/web-games-mvp`; previous HEAD: `2e5848d8b994927dacb44a5116283174e31578bf`; implementation: `bc547269a08b69f4887bbc3464e39b5dc1e24add` (`feat: add Gravity Pact movement core`).
 - product maturity remains `SHELL`. C adds pure domain mechanics only; no controller, route, component, CSS, DOM token rendering, input integration, or browser gameplay was added.
