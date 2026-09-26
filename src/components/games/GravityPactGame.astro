@@ -1,0 +1,81 @@
+---
+import '../../styles/games/gravity-pact.css';
+---
+<div class="gravity-pact" data-gravity-pact data-state="IDLE">
+  <div class="gravity-pact__hud" aria-label="Game status">
+    <div class="gravity-pact__hud-item"><span>Player A</span><strong data-score-a>0 / 3</strong></div>
+    <div class="gravity-pact__hud-item"><span>Player B</span><strong data-score-b>0 / 3</strong></div>
+    <div class="gravity-pact__hud-item"><span>Turns</span><strong data-turns>0 / 30</strong></div>
+    <div class="gravity-pact__hud-item"><span>Layout</span><strong data-layout>—</strong></div>
+  </div>
+
+  <div class="gravity-pact__surface">
+    <div class="gravity-pact__board" data-board role="grid" aria-label="Gravity Pact board">
+      {Array.from({ length: 5 }, (_, row) => Array.from({ length: 5 }, (_, col) => (
+        <div class="gravity-pact__cell" data-row={row} data-col={col} role="gridcell" />
+      )))}
+    </div>
+
+    <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="IDLE">
+      <section class="gravity-pact__panel" aria-labelledby="gravity-pact-start-heading">
+        <h3 id="gravity-pact-start-heading">Ready to make a pact?</h3>
+        <p>Every direction moves both players' active tokens.</p>
+        <button class="button" type="button" data-action="start">Start Game</button>
+      </section>
+    </div>
+
+    <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="MATCH_INTRO" hidden>
+      <p class="gravity-pact__intro" role="status" aria-live="polite" aria-atomic="true"><span data-intro-layout>Layout —</span><span data-intro-starter>Player A starts</span></p>
+    </div>
+
+    <p class="gravity-pact__state gravity-pact__state--status" data-panel="TURN" data-turn-status role="status" aria-live="polite" aria-atomic="true" hidden>Waiting to start</p>
+    <p class="gravity-pact__state gravity-pact__state--status" data-panel="MOVING" hidden>Moving</p>
+
+    <div class="gravity-pact__state gravity-pact__state--status" data-panel="SCORE_FEEDBACK" data-score-feedback hidden>
+      <span data-score-feedback-a>—</span>
+      <span data-score-feedback-b>—</span>
+    </div>
+
+    <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="PAUSED" hidden>
+      <section class="gravity-pact__panel" aria-labelledby="gravity-pact-paused-heading">
+        <h3 id="gravity-pact-paused-heading">Paused</h3>
+        <p>Resume when you are ready.</p>
+        <button class="button" type="button" data-action="resume">Resume</button>
+      </section>
+    </div>
+
+    <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="RESULT" hidden>
+      <section class="gravity-pact__panel" aria-labelledby="gravity-pact-result-heading">
+        <h3 id="gravity-pact-result-heading">Result</h3>
+        <dl class="gravity-pact__result-grid">
+          <div><dt>Result</dt><dd data-result="outcome">—</dd></div>
+          <div><dt>A Score</dt><dd data-result="score-a">0</dd></div>
+          <div><dt>B Score</dt><dd data-result="score-b">0</dd></div>
+          <div><dt>Turns Used</dt><dd data-result="turns">0</dd></div>
+        </dl>
+        <button class="button" type="button" data-action="restart">Play Again</button>
+      </section>
+    </div>
+  </div>
+
+  <div class="gravity-pact__controls">
+    <p class="gravity-pact__turn-label" data-turn-label>Waiting to start</p>
+    <div class="gravity-pact__pad" role="group" aria-label="Direction controls">
+      <button class="gravity-pact__direction" type="button" data-direction="UP" aria-label="Move up" disabled>↑</button>
+      <button class="gravity-pact__direction" type="button" data-direction="LEFT" aria-label="Move left" disabled>←</button>
+      <button class="gravity-pact__direction" type="button" data-direction="RIGHT" aria-label="Move right" disabled>→</button>
+      <button class="gravity-pact__direction" type="button" data-direction="DOWN" aria-label="Move down" disabled>↓</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { createGravityPactController } from '../../games/gravity-pact/controller';
+
+  document.querySelectorAll<HTMLElement>('[data-gravity-pact]').forEach((root) => {
+    if (!root.dataset.controllerReady) {
+      createGravityPactController(root);
+      root.dataset.controllerReady = 'true';
+    }
+  });
+</script>
