@@ -906,3 +906,16 @@
 - validation: `git diff --check` PASS, `npm run build` PASS, 59 pages. Production unchanged.
 - status: `P3-G02-B implemented`.
 - next: `P3-G02-C — fixed stages / pure geometry / swept collision / renderer / timer-target-hold core only`.
+## 2026-09-26 — P3-G02-C Mirror Drift Core Geometry
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `87aea28e47913486889c2f990fa5c4401b0a1400`; implementation: `a8721b3c4996ab9682634c586cc400d687cd2df8`.
+- added 12 literal fixed stages with IDs 1–12, phases `LEARN`, `SPLIT`, `CORRIDOR`, `OFFSET`, `PRECISION`, `FINAL`, fixed 8–18 second limits, and `solutionPathA` for every stage. No generator or RNG exists.
+- geometry: normalized [-1, 1] board, `B=-A`, `DOT_RADIUS=0.035`, `TARGET_RADIUS=0.075`, effective target tolerance `0.040`, board clamp, target containment, circle/bar contact collision, continuous swept segment tests, and explicit A+B pair collision results. A/B never collide with each other.
+- fixed-stage validator passed all 12 stages and temporary negative assertions for bad time, wrong solution endpoint, colliding solution, out-of-bounds start, and ID/order mismatch.
+- timer/hold core: monotonic `performance.now()` attempt timing, remaining-time helper/display, continuous 150ms target hold with reset on exit, and 149ms/150ms boundary assertions. At timer zero C remains ACTIVE with no strike/failure transition; timeout commit is deferred to P3-G02-E.
+- renderer: Canvas-only normalized projection with solid A, hollow B, corresponding targets, static circle/bar obstacles, center marker, relationship line, and hold highlight. Solution paths are not rendered. No DPR backing synchronization yet.
+- controller now prepares Stage 1, starts one ACTIVE rAF loop after the existing intro, renders the fixed model, updates Time, and cleans up timeout/rAF/renderer. No pointer input, capture, visibility/orientation lifecycle, failure commit, scoring, result logic, or storage was added.
+- runtime QA: initial IDLE, Stage Intro, ACTIVE rendering, decreasing time, unchanged A/B/score/strikes/stage, desktop/390/320 sanity, and zero page-caused 404/5xx/runtime/console errors passed.
+- validation: `git diff --check` PASS, `npm run build` PASS, 59 pages. Temporary QA route/scripts were deleted. Production unchanged.
+- status: `P3-G02-C implemented`.
+- next: `P3-G02-D — Mirror Drift Pointer drag / capture / offset / multi-touch / swept movement integration / pause-orientation lifecycle only`.
