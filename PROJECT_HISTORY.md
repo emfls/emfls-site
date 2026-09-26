@@ -877,3 +877,21 @@
 - 상태: `P3-G01-G FINAL PASS` — `Pulse Junction COMPLETE`.
 - Production/main/Cloudflare/DNS는 변경하지 않았다.
 - 다음 단계: `P3-G02-A — Mirror Drift final specification / route / file implementation plan only`.
+## 2026-09-26 — P3-G02-A Mirror Drift Final Specification / Route / File Implementation Plan
+
+- branch: `pivot/web-games-mvp`; base HEAD: `308b3474036bb2c64b1d7c174c211be6c246293b`.
+- planning-only task. Product source, route, game code, CSS, dependencies, main, redirects, Cloudflare, DNS, and Production were not modified.
+- catalog contract confirmed in `src/data/games.ts`: `Mirror Drift`, slug `mirror-drift`, href `/games/mirror-drift/`, Puzzle, Solo, `1–2 min`, with the frozen mirrored-point description.
+- pre-B route/file state confirmed absent: `src/pages/games/mirror-drift.astro`, `src/components/games/MirrorDriftGame.astro`, `src/games/mirror-drift/`, and `src/styles/games/mirror-drift.css`. Build remains 58 pages before P3-G02-B.
+- frozen MVP: 12 fixed stages; normalized A/B reflection `B = -A`; Canvas plus HTML HUD; mobile portrait primary; circle/AABB static obstacles; swept A and B collision; 150ms target hold; 8–18 second stage limits; no RNG, audio, external assets, account, server, analytics, or Related Games.
+- geometry contract: `DOT_RADIUS=0.035`, `TARGET_RADIUS=0.075`, effective center tolerance `0.040`; board clamp accounts for dot radius; `targetB=-targetA`, `startB=-startA`; contact counts as collision; A and B never collide with each other; collision uses continuous swept segment tests against expanded circles/AABBs.
+- timing/state contract: ACTIVE alone consumes monotonic attempt time; collision/timeout records one strike with collision winning same-frame ties; retries reset stage timer/start while preserving accumulated strikes; target hold must remain continuously valid for 150ms; clear commits once before feedback.
+- score/result contract: stage score is `max(100, 500 + min(500, floor(remainingMs/100)*5) - 100*stageStrikes)`; Fastest Clear is the lowest ACTIVE elapsed time of a successful attempt in the session; RESULT shows Total Score, Total Strikes, Fastest Clear, Best Score, and Fewest Strikes.
+- storage contract: key `emfls:mirror-drift:best:v1`; shape `{score:number, fewestStrikes:number|null}`; safe validation and try/catch; only completed 12-stage sessions update independent best values; Play Again resets session/stage/drag/timer while preserving bests.
+- input/lifecycle contract: Pointer Events only; 44px acquisition area; pointer offset preserved; pointer capture and one active pointer; pointercancel/lost capture has no strike; active orientation change cancels drag and restarts stage; hidden ACTIVE/transient states pause without auto-resume; Resume restarts the appropriate intro and cannot double-score clear feedback.
+- frozen states/timing: `IDLE`, `STAGE_INTRO`, `ACTIVE`, `FAIL_FEEDBACK`, `CLEAR_FEEDBACK`, `PAUSED`, `RESULT`; intro 600ms, target hold 150ms, fail/clear feedback 400ms, DPR cap 2.
+- frozen ownership plan: route `src/pages/games/mirror-drift.astro`; UI `src/components/games/MirrorDriftGame.astro`; CSS `src/styles/games/mirror-drift.css`; modules `types.ts`, `stages.ts`, `geometry.ts`, `logic.ts`, `renderer.ts`, `input.ts`, `storage.ts`, `controller.ts` under `src/games/mirror-drift/`; no `rng.ts`.
+- frozen sequence: P3-G02-B shell/state structure only; C fixed stages/geometry/renderer/timer core; D pointer drag/capture/offset/multi-touch/pause lifecycle; E strikes/scoring/result/storage; F responsive/DPR/accessibility polish; G complete solvability and regression QA.
+- privacy follow-up: optional Mirror Drift browser best storage requires Privacy Policy review/update before Production; no Privacy change in A.
+- status: `P3-G02-A PLAN RECORDED`.
+- next: `P3-G02-B — Mirror Drift empty route / UI shell / state structure only`.
