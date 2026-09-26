@@ -4,8 +4,9 @@
 .mirror-drift__hud-item span { color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
 .mirror-drift__hud-item strong { color: var(--game-color-text); font-size: var(--game-font-size-large); font-variant-numeric: tabular-nums; }
 .mirror-drift__surface { position: relative; aspect-ratio: 1 / 1; width: 100%; overflow: hidden; border: 1px solid var(--game-color-border); border-radius: var(--game-radius-large); background: var(--game-color-background); }
-.mirror-drift__canvas { display: block; width: 100%; height: 100%; }
+.mirror-drift__canvas { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; }
 .mirror-drift__overlay { position: absolute; inset: 0; display: grid; place-items: center; overflow: auto; padding: var(--game-space-6); background: var(--game-color-surface); }
+.mirror-drift__overlay[hidden] { display: none; }
 .mirror-drift__panel { display: grid; gap: var(--game-space-4); width: min(100%, 24rem); padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-large); background: var(--game-color-surface-elevated); box-shadow: var(--game-shadow-elevated); text-align: center; }
 .mirror-drift__panel h3, .mirror-drift__feedback, .mirror-drift__stage-intro { margin: 0; color: var(--game-color-text); font-size: var(--game-font-size-h2); }
 .mirror-drift__panel p, .mirror-drift__feedback-group p { margin: 0; color: var(--game-color-text-secondary); line-height: var(--game-line-height-body); }

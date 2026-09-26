@@ -1,7 +1,9 @@
 import { MIRROR_DRIFT_STAGES } from './stages';
-import { assertValidStageDefinitions, areBothDotsInsideTargets } from './geometry';
+import { assertValidStageDefinitions, areBothDotsInsideTargets, checkMirroredMovementCollision } from './geometry';
 import { formatRemainingTime, getRemainingMs, updateTargetHold } from './logic';
 import { createMirrorDriftRenderer } from './renderer';
+import { createMirrorDriftInput } from './input';
+import type { DragMoveCandidate } from './input';
 import { STAGE_INTRO_MS, TOTAL_STAGES } from './types';
 import type { GameState, Vec2 } from './types';
 
@@ -52,6 +54,7 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   let animationFrame: number | undefined;
   let attemptStartTimestamp: number | undefined;
   let targetHold: ReturnType<typeof updateTargetHold> | undefined;
+  let input: ReturnType<typeof createMirrorDriftInput>;
 
   const activeStage = () => MIRROR_DRIFT_STAGES[currentStage - 1];
 
@@ -109,6 +112,7 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   const enterStageIntro = () => {
     clearStageIntro();
     clearAnimation();
+    input?.cancelPointer();
     prepareStage();
     elements.stageIntro.textContent = `Stage ${currentStage}`;
     syncState('STAGE_INTRO');
@@ -120,6 +124,14 @@ export const createMirrorDriftController = (root: HTMLElement) => {
 
   const handleStart = () => { if (currentState === 'IDLE') enterStageIntro(); };
   const handleResume = () => { if (currentState === 'PAUSED') enterStageIntro(); };
+  const handleMove = (candidate: DragMoveCandidate) => {
+    if (currentState !== 'ACTIVE') return;
+    const stage = activeStage();
+    if (checkMirroredMovementCollision(currentPositionA, candidate.desiredA, stage.obstacles).collided) return;
+    currentPositionA = candidate.desiredA;
+    renderer.render({ stage, positionA: currentPositionA, holdProgress: targetHold?.progress ?? 0 });
+  };
+  const handleInputCancel = () => { if (currentState === 'ACTIVE') enterStageIntro(); };
   const handleRestart = () => {
     if (currentState !== 'RESULT') return;
     currentStage = 1;
@@ -130,6 +142,30 @@ export const createMirrorDriftController = (root: HTMLElement) => {
   elements.start.addEventListener('click', handleStart);
   elements.resume.addEventListener('click', handleResume);
   elements.restart.addEventListener('click', handleRestart);
+  input = createMirrorDriftInput({
+    canvas: elements.canvas,
+    isEnabled: () => currentState === 'ACTIVE' && document.visibilityState === 'visible',
+    getPositionA: () => currentPositionA,
+    onMove: handleMove,
+    onCancel: handleInputCancel,
+  });
+  const handleVisibilityChange = () => {
+    if (document.visibilityState !== 'hidden' || (currentState !== 'ACTIVE' && currentState !== 'STAGE_INTRO')) return;
+    clearStageIntro();
+    clearAnimation();
+    input.cancelPointer();
+    targetHold = undefined;
+    syncState('PAUSED');
+  };
+  const handleViewportChange = () => {
+    if (currentState === 'ACTIVE' && input.isDragging()) {
+      input.cancelPointer();
+      enterStageIntro();
+    }
+  };
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('resize', handleViewportChange);
+  window.addEventListener('orientationchange', handleViewportChange);
   updateHud();
   syncState('IDLE');
 
@@ -137,8 +173,12 @@ export const createMirrorDriftController = (root: HTMLElement) => {
     clearStageIntro();
     clearAnimation();
     renderer.destroy();
+    input.destroy();
     elements.start.removeEventListener('click', handleStart);
     elements.resume.removeEventListener('click', handleResume);
     elements.restart.removeEventListener('click', handleRestart);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    window.removeEventListener('resize', handleViewportChange);
+    window.removeEventListener('orientationchange', handleViewportChange);
   };
 };
