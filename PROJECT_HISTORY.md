@@ -854,3 +854,14 @@
 - 검증: `git diff --check` PASS, `npm run build` PASS, 58페이지 생성. 핵심 Pulse Junction 런타임 JS exception은 없었으나 브라우저 console에 반복된 404 리소스 오류 7건이 확인되어 console-errors gate를 PASS 처리하지 않았다.
 - 상태: `P3-G01-G INCOMPLETE` — `P3-G01-G-FIX-2 REQUIRED`.
 - 후속: 404 리소스의 정확한 요청 대상을 확인하고 허용 범위 내 수정 후 P3-G01-G를 재검증한다.
+## 2026-09-26 — P3-G01-G 404 Resource Fix
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `8838a9bfbb665c6c80d16ce0c66032b74a0dcc7c`.
+- CDP Network capture before fix: `http://127.0.0.1:4325/favicon.ico`, path `/favicon.ico`, status `404`, method `GET`, resource type `Other`, 5 occurrences across 5 clean reloads. No other 4xx/5xx resources were captured.
+- root cause confirmed: `GameLayout.astro` lacked an explicit icon declaration, so the browser fallback requested `/favicon.ico`; that file does not exist. Existing intended asset `public/favicon.svg` was present.
+- minimal fix: added exactly `<link rel="icon" href="/favicon.svg" type="image/svg+xml" />` to `src/layouts/GameLayout.astro`. No new asset was created and `BaseLayout.astro` was unchanged.
+- targeted after-fix CDP Network capture: 5 reloads produced zero page-caused 404/5xx requests; `/favicon.svg` returned `200`; no `/favicon.ico` request remained.
+- smoke QA: route, title, H1, canonical, VideoGame schema, favicon link, Start, ACTIVE, pointer FEEDBACK, Space path, and runtime exceptions passed. Metadata behavior was preserved.
+- 검증: `git diff --check` PASS, `npm run build` PASS, 58 pages. Dependencies, game source, scoring, input, storage, renderer, DPR, responsive behavior, privacy, redirects, Cloudflare, DNS, Production은 변경하지 않았다.
+- 상태: `P3-G01-G-FIX-2 targeted issue PASS`.
+- 다음 단계: `P3-G01-G-VERIFY-2 — final short completion verification after 404 fix`.
