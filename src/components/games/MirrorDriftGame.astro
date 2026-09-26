@@ -1,0 +1,62 @@
+---
+import '../../styles/games/mirror-drift.css';
+---
+<div class="mirror-drift" data-mirror-drift data-state="IDLE">
+  <div class="mirror-drift__hud" aria-label="Game status">
+    <div class="mirror-drift__hud-item"><span>Stage</span><strong data-stage>1 / 12</strong></div>
+    <div class="mirror-drift__hud-item"><span>Score</span><strong data-score>0</strong></div>
+    <div class="mirror-drift__hud-item"><span>Strikes</span><strong data-strikes>0</strong></div>
+    <div class="mirror-drift__hud-item"><span>Time</span><strong data-time>—</strong></div>
+  </div>
+
+  <div class="mirror-drift__surface">
+    <canvas class="mirror-drift__canvas" data-game-canvas width="640" height="640" aria-label="Mirror Drift game area">Your browser does not support the canvas element.</canvas>
+    <div class="mirror-drift__overlay" data-panel="IDLE">
+      <section class="mirror-drift__panel" aria-labelledby="mirror-drift-start-heading">
+        <h3 id="mirror-drift-start-heading">Ready?</h3>
+        <p>Guide both mirrored points to their matching targets.</p>
+        <button class="button" type="button" data-action="start">Start Game</button>
+      </section>
+    </div>
+    <div class="mirror-drift__overlay" data-panel="STAGE_INTRO" hidden>
+      <p class="mirror-drift__stage-intro" data-stage-intro aria-live="polite">Stage 1</p>
+    </div>
+    <div class="mirror-drift__overlay" data-panel="FAIL_FEEDBACK" hidden>
+      <p class="mirror-drift__feedback" data-feedback="fail" aria-live="polite">Hit</p>
+    </div>
+    <div class="mirror-drift__overlay" data-panel="CLEAR_FEEDBACK" hidden>
+      <div class="mirror-drift__feedback-group"><p class="mirror-drift__feedback" aria-live="polite">Stage Clear</p><p data-stage-score>—</p></div>
+    </div>
+    <div class="mirror-drift__overlay" data-panel="PAUSED" hidden>
+      <section class="mirror-drift__panel" aria-labelledby="mirror-drift-paused-heading">
+        <h3 id="mirror-drift-paused-heading">Paused</h3>
+        <p>Resume when you are ready.</p>
+        <button class="button" type="button" data-action="resume">Resume</button>
+      </section>
+    </div>
+    <div class="mirror-drift__overlay" data-panel="RESULT" hidden>
+      <section class="mirror-drift__panel" aria-labelledby="mirror-drift-result-heading">
+        <h3 id="mirror-drift-result-heading">Results</h3>
+        <dl class="mirror-drift__result-grid">
+          <div><dt>Total Score</dt><dd data-result="score">0</dd></div>
+          <div><dt>Total Strikes</dt><dd data-result="strikes">0</dd></div>
+          <div><dt>Fastest Clear</dt><dd data-result="fastest-clear">—</dd></div>
+          <div><dt>Best Score</dt><dd data-result="best-score">0</dd></div>
+          <div><dt>Fewest Strikes</dt><dd data-result="fewest-strikes">—</dd></div>
+        </dl>
+        <button class="button" type="button" data-action="restart">Play Again</button>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { createMirrorDriftController } from '../../games/mirror-drift/controller';
+
+  document.querySelectorAll<HTMLElement>('[data-mirror-drift]').forEach((root) => {
+    if (!root.dataset.controllerReady) {
+      createMirrorDriftController(root);
+      root.dataset.controllerReady = 'true';
+    }
+  });
+</script>
