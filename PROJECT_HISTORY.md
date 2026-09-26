@@ -1005,3 +1005,18 @@
 - verification after this planning entry must show exactly `PROJECT_HISTORY.md` changed, `git diff --check` PASS, `npm run build` PASS with 59 pages, Gravity Pact route still absent, and no dependency changes. Commit is `docs: plan Gravity Pact implementation`; push only `pivot/web-games-mvp`.
 - status: `P3-G03-A PLAN RECORDED`.
 - next: `P3-G03-B — Gravity Pact route / shell / seven-state DOM structure only`.
+
+## 2026-09-26 — P3-G03-B Gravity Pact Game Shell
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `9965f398af2d8ad1d416236fc1f2cbc08dcaf300`; implementation: `7a909a116e4a93f257ecc3a65947ef54626fadd2` (`feat: add Gravity Pact game shell`).
+- created the canonical `/games/gravity-pact/` route using the `games.ts` catalog lookup and `GameDetailFrame`. H1, title, canonical, English-only public copy, Strategy metadata, and VideoGame JSON-LD are catalog/frame-driven. No Related Games slot was added.
+- created `GravityPactGame.astro` with root hooks `data-gravity-pact` and `data-state`, a 5×5 empty DOM Grid with exactly 25 cells, row/column structure 0–4, no token/goal/block data, HUD fields for Player A, Player B, Turns, and Layout, visible turn status, and a shared direction pad of four native buttons.
+- all direction buttons are real 44×44px minimum controls and remain natively disabled in B. No direction handlers, Arrow Key handlers, keyboard gameplay, movement, legal-direction calculation, layout data, token positions, goals, blocks, randomness, scoring, terminal logic, visibility lifecycle, orientation lifecycle, storage, audio, ads, analytics, or Related Games were added.
+- added the exact seven-state union `IDLE`, `MATCH_INTRO`, `TURN`, `MOVING`, `SCORE_FEEDBACK`, `PAUSED`, `RESULT`, plus `BOARD_SIZE = 5`, `MAX_TURNS = 30`, `MATCH_INTRO_MS = 700`, `MOVE_MS = 220`, `REDUCED_MOVE_MS = 80`, and `SCORE_FEEDBACK_MS = 400`.
+- controller scope is shell-only: required element validation with an explicit error, state/panel synchronization, structural HUD/result synchronization, Start accepted only from IDLE, placeholder Layout 1 and Player A, one 700ms intro timeout into TURN, duplicate Start guard, structural Resume from PAUSED, structural Play Again from RESULT, and timeout/listener cleanup. Placeholder starter/layout are not real selection or rematch logic; those remain deferred to E.
+- responsive shell uses shared game tokens, a square 5×5 grid, 4-column desktop HUD, 2×2 mobile HUD, non-blocking TURN/MOVING/SCORE_FEEDBACK status structure, overlay panels for IDLE/MATCH_INTRO/PAUSED/RESULT, native result `dl/dt/dd`, and no focusable empty cells.
+- runtime QA with Chrome headless, Node 24, and CDP passed initial IDLE, one Start flow, duplicate Start activation, 700ms MATCH_INTRO → TURN, disabled direction clicks, unhandled Arrow Keys, 1440×900, 390×844, and 320×700. Board remained square, controls remained visible, and horizontal overflow was absent at all three viewports. Page-caused 404/5xx responses, runtime exceptions, and console errors were all 0.
+- implementation validation: temporary TDD shell contract observed RED on the absent route, then GREEN after the five product files were added. `git diff --check` PASS; `npm run build` PASS — 60 pages, exactly one new route versus A; dependencies unchanged. Temporary QA files and browser profile were removed.
+- product files are exactly `src/pages/games/gravity-pact.astro`, `src/components/games/GravityPactGame.astro`, `src/styles/games/gravity-pact.css`, `src/games/gravity-pact/types.ts`, and `src/games/gravity-pact/controller.ts`; no C/D/E/F/G modules were created.
+- status: `P3-G03-B IMPLEMENTED`.
+- next: `P3-G03-C — six fixed layouts / validator / deterministic global movement / legal directions / witness QA only`.
