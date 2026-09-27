@@ -1283,3 +1283,13 @@
 - maturity: Twin Ledger `PLAYABLE`; site `RELEASE_READY = NO`. No dependency/lockfile, route, catalog, shared-shell, legacy, redirect, DNS, Cloudflare, or Production changes.
 - status: `P3-G05-E PASS`.
 - next: `P3-G05-F — responsive, accessibility, reduced-motion, and visual polish only`.
+
+## 2026-09-28 — P3-G05-F Twin Ledger Responsive and Visual Polish
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `ab4cd5d7e03082e44fd6a0d2360a2cd3b9243844`; E is pushed and locally matches `origin/pivot/web-games-mvp`.
+- polished only `src/styles/games/twin-ledger.css`: differentiated Left/Right ledgers and actions, enlarged high-contrast current tile, outlined next preview, recent placement chips, signed difference/zone emphasis, a segmented responsive balance meter with warning/danger escalation, concise CSS-only placement feedback, and visible focus on the keyboard-focused game root. No game logic, score, sequence, transaction, timer, or storage behavior changed.
+- responsive QA covered 1440×900, 390×844, and 320×700. The first 320px pass exposed a real horizontal scrollbar: the shared `html { min-width: 320px }` exceeded the 305px content width after the classic vertical scrollbar. Corrected only the Twin Ledger stylesheet with `:root:has(.twin-ledger) { min-width: 0 }`; the 320px RESULT view then showed no horizontal scrollbar and kept all six result metrics and the 44px Play Again control reachable. No shared-shell source was changed. Earlier 390px and desktop measurements showed no horizontal overflow; the route-scoped exception does not alter those breakpoints.
+- keyboard focus-visible styling is explicit on the root and descendants; both placement controls remain at least 44px high. Actual gameplay showed Exact/Tense/Danger/Breach labels and risk meter escalation, while 18-turn RESULT remained ordinary document content with no trapping overlay. Reduced-motion CSS removes decorative transitions/feedback animation without any game-timing callback; this browser session did not emulate the OS reduced-motion preference.
+- verification: `npm run check` PASS — 31/31; `npm run build` PASS — exactly 62 pages; `git diff --check` PASS. Only Twin Ledger CSS and this history entry changed; no dependency, route, shared shell, completed-game, legacy, redirect, Cloudflare, DNS, or Production changes.
+- status: `P3-G05-F PASS`; Twin Ledger remains `PLAYABLE`; site `RELEASE_READY = NO`.
+- next: `P3-G05-G — comprehensive final QA, QA first`.
