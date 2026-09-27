@@ -1,5 +1,6 @@
 .gravity-pact {
   width: min(100%, 40rem);
+  min-width: 0;
   margin-inline: auto;
   display: grid;
   gap: var(--game-space-6);
@@ -11,6 +12,7 @@
 }
 
 .gravity-pact__hud {
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--game-space-3);
@@ -38,6 +40,7 @@
 
 .gravity-pact__surface {
   position: relative;
+  min-width: 0;
   display: grid;
   gap: var(--game-space-5);
   padding: var(--game-space-5);
@@ -48,6 +51,7 @@
 
 .gravity-pact__board {
   position: relative;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   width: 100%;
@@ -113,6 +117,75 @@
   );
 }
 
+.gravity-pact__board-key {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--game-space-2) var(--game-space-4);
+  color: var(--game-color-text-secondary);
+  font-size: var(--game-font-size-small);
+  line-height: var(--game-line-height-body);
+  text-align: center;
+}
+
+.gravity-pact__board-key > span {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--game-space-1);
+}
+
+.gravity-pact__key-symbol {
+  position: relative;
+  width: var(--game-space-4);
+  height: var(--game-space-4);
+  flex: 0 0 var(--game-space-4);
+  display: inline-block;
+  border: 2px solid var(--game-color-primary);
+}
+
+.gravity-pact__key-symbol--a {
+  border-radius: 50%;
+}
+
+.gravity-pact__key-symbol--a::after {
+  content: '';
+  position: absolute;
+  width: 28%;
+  aspect-ratio: 1;
+  inset: 36%;
+  border-radius: 50%;
+  background: var(--game-color-primary);
+}
+
+.gravity-pact__key-symbol--b {
+  border-color: var(--game-color-secondary);
+  border-radius: var(--game-space-1);
+  transform: rotate(45deg) scale(0.72);
+}
+
+.gravity-pact__key-symbol--b::after {
+  content: '';
+  position: absolute;
+  width: 56%;
+  height: 2px;
+  inset: calc(50% - 1px) 22%;
+  background: var(--game-color-secondary);
+  transform: rotate(-45deg);
+}
+
+.gravity-pact__key-symbol--blocked {
+  border-color: var(--game-color-text-secondary);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0,
+    transparent 0.25rem,
+    var(--game-color-text-secondary) 0.25rem,
+    var(--game-color-text-secondary) 0.35rem
+  );
+}
+
 .gravity-pact__token-layer {
   position: absolute;
   inset: 0;
@@ -122,7 +195,7 @@
 
 .gravity-pact__token {
   position: absolute;
-  width: min(62%, 2.75rem);
+  width: clamp(1.75rem, 13%, 4rem);
   aspect-ratio: 1;
   display: grid;
   place-items: center;
@@ -173,8 +246,11 @@
   position: absolute;
   inset: var(--game-space-5);
   z-index: 1;
+  min-width: 0;
   display: grid;
   place-items: center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: var(--game-space-5);
   border-radius: var(--game-radius-small);
   background: var(--game-color-surface);
@@ -183,6 +259,7 @@
 
 .gravity-pact__panel {
   width: min(100%, var(--game-readable-max-width));
+  min-width: 0;
   display: grid;
   justify-items: center;
   gap: var(--game-space-4);
@@ -202,6 +279,25 @@
   color: var(--game-color-text-secondary);
 }
 
+.gravity-pact__announcement {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: var(--game-space-4);
+}
+
+.gravity-pact__announcement h3,
+.gravity-pact__announcement p {
+  margin: 0;
+}
+
+.gravity-pact__state[data-panel='PAUSED'] .gravity-pact__announcement {
+  padding: var(--game-space-4);
+  border: 1px solid var(--game-color-warning);
+  border-radius: var(--game-radius-small);
+  background: var(--game-color-surface-elevated);
+}
+
 .gravity-pact__intro {
   display: grid;
   gap: var(--game-space-2);
@@ -211,6 +307,7 @@
 }
 
 .gravity-pact__state--status {
+  min-width: 0;
   min-height: var(--game-control-min-size);
   display: grid;
   place-items: center;
@@ -223,10 +320,13 @@
 .gravity-pact__state--status[data-panel='SCORE_FEEDBACK'] {
   grid-auto-flow: column;
   gap: var(--game-space-4);
+  color: var(--game-color-success);
+  animation: gravity-pact-feedback-in var(--game-motion-normal) var(--game-motion-ease) both;
 }
 
 .gravity-pact__result-grid {
   width: 100%;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--game-space-3);
@@ -235,6 +335,7 @@
 }
 
 .gravity-pact__result-grid > div {
+  min-width: 0;
   padding: var(--game-space-3);
   border: 1px solid var(--game-color-border);
   border-radius: var(--game-radius-small);
@@ -248,10 +349,16 @@
 
 .gravity-pact__result-grid dd {
   margin: var(--game-space-1) 0 0;
+  overflow-wrap: anywhere;
   font-weight: var(--game-font-weight-bold);
 }
 
+.gravity-pact__state--overlay[data-panel='RESULT']:not([hidden]) .gravity-pact__panel {
+  animation: gravity-pact-feedback-in var(--game-motion-normal) var(--game-motion-ease) both;
+}
+
 .gravity-pact__controls {
+  min-width: 0;
   display: grid;
   justify-items: center;
   gap: var(--game-space-3);
@@ -284,6 +391,26 @@
   font-weight: var(--game-font-weight-bold);
 }
 
+.gravity-pact__direction:not(:disabled) {
+  border-color: var(--game-color-primary);
+  background: var(--game-color-surface-elevated);
+  color: var(--game-color-primary);
+  transition: background var(--game-motion-fast) var(--game-motion-ease), border-color var(--game-motion-fast) var(--game-motion-ease), transform var(--game-motion-fast) var(--game-motion-ease);
+}
+
+.gravity-pact__direction:not(:disabled):hover {
+  background: var(--game-color-surface);
+}
+
+.gravity-pact__direction:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.gravity-pact__direction:focus-visible {
+  outline: 3px solid var(--game-color-focus);
+  outline-offset: 2px;
+}
+
 .gravity-pact__direction:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -310,5 +437,38 @@
   .gravity-pact__state--overlay {
     inset: var(--game-space-4);
     padding: var(--game-space-4);
+  }
+}
+
+@media (max-width: 22rem) {
+  .gravity-pact__result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gravity-pact__board-key {
+    justify-content: flex-start;
+  }
+}
+
+@keyframes gravity-pact-feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--game-space-1)) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gravity-pact__state--status[data-panel='SCORE_FEEDBACK'],
+  .gravity-pact__state--overlay[data-panel='RESULT']:not([hidden]) .gravity-pact__panel {
+    animation: none;
+  }
+
+  .gravity-pact__direction:not(:disabled) {
+    transition: none;
   }
 }

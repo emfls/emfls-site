@@ -27,10 +27,37 @@ const setTokenPosition = (element: HTMLElement, token: Token) => {
   element.dataset.col = String(token.position.col);
 };
 
+const cellLabel = (row: number, col: number, layout: BoardLayout | undefined, tokens: readonly Token[]): string => {
+  const key = cellKey({ row, col });
+  const meanings: string[] = [];
+  const blockedKeys = new Set(layout?.blockedCells.map(cellKey) ?? []);
+  if (GOAL_A_KEYS.has(key)) meanings.push('Player A goal');
+  if (GOAL_B_KEYS.has(key)) meanings.push('Player B goal');
+  if (blockedKeys.has(key)) meanings.push('blocked');
+  tokens.filter((token) => cellKey(token.position) === key).forEach((token) => meanings.push(`Player ${token.player} token`));
+  if (meanings.length === 0) meanings.push('empty');
+  return `Row ${row + 1}, column ${col + 1}, ${meanings.join(', ')}`;
+};
+
 export const createGravityPactRenderer = (board: HTMLElement, tokenLayer: HTMLElement): Renderer => {
   const cells = Array.from(board.querySelectorAll<HTMLElement>('[data-row][data-col]'));
   const tokenElements = new Map<Token['id'], HTMLElement>();
+  let currentLayout: BoardLayout | undefined;
+  let currentTokens: readonly Token[] = [];
   let frameId: number | undefined;
+
+  const syncCellLabels = (tokens: readonly Token[]) => {
+    cells.forEach((cell) => {
+      const row = Number(cell.dataset.row);
+      const col = Number(cell.dataset.col);
+      cell.setAttribute('aria-label', cellLabel(row, col, currentLayout, tokens));
+    });
+  };
+
+  const handleResize = () => {
+    if (currentLayout) syncCellLabels(currentTokens);
+  };
+  window.addEventListener('resize', handleResize);
 
   const ensureTokenElement = (token: Token): HTMLElement => {
     const existing = tokenElements.get(token.id);
@@ -61,9 +88,11 @@ export const createGravityPactRenderer = (board: HTMLElement, tokenLayer: HTMLEl
   const snapTokens = (tokens: readonly Token[]) => {
     if (frameId !== undefined) window.cancelAnimationFrame(frameId);
     frameId = undefined;
+    currentTokens = tokens;
     tokenLayer.dataset.animating = 'false';
     tokenElements.forEach((element) => { element.style.transitionDuration = '0ms'; });
     renderTokens(tokens);
+    syncCellLabels(currentTokens);
     tokenElements.forEach((element) => {
       void element.offsetWidth;
       element.style.removeProperty('transition-duration');
@@ -71,6 +100,7 @@ export const createGravityPactRenderer = (board: HTMLElement, tokenLayer: HTMLEl
   };
 
   const renderBoard = (layout: BoardLayout, tokens: readonly Token[]) => {
+    currentLayout = layout;
     const blockedKeys = new Set(layout.blockedCells.map(cellKey));
     cells.forEach((cell) => {
       const row = Number(cell.dataset.row);
@@ -110,6 +140,7 @@ export const createGravityPactRenderer = (board: HTMLElement, tokenLayer: HTMLEl
   const destroy = () => {
     if (frameId !== undefined) window.cancelAnimationFrame(frameId);
     frameId = undefined;
+    window.removeEventListener('resize', handleResize);
     tokenElements.clear();
     tokenLayer.replaceChildren();
     delete tokenLayer.dataset.animating;
@@ -117,7 +148,10 @@ export const createGravityPactRenderer = (board: HTMLElement, tokenLayer: HTMLEl
       cell.classList.remove('gravity-pact__cell--goal-a', 'gravity-pact__cell--goal-b', 'gravity-pact__cell--blocked');
       delete cell.dataset.goal;
       delete cell.dataset.blocked;
+      cell.removeAttribute('aria-label');
     });
+    currentLayout = undefined;
+    currentTokens = [];
   };
 
   return { renderBoard, animateMovement, snapTokens, cancelMovement, destroy };

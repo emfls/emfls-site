@@ -10,11 +10,17 @@ import '../../styles/games/gravity-pact.css';
   </div>
 
   <div class="gravity-pact__surface">
-    <div class="gravity-pact__board" data-board role="grid" aria-label="Gravity Pact board">
+    <div class="gravity-pact__board" data-board role="grid" aria-label="Gravity Pact board" aria-describedby="gravity-pact-board-key">
       {Array.from({ length: 5 }, (_, row) => Array.from({ length: 5 }, (_, col) => (
         <div class="gravity-pact__cell" data-row={row} data-col={col} role="gridcell" />
       )))}
       <div class="gravity-pact__token-layer" data-token-layer aria-hidden="true" />
+    </div>
+
+    <div class="gravity-pact__board-key" id="gravity-pact-board-key">
+      <span><span class="gravity-pact__key-symbol gravity-pact__key-symbol--a" aria-hidden="true" />Circle: Player A</span>
+      <span><span class="gravity-pact__key-symbol gravity-pact__key-symbol--b" aria-hidden="true" />Diamond: Player B</span>
+      <span><span class="gravity-pact__key-symbol gravity-pact__key-symbol--blocked" aria-hidden="true" />Striped: Blocked</span>
     </div>
 
     <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="IDLE">
@@ -32,28 +38,32 @@ import '../../styles/games/gravity-pact.css';
     <p class="gravity-pact__state gravity-pact__state--status" data-panel="TURN" data-turn-status role="status" aria-live="polite" aria-atomic="true" hidden>Waiting to start</p>
     <p class="gravity-pact__state gravity-pact__state--status" data-panel="MOVING" hidden>Moving</p>
 
-    <div class="gravity-pact__state gravity-pact__state--status" data-panel="SCORE_FEEDBACK" data-score-feedback hidden>
+    <div class="gravity-pact__state gravity-pact__state--status" data-panel="SCORE_FEEDBACK" data-score-feedback role="status" aria-live="polite" aria-atomic="true" hidden>
       <span data-score-feedback-a>—</span>
       <span data-score-feedback-b>—</span>
     </div>
 
     <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="PAUSED" hidden>
       <section class="gravity-pact__panel" aria-labelledby="gravity-pact-paused-heading">
-        <h3 id="gravity-pact-paused-heading">Paused</h3>
-        <p>Resume when you are ready.</p>
+        <div class="gravity-pact__announcement" role="status" aria-live="polite" aria-atomic="true">
+          <h3 id="gravity-pact-paused-heading">Paused</h3>
+          <p>Resume when you are ready.</p>
+        </div>
         <button class="button" type="button" data-action="resume">Resume</button>
       </section>
     </div>
 
     <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="RESULT" hidden>
       <section class="gravity-pact__panel" aria-labelledby="gravity-pact-result-heading">
-        <h3 id="gravity-pact-result-heading">Result</h3>
-        <dl class="gravity-pact__result-grid">
-          <div><dt>Result</dt><dd data-result="outcome">—</dd></div>
-          <div><dt>A Score</dt><dd data-result="score-a">0</dd></div>
-          <div><dt>B Score</dt><dd data-result="score-b">0</dd></div>
-          <div><dt>Turns Used</dt><dd data-result="turns">0</dd></div>
-        </dl>
+        <div class="gravity-pact__announcement" role="status" aria-live="polite" aria-atomic="true">
+          <h3 id="gravity-pact-result-heading">Result</h3>
+          <dl class="gravity-pact__result-grid">
+            <div><dt>Result</dt><dd data-result="outcome">—</dd></div>
+            <div><dt>A Score</dt><dd data-result="score-a">0</dd></div>
+            <div><dt>B Score</dt><dd data-result="score-b">0</dd></div>
+            <div><dt>Turns Used</dt><dd data-result="turns">0</dd></div>
+          </dl>
+        </div>
         <button class="button" type="button" data-action="restart">Play Again</button>
       </section>
     </div>
