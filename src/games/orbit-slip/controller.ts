@@ -16,11 +16,13 @@ import {
 } from './motion.ts';
 import { createOrbitSlipRenderer } from './renderer.ts';
 import { createSeededRandom, createSessionSeed } from './rng.ts';
+import { updateBestStats } from './storage.ts';
 import type { GameState, Gate, RandomSource } from './types.ts';
 
 const GAME_STATES: readonly GameState[] = ['IDLE', 'COUNTDOWN', 'ACTIVE', 'PAUSED', 'HIT_FEEDBACK', 'RESULT'];
 
 export type OrbitSlipCollisionSnapshot = Readonly<{
+  seed: number;
   progressAngle: number;
   radius: number;
   activeMs: number;
@@ -48,6 +50,33 @@ type Elements = {
   start: HTMLButtonElement;
   resume: HTMLButtonElement;
   playAgain: HTMLButtonElement;
+};
+
+export const calculateOrbitSlipScore = (activeMs: number, gatesPassed: number): number => {
+  if (!Number.isFinite(activeMs) || activeMs < 0 || !Number.isSafeInteger(gatesPassed) || gatesPassed < 0) {
+    throw new RangeError('Score inputs must be finite and non-negative.');
+  }
+  return Math.floor(activeMs / 100) + gatesPassed * 50;
+};
+
+export type OrbitSlipGateStepResult = Readonly<{
+  collided: boolean;
+  gates: readonly Gate[];
+  newlyPassed: readonly Gate[];
+}>;
+
+export const resolveOrbitSlipGateStep = (progressAngle: number, radius: number, gates: readonly Gate[]): OrbitSlipGateStepResult => {
+  if (gates.some((gate) => collidesWithGate(progressAngle, radius, gate))) {
+    return { collided: true, gates, newlyPassed: [] };
+  }
+  const newlyPassed: Gate[] = [];
+  const updatedGates = gates.map((gate) => {
+    if (gate.passed || progressAngle <= gate.angleEnd + SAFETY_MARGIN) return gate;
+    const passedGate = { ...gate, passed: true };
+    newlyPassed.push(passedGate);
+    return passedGate;
+  });
+  return { collided: false, gates: updatedGates, newlyPassed };
 };
 
 type RunSession = {
@@ -101,10 +130,12 @@ export const createOrbitSlipController = (
   let lastFrameTime: number | undefined;
   let countdownValue = 0;
   let countdownTimer: number | undefined;
+  let hitFeedbackTimer: number | undefined;
   let countdownRemainingMs = 1000;
   let countdownDeadline = 0;
   let destroyed = false;
   let suppressResizePause = false;
+  let injectedSeedUsed = false;
 
   const renderer = createOrbitSlipRenderer(elements.canvas, {
     onResize: () => {
@@ -153,7 +184,8 @@ export const createOrbitSlipController = (
   };
 
   const initializeSession = (): void => {
-    const seed = options.seed ?? createSessionSeed();
+    const seed = options.seed !== undefined && !injectedSeedUsed ? options.seed : createSessionSeed();
+    if (options.seed !== undefined) injectedSeedUsed = true;
     const random = createSeededRandom(seed);
     const initial: RunSession = {
       seed,
@@ -230,7 +262,20 @@ export const createOrbitSlipController = (
     input.releasePointer();
     input.clearKeys();
     setState('HIT_FEEDBACK');
+    hitFeedbackTimer = window.setTimeout(() => {
+      hitFeedbackTimer = undefined;
+      if (destroyed || currentState !== 'HIT_FEEDBACK' || !session) return;
+      const score = calculateOrbitSlipScore(session.activeMs, session.gatesPassed);
+      const best = updateBestStats(score, session.activeMs, options.storage);
+      elements.resultScore.textContent = String(score);
+      elements.resultSurvivalTime.textContent = `${(session.activeMs / 1000).toFixed(1)} s`;
+      elements.resultGatesPassed.textContent = String(session.gatesPassed);
+      elements.resultBestScore.textContent = String(best.bestScore);
+      elements.resultBestTime.textContent = `${(best.bestTimeMs / 1000).toFixed(1)} s`;
+      setState('RESULT');
+    }, 400);
     options.onCollision?.({
+      seed: session.seed,
       progressAngle: session.progressAngle,
       radius: session.radius,
       activeMs: session.activeMs,
@@ -250,17 +295,15 @@ export const createOrbitSlipController = (
     session.radius = nextRadius;
     session.progressAngle = nextProgressAngle;
     session.activeMs = nextActiveMs;
-    if (session.gates.some((gate) => collidesWithGate(nextProgressAngle, nextRadius, gate))) {
+    const gateStep = resolveOrbitSlipGateStep(nextProgressAngle, nextRadius, session.gates);
+    if (gateStep.collided) {
       renderSession();
       commitCollision();
       return false;
     }
 
-    session.gates = session.gates.map((gate) => {
-      if (gate.passed || nextProgressAngle <= gate.angleEnd + SAFETY_MARGIN) return gate;
-      session.gatesPassed += 1;
-      return { ...gate, passed: true };
-    });
+    session.gates = [...gateStep.gates];
+    session.gatesPassed += gateStep.newlyPassed.length;
     elements.hudGates.textContent = String(session.gatesPassed);
     elements.hudTime.textContent = `${(session.activeMs / 1000).toFixed(1)} s`;
 
@@ -268,6 +311,7 @@ export const createOrbitSlipController = (
     session.gates = removeSafelyPassedGates(nextProgressAngle, [...planned.gates]);
     session.history = [...planned.history];
     session.nextGateId = planned.nextGateId;
+    elements.hudScore.textContent = String(calculateOrbitSlipScore(session.activeMs, session.gatesPassed));
     return true;
   };
 
@@ -312,8 +356,8 @@ export const createOrbitSlipController = (
 
   const onPlayAgain = (): void => {
     if (currentState !== 'RESULT') return;
-    // Full new-session rematch initialization is added in P3-G04-E.
     resetNeutralValues();
+    initializeSession();
     beginCountdown();
   };
 
@@ -350,6 +394,8 @@ export const createOrbitSlipController = (
     destroyed = true;
     if (countdownTimer !== undefined) window.clearTimeout(countdownTimer);
     countdownTimer = undefined;
+    if (hitFeedbackTimer !== undefined) window.clearTimeout(hitFeedbackTimer);
+    hitFeedbackTimer = undefined;
     cancelAnimationFrame();
     input.destroy();
     renderer.destroy();

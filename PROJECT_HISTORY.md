@@ -1174,3 +1174,16 @@
 - `git diff --check`: PASS. `npm run build`: PASS; exactly 61 pages generated. No dependency changes; local standalone `tsc` is unavailable. Changes stayed within the four D implementation/style files and `PROJECT_HISTORY.md`.
 - status: `P3-G04-D PASS`.
 - next: `P3-G04-E — Gate-pass scoring, terminal result, safe best-stat storage, and new-session Play Again`.
+
+## 2026-09-27 — P3-G04-E Orbit Slip Match Loop
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `034ab3602b77c356e75288caf5e4d8de73ee0085`.
+- files changed: `src/games/orbit-slip/controller.ts`, `src/games/orbit-slip/storage.ts`, and this history entry.
+- match loop: score is `floor(activeMs / 100) + gatesPassed * 50`; a Gate is awarded once only after the strict passage threshold, and collision takes precedence over a same-substep passage. A collision cancels the frame loop, clears live input, freezes active time, shows `HIT_FEEDBACK` for 400ms, then renders the five required result metrics.
+- best stats: only `emfls:orbit-slip:best:v1` is read/written, with exact `{bestScore, bestTimeMs}` safe non-negative integer fields. Score and time maxima update independently. Storage access, parsing, shape, and write failures safely fall back to zero stats without blocking the match. No session, Gate, radius, or RNG state is persisted.
+- rematch: Play Again is accepted only in RESULT and initializes a fresh seeded session, Gate set, zeroed HUD/metrics, and countdown; duplicate actions during countdown do not create another session.
+- verification: temporary deterministic Node harnesses passed all nine reported tests, including score formula, Gate once-only/collision priority, hit freeze and 400ms timing, result metrics, independently retained best score/time, malformed/throwing storage, hidden-after-hit remaining outside PAUSED, fresh random seed and reset, and completing a result when storage writes throw. Actual local browser flow reached Gate progression and collision, displayed all five result fields, then Play Again began a zeroed fresh countdown/session; no console errors were observed. Browser keypresses were issued, but radial displacement itself could not be confirmed with the available browser controls; the production input/controller movement behavior was covered by the P3-G04-D deterministic harness.
+- `git diff --check`: PASS. `npm run build`: PASS; exactly 61 pages generated. No dependency changes; standalone `tsc` remains unavailable. Temporary QA harnesses are outside the repository and will be removed before handoff.
+- maturity: `PLAYABLE` — the real browser Start → collision → Result → Play Again loop is complete; see the radial-input measurement limitation above. Site `RELEASE_READY: NO`.
+- status: `P3-G04-E PASS`.
+- next: `P3-G04-F — responsive presentation, accessibility, and reduced-motion polish only`.
