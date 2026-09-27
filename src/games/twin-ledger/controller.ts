@@ -1,9 +1,10 @@
 import { FEEDBACK_MS, MAX_TURNS, RECENT_HISTORY_LIMIT, RESOLVING_MS, getHardLimit } from './constants.ts';
 import { getPlacementSideForKey } from './input.ts';
-import { getBalanceZone, getEffectiveValue } from './logic.ts';
+import { calculateFinalScore, getEffectiveValue, resolvePlacement } from './logic.ts';
 import { createSessionSeed } from './rng.ts';
 import { generateSequence } from './sequence.ts';
-import type { GameSession, Placement, PlacementSide, Tile, Zone } from './types.ts';
+import { loadBestStats, saveBestStats } from './storage.ts';
+import type { GameSession, PlacementSide, Tile, Zone } from './types.ts';
 
 const GAME_STATES = ['IDLE', 'TURN', 'RESOLVING', 'FEEDBACK', 'PAUSED', 'RESULT'] as const;
 
@@ -15,34 +16,69 @@ export const commitPlacement = (session: GameSession, side: PlacementSide): Game
   if (!tile || tile.id !== session.sequence[session.turn]?.id) return null;
 
   const turn = session.turn + 1;
-  const effectiveValue = getEffectiveValue(tile);
-  const leftTotal = session.leftTotal + (side === 'LEFT' ? effectiveValue : 0);
-  const rightTotal = session.rightTotal + (side === 'RIGHT' ? effectiveValue : 0);
-  const difference = Math.abs(leftTotal - rightTotal);
-  const zone = getBalanceZone(difference, turn);
-  const placement: Placement = {
+  const resolution = resolvePlacement({
+    leftTotal: session.leftTotal,
+    rightTotal: session.rightTotal,
+    side,
+    tile,
+    turn,
+    combo: session.combo,
+    maxCombo: session.maxCombo,
+    exactCount: session.exactCount,
+    breachCount: session.breachCount,
+    turnPoints: session.score,
+  });
+  const placement = {
     turn,
     tile,
     side,
-    effectiveValue,
-    difference,
-    zone,
-    turnScore: 0,
-    comboAfter: session.combo,
+    effectiveValue: resolution.effectiveValue,
+    difference: resolution.difference,
+    zone: resolution.zone,
+    turnScore: resolution.turnScore,
+    comboAfter: resolution.combo,
   };
+
+  let best = session.best;
+  let finalScore: number | null = null;
+  let result: GameSession['result'] = null;
+  if (turn === MAX_TURNS) {
+    const final = calculateFinalScore(resolution.turnPoints, resolution.breachCount, resolution.difference);
+    best = {
+      bestScore: Math.max(session.best.bestScore, final.score),
+      bestMaxCombo: Math.max(session.best.bestMaxCombo, resolution.maxCombo),
+    };
+    finalScore = final.score;
+    result = {
+      score: final.score,
+      finalDifference: resolution.difference,
+      exactCount: resolution.exactCount,
+      breachCount: resolution.breachCount,
+      maxCombo: resolution.maxCombo,
+      bestScore: best.bestScore,
+    };
+  }
 
   return {
     ...session,
     state: 'RESOLVING',
     turn,
-    leftTotal,
-    rightTotal,
-    difference,
-    zone,
+    leftTotal: resolution.leftTotal,
+    rightTotal: resolution.rightTotal,
+    difference: resolution.difference,
+    zone: resolution.zone,
+    combo: resolution.combo,
+    maxCombo: resolution.maxCombo,
+    exactCount: resolution.exactCount,
+    breachCount: resolution.breachCount,
+    score: resolution.turnPoints,
+    finalScore,
     currentTile: session.sequence[turn] ?? null,
     nextTile: session.sequence[turn + 1] ?? null,
     lastPlacement: placement,
     recentHistory: [...session.recentHistory, placement].slice(-RECENT_HISTORY_LIMIT),
+    best,
+    result,
   };
 };
 
@@ -124,8 +160,15 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
   const rightButton = required<HTMLButtonElement>(root, '[data-action="right"]');
   const startButton = required<HTMLButtonElement>(root, '[data-action="start"]');
   const resumeButton = required<HTMLButtonElement>(root, '[data-action="resume"]');
+  const playAgainButton = required<HTMLButtonElement>(root, '[data-action="play-again"]');
+  const resultScore = required<HTMLElement>(root, '[data-result="score"]');
+  const resultDifference = required<HTMLElement>(root, '[data-result="final-difference"]');
+  const resultExactCount = required<HTMLElement>(root, '[data-result="exact-count"]');
+  const resultBreachCount = required<HTMLElement>(root, '[data-result="breach-count"]');
+  const resultMaxCombo = required<HTMLElement>(root, '[data-result="max-combo"]');
+  const resultBestScore = required<HTMLElement>(root, '[data-result="best-score"]');
 
-  let session = INITIAL_SESSION;
+  let session: GameSession = { ...INITIAL_SESSION, best: loadBestStats() };
   let disposed = false;
   let placementLocked = false;
   let timerId: number | undefined;
@@ -171,8 +214,8 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
     turnValue.textContent = `${session.turn} / ${MAX_TURNS}`;
     differenceValue.textContent = String(session.difference);
     zoneValue.textContent = zoneLabel(session.zone);
-    scoreValue.textContent = '—';
-    comboValue.textContent = '—';
+    scoreValue.textContent = session.seed === null ? '—' : String(session.score);
+    comboValue.textContent = session.seed === null ? '—' : String(session.combo);
     leftTotalValue.textContent = String(session.leftTotal);
     rightTotalValue.textContent = String(session.rightTotal);
     currentTileValue.textContent = session.currentTile ? formatTile(session.currentTile) : '—';
@@ -202,6 +245,13 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
     rightButton.disabled = leftButton.disabled;
     startButton.disabled = session.state !== 'IDLE';
     resumeButton.disabled = session.state !== 'PAUSED';
+    playAgainButton.disabled = session.state !== 'RESULT';
+    resultScore.textContent = session.result ? String(session.result.score) : '—';
+    resultDifference.textContent = session.result ? String(session.result.finalDifference) : '—';
+    resultExactCount.textContent = session.result ? String(session.result.exactCount) : '—';
+    resultBreachCount.textContent = session.result ? String(session.result.breachCount) : '—';
+    resultMaxCombo.textContent = session.result ? String(session.result.maxCombo) : '—';
+    resultBestScore.textContent = session.result ? String(session.result.bestScore) : '—';
     sessionError.hidden = sessionError.textContent === '';
     renderHistory();
   };
@@ -218,6 +268,7 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
     placementLocked = true;
     clearPhaseTimer();
     session = nextSession;
+    if (session.result) saveBestStats(session.best);
     const sideLabel = side === 'LEFT' ? 'Left' : 'Right';
     feedbackDetail.textContent = `Placed ${formatTile(nextSession.lastPlacement!.tile)} in ${sideLabel}. Difference ${nextSession.difference}: ${zoneLabel(nextSession.zone)}.`;
     render();
@@ -236,9 +287,10 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
     return true;
   };
 
-  const beginGame = (): void => {
-    if (disposed || session.state !== 'IDLE') return;
+  const startFreshGame = (requiredState: 'IDLE' | 'RESULT'): void => {
+    if (disposed || session.state !== requiredState) return;
     sessionError.textContent = '';
+    const best = session.best;
     try {
       const seed = createSessionSeed();
       const generated = generateSequence(seed);
@@ -248,6 +300,7 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
       session = {
         ...INITIAL_SESSION,
         state: 'TURN',
+        best,
         seed,
         sequence: generated.tiles,
         currentTile: generated.tiles[0] ?? null,
@@ -261,6 +314,9 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
       render();
     }
   };
+
+  const beginGame = (): void => startFreshGame('IDLE');
+  const playAgain = (): void => startFreshGame('RESULT');
 
   const resumeGame = (): void => {
     if (disposed || session.state !== 'PAUSED') return;
@@ -312,6 +368,7 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
     document.removeEventListener('astro:before-swap', onBeforeSwap);
     startButton.removeEventListener('click', beginGame);
     resumeButton.removeEventListener('click', resumeGame);
+    playAgainButton.removeEventListener('click', playAgain);
     leftButton.removeEventListener('click', onLeftClick);
     rightButton.removeEventListener('click', onRightClick);
     delete root.dataset.controllerReady;
@@ -321,6 +378,7 @@ export const createTwinLedgerController = (root: HTMLElement): (() => void) => {
   const onRightClick = onPlacementClick('RIGHT');
   startButton.addEventListener('click', beginGame);
   resumeButton.addEventListener('click', resumeGame);
+  playAgainButton.addEventListener('click', playAgain);
   leftButton.addEventListener('click', onLeftClick);
   rightButton.addEventListener('click', onRightClick);
   document.addEventListener('keydown', onKeyDown);

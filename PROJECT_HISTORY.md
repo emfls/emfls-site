@@ -1271,3 +1271,15 @@
 - verification: `git diff --check` PASS; `npm run build` PASS — exactly 62 pages; no dependencies or lockfiles changed. Maturity remains `SHELL`; site `RELEASE_READY = NO`.
 - status: `P3-G05-D PASS` with the native visibility-stimulus limitation above.
 - next: `P3-G05-E — scoring, result finalization, storage, and Play Again`.
+
+## 2026-09-27 — P3-G05-E Twin Ledger Scoring, Results, Storage, and Rematch
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `d602ff577b530f8328393dc5265e3af9649c4d23`; D is pushed and its remote SHA was verified.
+- connected the pure C scoring resolver to the same synchronous placement transaction: each accepted tile updates zone, combo/max combo, exact/breach counts, turn points, and score once. Breach scores zero for that turn but does not end play. On the committed 18th tile, both frozen bonuses and the exact six-field result are calculated once before RESOLVING; timers still only advance presentation and final-turn Resume can go straight to RESULT.
+- added `storage.ts` using only `emfls:twin-ledger:best:v1` and exact `{bestScore,bestMaxCombo}` JSON. Getter/read/parse/write failures safely fall back or preserve in-memory results; each non-negative safe-integer field validates and updates independently. Only final best stats are persisted—never an in-progress session. Play Again is enabled only in RESULT, generates a fresh seed/sequence, resets gameplay fields and history, and preserves the best stats in memory.
+- TDD: storage/controller tests first failed for absent scoring/storage integration, then passed. `npm run check` PASS — 31/31, including unavailable and throwing storage, malformed/wrong-shape JSON, negative/unsafe fields, independent bests, Breach continuation, turn-18 bonuses exactly once, and post-result match guard. `git diff --check` PASS. `npm run build` PASS — exactly 62 pages.
+- actual local browser: completed Start → 18 committed placements → RESULT → Play Again → fresh TURN. Score changed on placements; Breach occurred repeatedly without ending the match; negative and both HEAVY cues rendered as text. The run ended at turn points 838, final difference 1, five Breaches, max combo 3; the 150-point final-difference bonus produced RESULT score/best score 988. Result exposed exactly Score, Final Difference, Exact Count, Breach Count, Max Combo, Best Score. Rematch showed turn 0/18, zero totals/difference/score/combo, Exact zone, a fresh current/next pair, empty history, and Play Again disabled.
+- fixed a browser-discovered missing `getEffectiveValue` import in HEAVY tile rendering; the first attempt halted at a HEAVY placement, and the complete 18-turn run above passed after correction with no new runtime error.
+- maturity: Twin Ledger `PLAYABLE`; site `RELEASE_READY = NO`. No dependency/lockfile, route, catalog, shared-shell, legacy, redirect, DNS, Cloudflare, or Production changes.
+- status: `P3-G05-E PASS`.
+- next: `P3-G05-F — responsive, accessibility, reduced-motion, and visual polish only`.

@@ -6,7 +6,7 @@ const controllerApi = await load('../../src/games/twin-ledger/controller.ts');
 const sequenceApi = await load('../../src/games/twin-ledger/sequence.ts');
 const available = (module, name) => assert.equal(typeof module[name], 'function', `${name} must be exported`);
 
-const makeSession = (turn = 0, sequence = sequenceApi.FALLBACK_SEQUENCE) => ({
+const makeSession = (turn = 0, sequence = sequenceApi.FALLBACK_SEQUENCE, overrides = {}) => ({
   state: 'TURN',
   seed: 1,
   sequence,
@@ -27,6 +27,7 @@ const makeSession = (turn = 0, sequence = sequenceApi.FALLBACK_SEQUENCE) => ({
   recentHistory: [],
   result: null,
   best: { bestScore: 0, bestMaxCombo: 0 },
+  ...overrides,
 });
 
 test('a placement commits one signed value, consumes one tile, and advances the preview', () => {
@@ -44,7 +45,9 @@ test('a placement commits one signed value, consumes one tile, and advances the 
   assert.equal(next.currentTile.id, sequenceApi.FALLBACK_SEQUENCE[1].id);
   assert.equal(next.nextTile.id, sequenceApi.FALLBACK_SEQUENCE[2].id);
   assert.equal(next.recentHistory.length, 1);
-  assert.equal(next.score, 0, 'D keeps score integration for E');
+  assert.equal(next.score, 90);
+  assert.equal(next.lastPlacement.turnScore, 90);
+  assert.equal(next.combo, 1);
 });
 
 test('negative and HEAVY tiles use signed weighted values in the placement transaction', () => {
@@ -117,4 +120,65 @@ test('pause and resume preserve TURN state and snap committed phases to the next
   assert.equal(finalResume.nextTile, null);
   assert.equal(controllerApi.commitPlacement(finalResume, 'LEFT'), null);
   assert.equal(controllerApi.resumeSession(makeSession()), null);
+});
+
+test('exact scoring and combo update are part of the single committed placement', () => {
+  available(controllerApi, 'commitPlacement');
+  const session = makeSession(0, sequenceApi.FALLBACK_SEQUENCE, { leftTotal: 1 });
+  const exact = controllerApi.commitPlacement(session, 'RIGHT');
+  assert.equal(exact.zone, 'EXACT');
+  assert.equal(exact.difference, 0);
+  assert.equal(exact.combo, 1);
+  assert.equal(exact.maxCombo, 1);
+  assert.equal(exact.exactCount, 1);
+  assert.equal(exact.score, 120);
+  assert.equal(exact.lastPlacement.turnScore, 120);
+  assert.equal(exact.lastPlacement.comboAfter, 1);
+  assert.equal(controllerApi.commitPlacement(exact, 'LEFT'), null);
+});
+
+test('a Breach scores zero but remains in the match for the following turn', () => {
+  available(controllerApi, 'commitPlacement');
+  const breached = controllerApi.commitPlacement(makeSession(12, sequenceApi.FALLBACK_SEQUENCE, {
+    leftTotal: 10,
+    score: 25,
+  }), 'LEFT');
+  assert.equal(breached.zone, 'BREACH');
+  assert.equal(breached.state, 'RESOLVING');
+  assert.equal(breached.turn, 13);
+  assert.equal(breached.score, 25);
+  assert.equal(breached.breachCount, 1);
+  assert.equal(breached.currentTile.id, sequenceApi.FALLBACK_SEQUENCE[13].id);
+  assert.equal(breached.result, null);
+  assert.equal(controllerApi.commitPlacement({ ...breached, state: 'TURN' }, 'RIGHT').turn, 14);
+});
+
+test('turn 18 calculates both bonuses once and updates best fields independently', () => {
+  available(controllerApi, 'commitPlacement');
+  const finalTurn = makeSession(17, sequenceApi.FALLBACK_SEQUENCE, {
+    score: 410,
+    combo: 1,
+    maxCombo: 4,
+    exactCount: 2,
+    breachCount: 1,
+    best: { bestScore: 900, bestMaxCombo: 1 },
+  });
+  const completed = controllerApi.commitPlacement(finalTurn, 'RIGHT');
+  assert.equal(completed.state, 'RESOLVING');
+  assert.equal(completed.turn, 18);
+  assert.equal(completed.zone, 'DANGER');
+  assert.equal(completed.score, 430);
+  assert.equal(completed.lastPlacement.turnScore, 20);
+  assert.equal(completed.breachCount, 1);
+  assert.equal(completed.finalScore, 680);
+  assert.deepEqual(completed.result, {
+    score: 680,
+    finalDifference: 5,
+    exactCount: 2,
+    breachCount: 1,
+    maxCombo: 4,
+    bestScore: 900,
+  });
+  assert.deepEqual(completed.best, { bestScore: 900, bestMaxCombo: 4 });
+  assert.equal(controllerApi.commitPlacement(completed, 'LEFT'), null);
 });
