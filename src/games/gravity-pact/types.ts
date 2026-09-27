@@ -11,6 +11,28 @@ export type Player =
   | 'A'
   | 'B';
 
+export type Scores = Readonly<{
+  A: number;
+  B: number;
+}>;
+
+export type TerminalCause =
+  | 'THREE_POINTS'
+  | 'TURN_LIMIT'
+  | 'STALEMATE';
+
+export type MatchOutcome =
+  | 'PLAYER_A'
+  | 'PLAYER_B'
+  | 'DRAW';
+
+export type MatchResult = Readonly<{
+  outcome: MatchOutcome;
+  cause: TerminalCause;
+}>;
+
+export type RandomSource = () => number;
+
 export type Direction =
   | 'UP'
   | 'DOWN'
@@ -68,6 +90,13 @@ export type MoveResolution = Readonly<{
   beforeTokens: readonly Token[];
   afterMoveTokens: readonly Token[];
   moves: readonly TokenMove[];
+}>;
+
+export type ScoringResolution = Readonly<{
+  afterScoringTokens: readonly Token[];
+  scoreDeltaA: number;
+  scoreDeltaB: number;
+  scores: Scores;
 }>;
 
 export const BOARD_SIZE = 5;

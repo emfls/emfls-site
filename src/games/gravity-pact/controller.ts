@@ -1,13 +1,38 @@
 import { createGravityPactInput } from './input';
 import { GRAVITY_PACT_LAYOUTS, INITIAL_TOKENS } from './layouts';
+import {
+  oppositePlayer,
+  outcomeText,
+  resolveScoring,
+  resolveStalemate,
+  resolveThreePointResult,
+  resolveTurnLimit,
+  selectInitialLayout,
+  selectInitialStarter,
+  selectRematchLayout,
+} from './logic';
 import { getLegalDirections, resolveMovement } from './movement';
 import { createGravityPactRenderer } from './renderer';
-import { MATCH_INTRO_MS, MOVE_MS, REDUCED_MOVE_MS } from './types';
-import type { BoardLayout, Direction, GameState, MoveResolution, Player, Token } from './types';
+import { MATCH_INTRO_MS, MOVE_MS, REDUCED_MOVE_MS, SCORE_FEEDBACK_MS } from './types';
+import type {
+  BoardLayout,
+  Direction,
+  GameState,
+  MatchResult,
+  MoveResolution,
+  Player,
+  RandomSource,
+  Scores,
+  Token,
+} from './types';
 
 const panelStates = ['IDLE', 'MATCH_INTRO', 'TURN', 'MOVING', 'SCORE_FEEDBACK', 'PAUSED', 'RESULT'] as const;
 
-type PauseContinuation = 'TURN' | 'MOVING' | undefined;
+type PauseContinuation = 'TURN' | 'MOVING' | 'SCORE_FEEDBACK' | undefined;
+
+export type GravityPactControllerOptions = Readonly<{
+  randomSource?: RandomSource;
+}>;
 
 type Elements = {
   panels: NodeListOf<HTMLElement>;
@@ -74,20 +99,33 @@ const directionFromButton = (button: HTMLButtonElement): Direction | undefined =
     : undefined;
 };
 
-export const createGravityPactController = (root: HTMLElement) => {
+const emptyScores = (): Scores => Object.freeze({ A: 0, B: 0 });
+
+export const createGravityPactController = (
+  root: HTMLElement,
+  options: GravityPactControllerOptions = {},
+) => {
   const elements = getElements(root);
   const renderer = createGravityPactRenderer(elements.board, elements.tokenLayer);
+  const randomSource = options.randomSource ?? Math.random;
   let currentState: GameState = 'IDLE';
   let currentLayout: BoardLayout = GRAVITY_PACT_LAYOUTS[0];
   let currentTokens: readonly Token[] = INITIAL_TOKENS;
   let currentPlayer: Player = 'A';
+  let currentMatchStarter: Player = 'A';
   let turnsUsed = 0;
+  let scores: Scores = emptyScores();
   let matchStarted = false;
+  let matchResult: MatchResult | undefined;
+  let feedbackDeltaA = 0;
+  let feedbackDeltaB = 0;
   let pendingMove: MoveResolution | undefined;
   let pauseContinuation: PauseContinuation;
   let introTimeout: number | undefined;
   let moveTimeout: number | undefined;
+  let feedbackTimeout: number | undefined;
   let moveNonce = 0;
+  let feedbackNonce = 0;
 
   const clearIntroTimeout = () => {
     if (introTimeout !== undefined) window.clearTimeout(introTimeout);
@@ -100,6 +138,12 @@ export const createGravityPactController = (root: HTMLElement) => {
     moveNonce += 1;
   };
 
+  const clearFeedbackTimeout = () => {
+    if (feedbackTimeout !== undefined) window.clearTimeout(feedbackTimeout);
+    feedbackTimeout = undefined;
+    feedbackNonce += 1;
+  };
+
   const syncDirectionButtons = () => {
     const legalDirections = currentState === 'TURN'
       ? new Set(getLegalDirections(currentTokens, currentLayout.blockedCells))
@@ -110,23 +154,33 @@ export const createGravityPactController = (root: HTMLElement) => {
     });
   };
 
+  const syncFeedback = () => {
+    const active = currentState === 'SCORE_FEEDBACK';
+    const showA = active && feedbackDeltaA > 0;
+    const showB = active && feedbackDeltaB > 0;
+    elements.scoreFeedbackA.hidden = !showA;
+    elements.scoreFeedbackB.hidden = !showB;
+    elements.scoreFeedbackA.textContent = showA ? `Player A +${feedbackDeltaA}` : '';
+    elements.scoreFeedbackB.textContent = showB ? `Player B +${feedbackDeltaB}` : '';
+  };
+
   const syncShellValues = (showMatchLayout = matchStarted) => {
     const playerLabel = `Player ${currentPlayer} Turn`;
-    elements.scoreA.textContent = '0 / 3';
-    elements.scoreB.textContent = '0 / 3';
+    const showingResult = currentState === 'RESULT' && matchResult;
+    elements.scoreA.textContent = `${scores.A} / 3`;
+    elements.scoreB.textContent = `${scores.B} / 3`;
     elements.turns.textContent = `${turnsUsed} / 30`;
     elements.layout.textContent = showMatchLayout ? String(currentLayout.id) : '—';
     elements.turnStatus.textContent = currentState === 'TURN' ? playerLabel : 'Waiting to start';
     elements.turnLabel.textContent = currentState === 'TURN' || currentState === 'MOVING' ? playerLabel : 'Waiting to start';
     elements.introLayout.textContent = showMatchLayout ? `Layout ${currentLayout.id}` : 'Layout —';
-    elements.introStarter.textContent = `Player ${currentPlayer} starts`;
-    elements.scoreFeedbackA.textContent = '—';
-    elements.scoreFeedbackB.textContent = '—';
-    elements.resultOutcome.textContent = '—';
-    elements.resultScoreA.textContent = '0';
-    elements.resultScoreB.textContent = '0';
-    elements.resultTurns.textContent = String(turnsUsed);
+    elements.introStarter.textContent = `Player ${currentMatchStarter} starts`;
+    elements.resultOutcome.textContent = showingResult ? outcomeText(matchResult.outcome) : '—';
+    elements.resultScoreA.textContent = showingResult ? String(scores.A) : '0';
+    elements.resultScoreB.textContent = showingResult ? String(scores.B) : '0';
+    elements.resultTurns.textContent = showingResult ? String(turnsUsed) : '0';
     syncDirectionButtons();
+    syncFeedback();
   };
 
   const syncState = (state: GameState) => {
@@ -138,21 +192,76 @@ export const createGravityPactController = (root: HTMLElement) => {
     syncShellValues();
   };
 
+  const enterResult = (result: MatchResult) => {
+    clearFeedbackTimeout();
+    matchResult = result;
+    pauseContinuation = undefined;
+    syncState('RESULT');
+  };
+
+  const enterTurn = () => {
+    const legalDirections = getLegalDirections(currentTokens, currentLayout.blockedCells);
+    if (legalDirections.length === 0) {
+      enterResult(resolveStalemate(scores));
+      return;
+    }
+    syncState('TURN');
+  };
+
+  const enterScoreFeedback = () => {
+    clearFeedbackTimeout();
+    syncState('SCORE_FEEDBACK');
+    const nonce = feedbackNonce;
+    feedbackTimeout = window.setTimeout(() => {
+      feedbackTimeout = undefined;
+      if (nonce !== feedbackNonce || currentState !== 'SCORE_FEEDBACK') return;
+      enterTurn();
+    }, SCORE_FEEDBACK_MS);
+  };
+
   const getMoveDuration = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? REDUCED_MOVE_MS
     : MOVE_MS;
 
-  const commitPendingMove = () => {
+  const commitPendingMove = (suppressFeedback = false) => {
     const resolution = pendingMove;
     if (!resolution) return;
     pendingMove = undefined;
     clearMoveTimeout();
     currentTokens = resolution.afterMoveTokens;
     turnsUsed += 1;
-    currentPlayer = currentPlayer === 'A' ? 'B' : 'A';
+
+    const scoring = resolveScoring(currentTokens, scores);
+    currentTokens = scoring.afterScoringTokens;
+    scores = scoring.scores;
+    feedbackDeltaA = scoring.scoreDeltaA;
+    feedbackDeltaB = scoring.scoreDeltaB;
     renderer.snapTokens(currentTokens);
-    pauseContinuation = undefined;
-    syncState('TURN');
+
+    const threePointResult = resolveThreePointResult(scores);
+    if (threePointResult) {
+      enterResult(threePointResult);
+      return;
+    }
+
+    const turnLimitResult = resolveTurnLimit(scores, turnsUsed);
+    if (turnLimitResult) {
+      enterResult(turnLimitResult);
+      return;
+    }
+
+    currentPlayer = oppositePlayer(currentPlayer);
+    const nextLegalDirections = getLegalDirections(currentTokens, currentLayout.blockedCells);
+    if (nextLegalDirections.length === 0) {
+      enterResult(resolveStalemate(scores));
+      return;
+    }
+
+    if (!suppressFeedback && (scoring.scoreDeltaA > 0 || scoring.scoreDeltaB > 0)) {
+      enterScoreFeedback();
+      return;
+    }
+    enterTurn();
   };
 
   const handleDirection = (direction: Direction) => {
@@ -175,44 +284,58 @@ export const createGravityPactController = (root: HTMLElement) => {
     }, duration);
   };
 
-  const enterMatchIntro = () => {
+  const enterMatchIntro = (layout: BoardLayout, starter: Player) => {
     clearIntroTimeout();
     clearMoveTimeout();
+    clearFeedbackTimeout();
     pendingMove = undefined;
     pauseContinuation = undefined;
-    currentLayout = GRAVITY_PACT_LAYOUTS[0];
+    currentLayout = layout;
     currentTokens = INITIAL_TOKENS;
-    currentPlayer = 'A';
+    currentPlayer = starter;
+    currentMatchStarter = starter;
     turnsUsed = 0;
+    scores = emptyScores();
+    matchResult = undefined;
+    feedbackDeltaA = 0;
+    feedbackDeltaB = 0;
     matchStarted = true;
     renderer.renderBoard(currentLayout, currentTokens);
     syncState('MATCH_INTRO');
     introTimeout = window.setTimeout(() => {
       introTimeout = undefined;
       if (currentState !== 'MATCH_INTRO') return;
-      syncState('TURN');
+      enterTurn();
     }, MATCH_INTRO_MS);
   };
 
   const handleStart = () => {
     if (currentState !== 'IDLE') return;
-    enterMatchIntro();
+    enterMatchIntro(selectInitialLayout(randomSource), selectInitialStarter(randomSource));
   };
 
   const handleResume = () => {
     if (currentState !== 'PAUSED') return;
     if (pauseContinuation === 'MOVING' && pendingMove) {
       renderer.snapTokens(pendingMove.afterMoveTokens);
-      commitPendingMove();
+      commitPendingMove(true);
+      return;
+    }
+    if (pauseContinuation === 'SCORE_FEEDBACK') {
+      pauseContinuation = undefined;
+      enterTurn();
       return;
     }
     pauseContinuation = undefined;
-    syncState('TURN');
+    enterTurn();
   };
 
   const handleRestart = () => {
     if (currentState !== 'RESULT') return;
-    enterMatchIntro();
+    enterMatchIntro(
+      selectRematchLayout(currentLayout.id, randomSource),
+      oppositePlayer(currentMatchStarter),
+    );
   };
 
   const handleVisibilityChange = () => {
@@ -226,6 +349,12 @@ export const createGravityPactController = (root: HTMLElement) => {
       clearMoveTimeout();
       renderer.cancelMovement(currentTokens);
       pauseContinuation = 'MOVING';
+      syncState('PAUSED');
+      return;
+    }
+    if (currentState === 'SCORE_FEEDBACK') {
+      clearFeedbackTimeout();
+      pauseContinuation = 'SCORE_FEEDBACK';
       syncState('PAUSED');
     }
   };
@@ -260,6 +389,7 @@ export const createGravityPactController = (root: HTMLElement) => {
   return () => {
     clearIntroTimeout();
     clearMoveTimeout();
+    clearFeedbackTimeout();
     removeInputListeners();
     renderer.destroy();
     elements.start.removeEventListener('click', handleStart);
