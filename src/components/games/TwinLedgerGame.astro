@@ -1,12 +1,13 @@
+---
 import '../../styles/games/twin-ledger.css';
 ---
-<div class="twin-ledger" data-twin-ledger data-state="IDLE">
+<div class="twin-ledger" data-twin-ledger data-state="IDLE" tabindex="-1">
   <section class="twin-ledger__game" aria-label="Twin Ledger game">
     <div class="twin-ledger__hud" aria-label="Game status">
       <div class="twin-ledger__hud-item"><span>Turn</span><strong data-turn>0 / 18</strong></div>
       <div class="twin-ledger__hud-item"><span>Difference</span><strong data-difference>0</strong></div>
       <div class="twin-ledger__hud-item"><span>Zone</span><strong data-zone>Exact</strong></div>
-      <div class="twin-ledger__hud-item"><span>Score · Combo</span><strong><span data-score>0</span> · <span data-combo>0</span></strong></div>
+      <div class="twin-ledger__hud-item"><span>Score · Combo</span><strong><span data-score>—</span> · <span data-combo>—</span></strong></div>
     </div>
 
     <div class="twin-ledger__ledgers" aria-label="Ledger totals">
@@ -28,14 +29,19 @@ import '../../styles/games/twin-ledger.css';
         <strong data-current-tile>—</strong>
       </div>
       <div class="twin-ledger__tile twin-ledger__tile--next" data-next-preview>
-        <span>Next preview</span>
-        <strong>Shown when the session starts</strong>
+        <span data-next-label>Next preview</span>
+        <strong data-next-tile>Shown when the session starts</strong>
       </div>
     </div>
 
+    <section class="twin-ledger__history" aria-label="Recent placements">
+      <h3>Recent placements</h3>
+      <ol data-recent-history><li>No placements yet.</li></ol>
+    </section>
+
     <div class="twin-ledger__balance" role="meter" aria-label="Balance difference" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" data-balance-meter>
       <span class="twin-ledger__balance-label">Balance meter</span>
-      <span class="twin-ledger__balance-track" aria-hidden="true"><span></span></span>
+      <span class="twin-ledger__balance-track" aria-hidden="true"><span data-balance-fill></span></span>
       <strong>Hard limit <span data-hard-limit>8</span></strong>
     </div>
 
@@ -51,7 +57,7 @@ import '../../styles/games/twin-ledger.css';
       </section>
 
       <p class="twin-ledger__panel twin-ledger__status" data-panel="RESOLVING" role="status" hidden>Balancing the ledgers.</p>
-      <p class="twin-ledger__panel twin-ledger__status" data-panel="FEEDBACK" role="status" aria-live="polite" aria-atomic="true" hidden>Placement resolved.</p>
+      <p class="twin-ledger__panel twin-ledger__status" data-panel="FEEDBACK" role="status" aria-live="polite" aria-atomic="true" hidden><span data-feedback-detail>Placement resolved.</span></p>
 
       <section class="twin-ledger__panel" data-panel="PAUSED" aria-labelledby="twin-ledger-paused-heading" hidden>
         <h3 id="twin-ledger-paused-heading">Paused</h3>
@@ -62,26 +68,33 @@ import '../../styles/games/twin-ledger.css';
       <section class="twin-ledger__panel" data-panel="RESULT" aria-labelledby="twin-ledger-result-heading" hidden>
         <h3 id="twin-ledger-result-heading">Result</h3>
         <dl class="twin-ledger__result-grid">
-          <div><dt>Score</dt><dd data-result="score">0</dd></div>
-          <div><dt>Final Difference</dt><dd data-result="final-difference">0</dd></div>
-          <div><dt>Exact Count</dt><dd data-result="exact-count">0</dd></div>
-          <div><dt>Breach Count</dt><dd data-result="breach-count">0</dd></div>
-          <div><dt>Max Combo</dt><dd data-result="max-combo">0</dd></div>
-          <div><dt>Best Score</dt><dd data-result="best-score">0</dd></div>
+          <div><dt>Score</dt><dd data-result="score">—</dd></div>
+          <div><dt>Final Difference</dt><dd data-result="final-difference">—</dd></div>
+          <div><dt>Exact Count</dt><dd data-result="exact-count">—</dd></div>
+          <div><dt>Breach Count</dt><dd data-result="breach-count">—</dd></div>
+          <div><dt>Max Combo</dt><dd data-result="max-combo">—</dd></div>
+          <div><dt>Best Score</dt><dd data-result="best-score">—</dd></div>
         </dl>
-        <button class="button" type="button" data-action="play-again">Play Again</button>
+        <button class="button" type="button" data-action="play-again" disabled>Play Again</button>
       </section>
     </div>
+    <p class="twin-ledger__session-error" data-session-error role="alert" aria-live="assertive" hidden></p>
   </section>
 </div>
 
 <script>
   import { createTwinLedgerController } from '../../games/twin-ledger/controller';
 
-  document.querySelectorAll<HTMLElement>('[data-twin-ledger]').forEach((root) => {
-    if (!root.dataset.controllerReady) {
-      createTwinLedgerController(root);
-      root.dataset.controllerReady = 'true';
-    }
-  });
+  const initializeTwinLedger = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-twin-ledger]').forEach((root) => {
+      if (!root.dataset.controllerReady) {
+        createTwinLedgerController(root);
+        root.dataset.controllerReady = 'true';
+      }
+    });
+  };
+
+  document.addEventListener('astro:page-load', initializeTwinLedger);
+  window.addEventListener('pageshow', initializeTwinLedger);
+  initializeTwinLedger();
 </script>
