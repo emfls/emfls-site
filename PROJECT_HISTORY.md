@@ -1327,3 +1327,14 @@
 - A verification: `npm run check` PASS — 31/31; `npm run build` PASS — exactly 62 pages; `/games/signal-sweep/` remains absent from generated output; `git diff --check` PASS. `git diff --name-only` is exactly `PROJECT_HISTORY.md`; no dependency or package change. Local A gate PASS. Push status is assessed separately at the clean commit checkpoint.
 - status: `P3-G06-A PASS` locally; live remote proof remains pending after the recorded DNS failure.
 - next: P3-G06-B only after A verification and clean commit.
+
+## 2026-09-28 — P3-G06-B Signal Sweep Route and Six-State Shell
+
+- branch: `pivot/web-games-mvp`; B starting HEAD: `ebeb9f9790042e5f5ad954dc2a559e6adeaa4371`; worktree clean. A's normal push returned a successful fast-forward response, but the independent post-push live lookup again failed to resolve `github.com`; remote SHA remains unverified independently.
+- changed only `src/pages/games/signal-sweep.astro`, `src/components/games/SignalSweepGame.astro`, `src/styles/games/signal-sweep.css`, `src/games/signal-sweep/controller.ts`, and this history record.
+- route: existing catalog object located by `signal-sweep` slug and passed directly to GameDetailFrame. Built route inherits English title/description, canonical, robots/OG, and VideoGame JSON-LD. Frozen How to Play/Controls/Scoring copy is present; no Related Games or placeholder/Coming Soon/Under Construction copy.
+- shell: structural HUD/rule surface, responsive board container with no fake/randomized tiles, Start/Resume/Play Again controls, six panels exactly IDLE/RULE_PREVIEW/ACTIVE/ROUND_FEEDBACK/PAUSED/RESULT, and a controller that validates those six panels and mounts IDLE only. No generator, rule evaluator, random source, timer, selection, score/streak, pause lifecycle, storage, or 15-round gameplay was added; maturity remains SHELL.
+- TDD: temporary out-of-repository shell contract test failed before implementation for missing route/component, then passed 2/2 after the shell was added. Built HTML contract check passed for exactly one canonical, English title/H1/catalog description, VideoGame JSON-LD, exactly six panels, no Related/placeholder copy, and all five previously completed game routes.
+- verification: `npm run check` PASS — existing suite 31/31; `npm run build` PASS — exactly 63 pages and one `/games/signal-sweep/` output; `git diff --check` PASS. No dependency/config/catalog/shared-shell/legacy/redirect/completed-game change.
+- status: `P3-G06-B PASS` locally; normal push and later bounded remote verification are due at this stage's clean commit checkpoint.
+- next: P3-G06-C — deterministic symbols/rules/generator/validator/scoring core.
