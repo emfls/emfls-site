@@ -99,6 +99,7 @@
   width: 100%;
   height: 100%;
   outline-offset: 3px;
+  touch-action: none;
 }
 
 .orbit-slip__canvas:focus-visible {

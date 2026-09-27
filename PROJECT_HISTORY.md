@@ -1162,3 +1162,15 @@
 - Orbit Slip remains a structural shell plus deterministic core, not `PLAYABLE`; site `RELEASE_READY: NO`.
 - status: `P3-G04-C PASS`.
 - next: `P3-G04-D — integrate motion, input, rendering, collision observation, and pause/resume lifecycle`.
+
+## 2026-09-27 — P3-G04-D Orbit Slip Movement and Collision
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `dab8b8a34f8f646e21d4afa85a514be6a56a4c17`.
+- files changed: `src/games/orbit-slip/input.ts`, `renderer.ts`, `controller.ts`, `src/styles/games/orbit-slip.css`, and this history entry.
+- input/rendering: relative center-distance pointer deltas with primary-pointer capture/cancel/lost-capture handling; Canvas-focused Up/W and Down/S holds with opposing-key neutrality and blur/pause cleanup; 2D renderer uses the same Gate obstacle values as collision, a DPR-2-capped backing store updated only on resize, orbit bounds/player/trail, and non-color radial barrier hatching. Canvas radial touch handling is enabled.
+- ACTIVE/lifecycle: connected the pure motion/RNG/generator/collision core to one rAF loop with 100ms frame cap and <=16.667ms substeps. Keyboard target intent, capped radius follow, unwrapped angle/time advance, collision priority, one-time strict Gate passage, lookahead, and safe pruning run in frozen order. Hidden/viewport changes pause and clear live input; visible alone does not resume; countdown preserves its hidden-step remainder; explicit resume retains the same run and excludes hidden/countdown wall time. Collision is observable and freezes in the existing HIT_FEEDBACK shell state; no full terminal timer/result is added here.
+- deliberately deferred to E: survival/Gate scoring, 400ms result flow, result statistics, storage, and a true new-session Play Again. Orbit Slip maturity remains `SHELL`.
+- verification: temporary input/renderer harness passed relative-delta/no-snap, pointer ownership/cancel/lost-capture, opposing keys/repeats, DPR cap/backing allocation, resize and shared obstacle geometry. Deterministic controller harness passed countdown visibility freeze/remainder, duplicate Start guard, canvas focus, one rAF, 100ms cap/substeps, keyboard radius-speed cap/blur clearing, hidden and resize pause, pointer/key clearing, visible-without-resume, normalized-state/time retention, no hidden-time leak, and once-only collision freeze. Local browser at `/games/orbit-slip/` showed the Canvas and gates, then a no-input collision at `2.6 s`; the HUD stayed frozen and the browser console had no errors.
+- `git diff --check`: PASS. `npm run build`: PASS; exactly 61 pages generated. No dependency changes; local standalone `tsc` is unavailable. Changes stayed within the four D implementation/style files and `PROJECT_HISTORY.md`.
+- status: `P3-G04-D PASS`.
+- next: `P3-G04-E — Gate-pass scoring, terminal result, safe best-stat storage, and new-session Play Again`.

@@ -1,14 +1,41 @@
-const GAME_STATES = ['IDLE', 'COUNTDOWN', 'ACTIVE', 'PAUSED', 'HIT_FEEDBACK', 'RESULT'] as const;
+import {
+  MAX_RADIAL_SPEED,
+  RADIUS_SENSITIVITY,
+  SAFETY_MARGIN,
+  START_RADIUS,
+} from './constants.ts';
+import { collidesWithGate } from './collision.ts';
+import { maintainGateLookahead, removeSafelyPassedGates } from './generator.ts';
+import { createOrbitSlipInput } from './input.ts';
+import {
+  advanceProgressAngle,
+  capFrameDeltaMs,
+  clampTargetRadius,
+  moveRadiusTowardTarget,
+  splitFrameDeltaMs,
+} from './motion.ts';
+import { createOrbitSlipRenderer } from './renderer.ts';
+import { createSeededRandom, createSessionSeed } from './rng.ts';
+import type { GameState, Gate, RandomSource } from './types.ts';
 
-type GameState = typeof GAME_STATES[number];
+const GAME_STATES: readonly GameState[] = ['IDLE', 'COUNTDOWN', 'ACTIVE', 'PAUSED', 'HIT_FEEDBACK', 'RESULT'];
+
+export type OrbitSlipCollisionSnapshot = Readonly<{
+  progressAngle: number;
+  radius: number;
+  activeMs: number;
+  gatesPassed: number;
+}>;
 
 export type OrbitSlipControllerOptions = Readonly<{
   seed?: number;
   storage?: Pick<Storage, 'getItem' | 'setItem'>;
+  onCollision?: (snapshot: OrbitSlipCollisionSnapshot) => void;
 }>;
 
 type Elements = {
   panels: NodeListOf<HTMLElement>;
+  canvas: HTMLCanvasElement;
   countdown: HTMLElement;
   hudScore: HTMLElement;
   hudTime: HTMLElement;
@@ -21,6 +48,19 @@ type Elements = {
   start: HTMLButtonElement;
   resume: HTMLButtonElement;
   playAgain: HTMLButtonElement;
+};
+
+type RunSession = {
+  seed: number;
+  random: RandomSource;
+  progressAngle: number;
+  radius: number;
+  targetRadius: number;
+  activeMs: number;
+  gatesPassed: number;
+  gates: Gate[];
+  history: Gate[];
+  nextGateId: number;
 };
 
 const getElements = (root: HTMLElement): Elements => {
@@ -47,28 +87,56 @@ const getElements = (root: HTMLElement): Elements => {
     throw new Error('Orbit Slip shell is incomplete.');
   }
 
-  return { panels, countdown, hudScore, hudTime, hudGates, resultScore, resultSurvivalTime, resultGatesPassed, resultBestScore, resultBestTime, start, resume, playAgain };
+  return { panels, canvas, countdown, hudScore, hudTime, hudGates, resultScore, resultSurvivalTime, resultGatesPassed, resultBestScore, resultBestTime, start, resume, playAgain };
 };
 
 export const createOrbitSlipController = (
   root: HTMLElement,
-  _options: OrbitSlipControllerOptions = {},
+  options: OrbitSlipControllerOptions = {},
 ): (() => void) => {
   const elements = getElements(root);
   let currentState: GameState = 'IDLE';
+  let session: RunSession | undefined;
+  let animationFrame: number | undefined;
+  let lastFrameTime: number | undefined;
   let countdownValue = 0;
   let countdownTimer: number | undefined;
+  let countdownRemainingMs = 1000;
+  let countdownDeadline = 0;
   let destroyed = false;
+  let suppressResizePause = false;
 
-  const setState = (state: GameState) => {
+  const renderer = createOrbitSlipRenderer(elements.canvas, {
+    onResize: () => {
+      if (currentState === 'ACTIVE' && !suppressResizePause) pauseActiveRun();
+    },
+  });
+
+  const input = createOrbitSlipInput(elements.canvas, {
+    inputContext: root,
+    isActive: () => currentState === 'ACTIVE',
+    onRadialDelta: (normalizedDelta) => {
+      if (!session || currentState !== 'ACTIVE') return;
+      session.targetRadius = clampTargetRadius(session.targetRadius + normalizedDelta * RADIUS_SENSITIVITY);
+    },
+  });
+
+  const setState = (state: GameState): void => {
     currentState = state;
     root.dataset.state = state;
     elements.panels.forEach((panel) => {
       panel.hidden = panel.dataset.panel !== state;
     });
+    if (state === 'ACTIVE') {
+      input.clearKeys();
+      suppressResizePause = true;
+      renderer.resize();
+      suppressResizePause = false;
+      elements.canvas.focus();
+    }
   };
 
-  const resetNeutralValues = () => {
+  const resetNeutralValues = (): void => {
     elements.hudScore.textContent = '0';
     elements.hudTime.textContent = '0.0 s';
     elements.hudGates.textContent = '0';
@@ -79,57 +147,216 @@ export const createOrbitSlipController = (
     elements.resultBestTime.textContent = '0.0 s';
   };
 
-  const scheduleCountdownStep = () => {
+  const renderSession = (): void => {
+    if (!session) return;
+    renderer.render({ progressAngle: session.progressAngle, radius: session.radius, gates: session.gates });
+  };
+
+  const initializeSession = (): void => {
+    const seed = options.seed ?? createSessionSeed();
+    const random = createSeededRandom(seed);
+    const initial: RunSession = {
+      seed,
+      random,
+      progressAngle: 0,
+      radius: START_RADIUS,
+      targetRadius: START_RADIUS,
+      activeMs: 0,
+      gatesPassed: 0,
+      gates: [],
+      history: [],
+      nextGateId: 1,
+    };
+    const planned = maintainGateLookahead(initial, random);
+    session = { ...initial, gates: [...planned.gates], history: [...planned.history], nextGateId: planned.nextGateId };
+    renderSession();
+  };
+
+  const enterActive = (): void => {
+    if (destroyed || currentState !== 'COUNTDOWN' || document.hidden) return;
+    countdownValue = 0;
+    countdownRemainingMs = 1000;
+    setState('ACTIVE');
+    lastFrameTime = performance.now();
+    scheduleFrame();
+  };
+
+  const scheduleCountdownStep = (): void => {
+    if (destroyed || currentState !== 'COUNTDOWN' || document.hidden || countdownTimer !== undefined) return;
+    const duration = Math.max(0, countdownRemainingMs);
+    countdownDeadline = performance.now() + duration;
     countdownTimer = window.setTimeout(() => {
       countdownTimer = undefined;
+      countdownRemainingMs = 0;
       if (destroyed || currentState !== 'COUNTDOWN') return;
+      if (document.hidden) return;
       if (countdownValue > 1) {
         countdownValue -= 1;
         elements.countdown.textContent = String(countdownValue);
+        countdownRemainingMs = 1000;
         scheduleCountdownStep();
         return;
       }
-      countdownValue = 0;
-      setState('ACTIVE');
-    }, 1000);
+      enterActive();
+    }, duration);
   };
 
-  const beginCountdown = () => {
+  const freezeCountdown = (): void => {
+    if (currentState !== 'COUNTDOWN' || countdownTimer === undefined) return;
+    countdownRemainingMs = Math.max(0, countdownDeadline - performance.now());
+    window.clearTimeout(countdownTimer);
+    countdownTimer = undefined;
+  };
+
+  const beginCountdown = (): void => {
     if (destroyed || currentState === 'COUNTDOWN' || countdownTimer !== undefined) return;
     countdownValue = 3;
+    countdownRemainingMs = 1000;
     elements.countdown.textContent = '3';
     setState('COUNTDOWN');
     scheduleCountdownStep();
   };
 
-  const onStart = () => {
+  const cancelAnimationFrame = (): void => {
+    if (animationFrame === undefined) return;
+    window.cancelAnimationFrame(animationFrame);
+    animationFrame = undefined;
+  };
+
+  const commitCollision = (): void => {
+    if (!session || currentState !== 'ACTIVE') return;
+    cancelAnimationFrame();
+    lastFrameTime = undefined;
+    input.releasePointer();
+    input.clearKeys();
+    setState('HIT_FEEDBACK');
+    options.onCollision?.({
+      progressAngle: session.progressAngle,
+      radius: session.radius,
+      activeMs: session.activeMs,
+      gatesPassed: session.gatesPassed,
+    });
+  };
+
+  const simulateStep = (dtMs: number): boolean => {
+    if (!session || currentState !== 'ACTIVE') return false;
+    const dtSeconds = dtMs / 1000;
+    const keyboardIntent = input.getKeyboardIntent();
+    session.targetRadius = clampTargetRadius(session.targetRadius + keyboardIntent * MAX_RADIAL_SPEED * dtSeconds);
+    const nextRadius = moveRadiusTowardTarget(session.radius, session.targetRadius, dtSeconds);
+    const nextProgressAngle = advanceProgressAngle(session.progressAngle, session.activeMs, dtSeconds);
+    const nextActiveMs = session.activeMs + dtMs;
+
+    session.radius = nextRadius;
+    session.progressAngle = nextProgressAngle;
+    session.activeMs = nextActiveMs;
+    if (session.gates.some((gate) => collidesWithGate(nextProgressAngle, nextRadius, gate))) {
+      renderSession();
+      commitCollision();
+      return false;
+    }
+
+    session.gates = session.gates.map((gate) => {
+      if (gate.passed || nextProgressAngle <= gate.angleEnd + SAFETY_MARGIN) return gate;
+      session.gatesPassed += 1;
+      return { ...gate, passed: true };
+    });
+    elements.hudGates.textContent = String(session.gatesPassed);
+    elements.hudTime.textContent = `${(session.activeMs / 1000).toFixed(1)} s`;
+
+    const planned = maintainGateLookahead(session, session.random);
+    session.gates = removeSafelyPassedGates(nextProgressAngle, [...planned.gates]);
+    session.history = [...planned.history];
+    session.nextGateId = planned.nextGateId;
+    return true;
+  };
+
+  const onAnimationFrame = (now: number): void => {
+    animationFrame = undefined;
+    if (destroyed || currentState !== 'ACTIVE' || !session) return;
+    const elapsed = lastFrameTime === undefined ? 0 : capFrameDeltaMs(now - lastFrameTime);
+    lastFrameTime = now;
+    for (const stepMs of splitFrameDeltaMs(elapsed)) {
+      if (!simulateStep(stepMs)) break;
+    }
+    renderSession();
+    if (currentState === 'ACTIVE') scheduleFrame();
+  };
+
+  function scheduleFrame(): void {
+    if (destroyed || currentState !== 'ACTIVE' || animationFrame !== undefined) return;
+    animationFrame = window.requestAnimationFrame(onAnimationFrame);
+  }
+
+  function pauseActiveRun(): void {
+    if (currentState !== 'ACTIVE') return;
+    cancelAnimationFrame();
+    lastFrameTime = undefined;
+    input.releasePointer();
+    input.clearKeys();
+    setState('PAUSED');
+    renderSession();
+  }
+
+  const onStart = (): void => {
     if (currentState !== 'IDLE') return;
     resetNeutralValues();
+    initializeSession();
     beginCountdown();
   };
 
-  const onResume = () => {
+  const onResume = (): void => {
     if (currentState !== 'PAUSED') return;
     beginCountdown();
   };
 
-  const onPlayAgain = () => {
+  const onPlayAgain = (): void => {
     if (currentState !== 'RESULT') return;
+    // Full new-session rematch initialization is added in P3-G04-E.
     resetNeutralValues();
     beginCountdown();
   };
 
+  const onVisibilityChange = (): void => {
+    if (document.hidden) {
+      if (currentState === 'ACTIVE') pauseActiveRun();
+      else if (currentState === 'COUNTDOWN') freezeCountdown();
+      return;
+    }
+    if (currentState === 'COUNTDOWN') scheduleCountdownStep();
+  };
+
+  const onViewportChange = (): void => {
+    renderer.resize();
+    if (currentState === 'ACTIVE') pauseActiveRun();
+    else if (currentState === 'PAUSED') renderSession();
+  };
+
+  const onWindowBlur = (): void => input.clearKeys();
+
   elements.start.addEventListener('click', onStart);
   elements.resume.addEventListener('click', onResume);
   elements.playAgain.addEventListener('click', onPlayAgain);
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  window.addEventListener('resize', onViewportChange);
+  window.addEventListener('orientationchange', onViewportChange);
+  window.addEventListener('blur', onWindowBlur);
   setState('IDLE');
   resetNeutralValues();
+  renderer.resize();
 
   return () => {
     if (destroyed) return;
     destroyed = true;
     if (countdownTimer !== undefined) window.clearTimeout(countdownTimer);
     countdownTimer = undefined;
+    cancelAnimationFrame();
+    input.destroy();
+    renderer.destroy();
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+    window.removeEventListener('resize', onViewportChange);
+    window.removeEventListener('orientationchange', onViewportChange);
+    window.removeEventListener('blur', onWindowBlur);
     elements.start.removeEventListener('click', onStart);
     elements.resume.removeEventListener('click', onResume);
     elements.playAgain.removeEventListener('click', onPlayAgain);
