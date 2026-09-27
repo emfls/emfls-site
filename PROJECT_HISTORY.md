@@ -1150,3 +1150,15 @@
 - `npm run build`: PASS; exactly 61 pages generated (60 before this route). `git diff --check`: PASS. Scope stayed within the four shell files and `PROJECT_HISTORY.md`; catalog, shared shell, completed games, redirects, and dependencies were unchanged.
 - maturity: `SHELL`, not `PLAYABLE`; site `RELEASE_READY: NO`.
 - next: `P3-G04-C — Orbit Slip deterministic polar motion / 12 templates / Mulberry32 RNG / bounded generator + fairness / collision pure core only`.
+
+## 2026-09-27 — P3-G04-C Orbit Slip Deterministic Core
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `5b2e3b94deb604f0a0d310b331178fe36ecea4c4`.
+- files changed: `src/games/orbit-slip/types.ts`, `constants.ts`, `motion.ts`, `templates.ts`, `rng.ts`, `generator.ts`, `collision.ts`, and this history entry.
+- core: added the six-state DOM-free types, frozen motion/simulation constants and helpers, twelve literal Gate templates with phase eligibility/validation, seeded Mulberry32 and validated random helpers, and a bounded 20-attempt Gate generator with translation/center-safe checks, fairness reachability, pattern limits, deterministic fallback, monotonic IDs, lookahead and safe pruning. Gate obstacles are derived from the same geometric corridor bounds used by pure inclusive radial/angular collision checks.
+- deliberately not implemented: controller integration, browser gameplay, pointer/keyboard input, Canvas rendering, active animation loop, scoring, hit/result lifecycle, or storage. No dependency or route changes.
+- verification: temporary pure-core Node harness passed all 18 contract subtests covering frozen values, all templates and phase boundaries, motion/frame stepping, seed-zero Mulberry32 reproducibility and random validation, candidate draw order/rejection, first-Gate setup, phase spacing/thickness, exact fairness threshold, 20-rejection fallback, both sequence-pattern limits, pruning/lookahead/IDs, same-seed replay, inclusive collision and unwrapped angles, and pure module ownership of `Math.random`.
+- `git diff --check`: PASS. `npm run build`: PASS; exactly 61 pages generated. Local standalone `tsc` is unavailable and no type-check dependency was added; Astro build and runtime-imported pure tests passed.
+- Orbit Slip remains a structural shell plus deterministic core, not `PLAYABLE`; site `RELEASE_READY: NO`.
+- status: `P3-G04-C PASS`.
+- next: `P3-G04-D — integrate motion, input, rendering, collision observation, and pause/resume lifecycle`.
