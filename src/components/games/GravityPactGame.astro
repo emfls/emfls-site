@@ -14,6 +14,7 @@ import '../../styles/games/gravity-pact.css';
       {Array.from({ length: 5 }, (_, row) => Array.from({ length: 5 }, (_, col) => (
         <div class="gravity-pact__cell" data-row={row} data-col={col} role="gridcell" />
       )))}
+      <div class="gravity-pact__token-layer" data-token-layer aria-hidden="true" />
     </div>
 
     <div class="gravity-pact__state gravity-pact__state--overlay" data-panel="IDLE">
