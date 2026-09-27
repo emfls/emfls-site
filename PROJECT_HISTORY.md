@@ -1138,3 +1138,15 @@
 - verification for A: `git diff --name-only` must be exactly `PROJECT_HISTORY.md`; `git diff --check` PASS; `npm run build` PASS with 60 pages; Orbit route remains absent; dependencies unchanged; no product source changed. Commit only the history record as `docs: plan Orbit Slip implementation`; push only `pivot/web-games-mvp`. `main`, legacy, redirects, Cloudflare, DNS, Production, and all three completed games stay unchanged.
 - status: `P3-G04-A PLAN COMPLETE`; Orbit Slip maturity remains `SPEC`; site `RELEASE_READY: NO`.
 - next: `P3-G04-B — Orbit Slip route / HUD / Canvas / six-state shell only`.
+
+## 2026-09-27 — P3-G04-B Orbit Slip Shell
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `72cdae04bf234f66a2f0ab5c9031498f8e10f076`; origin verified as `https://github.com/emfls/emfls-site.git`.
+- files changed: `src/pages/games/orbit-slip.astro`, `src/components/games/OrbitSlipGame.astro`, `src/styles/games/orbit-slip.css`, `src/games/orbit-slip/controller.ts`, and this history entry.
+- route: created `/games/orbit-slip/`; resolves the existing `orbit-slip` catalog entry and passes it directly to `GameDetailFrame`. Frozen English How to Play, Controls, and Scoring copy is included; Related Games is absent.
+- shell: root exposes its current state; exactly six panels/states exist — `IDLE`, `COUNTDOWN`, `ACTIVE`, `PAUSED`, `HIT_FEEDBACK`, `RESULT`. One accessible, focusable Canvas and the neutral Score / Time / Gates HUD are present. Start, Resume, and Play Again are native buttons. The controller guards those actions, displays 3 / 2 / 1 on one 1000ms timer chain, enters ACTIVE after 3000ms, resets neutral values, and cleans up its listeners/timer on destroy.
+- deliberately not implemented: playable motion, templates, RNG, gates/generation/fairness, collision, pointer or keyboard gameplay input, Canvas drawing, active frame loop, scoring, hit-to-result lifecycle, and persistence/storage. No additional game modules or dependencies were added.
+- verification: temporary controller QA passed for all six panels, initial state/HUD, single-chain countdown timing/duplicate Start guard, ACTIVE entry, and cleanup. Forbidden-feature audit found no `Math.random`, storage, animation loop, RNG/template/generator/collision, input, or scoring implementation in Orbit Slip source. Built `/games/orbit-slip/` output verified for catalog metadata, canonical URL, frozen copy, one Canvas, six panels, controls, and absence of placeholder/Related Games copy. Pulse Junction, Mirror Drift, and Gravity Pact output pages all built successfully.
+- `npm run build`: PASS; exactly 61 pages generated (60 before this route). `git diff --check`: PASS. Scope stayed within the four shell files and `PROJECT_HISTORY.md`; catalog, shared shell, completed games, redirects, and dependencies were unchanged.
+- maturity: `SHELL`, not `PLAYABLE`; site `RELEASE_READY: NO`.
+- next: `P3-G04-C — Orbit Slip deterministic polar motion / 12 templates / Mulberry32 RNG / bounded generator + fairness / collision pure core only`.

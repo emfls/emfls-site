@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import OrbitSlipGame from '../../components/games/OrbitSlipGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'orbit-slip');
+if (!game) throw new Error('Orbit Slip is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <OrbitSlipGame slot="game" />
+  <p slot="how-to-play">Your point orbits the center automatically. Move only its orbit radius inward or outward to slip through the open radial corridor in each incoming gate. Survive as long as you can without touching a barrier.</p>
+  <p slot="controls">Mobile: drag inward or outward relative to the center. Desktop: drag with the mouse, or hold Up/W to move outward and Down/S to move inward.</p>
+  <p slot="scoring">You earn 1 point for every 0.1 seconds survived and 50 points for every gate you clear. A single barrier hit ends the run.</p>
+</GameDetailFrame>
