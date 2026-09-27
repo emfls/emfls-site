@@ -27,6 +27,9 @@ export const createOrbitSlipRenderer = (
 ): OrbitSlipRenderer => {
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Orbit Slip requires a 2D Canvas context.');
+  const reducedMotion = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : undefined;
 
   let width = 0;
   let height = 0;
@@ -115,14 +118,16 @@ export const createOrbitSlipRenderer = (
     });
 
     const angle = START_ANGLE + frame.progressAngle;
-    const trailStart = angle - 0.07;
-    context.strokeStyle = 'rgba(31, 111, 126, 0.42)';
-    context.lineWidth = Math.max(2, gameRadius * 0.018);
-    context.lineCap = 'round';
-    context.beginPath();
-    context.moveTo(centerX + Math.cos(trailStart) * frame.radius * gameRadius, centerY + Math.sin(trailStart) * frame.radius * gameRadius);
-    context.lineTo(centerX + Math.cos(angle) * frame.radius * gameRadius, centerY + Math.sin(angle) * frame.radius * gameRadius);
-    context.stroke();
+    if (!reducedMotion?.matches) {
+      const trailStart = angle - 0.07;
+      context.strokeStyle = 'rgba(31, 111, 126, 0.42)';
+      context.lineWidth = Math.max(2, gameRadius * 0.018);
+      context.lineCap = 'round';
+      context.beginPath();
+      context.moveTo(centerX + Math.cos(trailStart) * frame.radius * gameRadius, centerY + Math.sin(trailStart) * frame.radius * gameRadius);
+      context.lineTo(centerX + Math.cos(angle) * frame.radius * gameRadius, centerY + Math.sin(angle) * frame.radius * gameRadius);
+      context.stroke();
+    }
     context.fillStyle = '#125765';
     context.beginPath();
     context.arc(centerX + Math.cos(angle) * frame.radius * gameRadius, centerY + Math.sin(angle) * frame.radius * gameRadius, Math.max(3, PLAYER_SIZE * gameRadius), 0, Math.PI * 2);

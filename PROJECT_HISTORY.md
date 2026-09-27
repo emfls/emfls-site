@@ -1187,3 +1187,19 @@
 - maturity: `PLAYABLE` — the real browser Start → collision → Result → Play Again loop is complete; see the radial-input measurement limitation above. Site `RELEASE_READY: NO`.
 - status: `P3-G04-E PASS`.
 - next: `P3-G04-F — responsive presentation, accessibility, and reduced-motion polish only`.
+
+## 2026-09-27 — P3-G04-F Orbit Slip Responsive and Accessibility Polish
+
+- branch: `pivot/web-games-mvp`; starting HEAD: `9b553990f4361b27b3e51cc9bafd7848642719d4`.
+- files changed: `src/components/games/OrbitSlipGame.astro`, `src/games/orbit-slip/renderer.ts`, and this history entry. `src/styles/games/orbit-slip.css` was inspected and left unchanged because browser measurements showed no layout defect.
+- accessible Canvas description now directly states that the point moves automatically, inward/outward drag behavior, Up/W outward and Down/S inward holds, and barrier avoidance; the existing visible Controls section remains consistent.
+- reduced motion: the renderer consults `prefers-reduced-motion` and omits only the decorative trail when requested. The player, center, Gates, controller, angular/radial movement, countdown, collisions, scoring, and timers remain unchanged. The media query list is retained once and its live `matches` value is read per rendered frame; backing dimensions do not reallocate frame-to-frame.
+- responsive browser QA at `1440×900`, `390×844`, and `320×700`: `scrollWidth === clientWidth` at every target (1440, 390, and 320 respectively). At 320px the active Canvas measured `284×284` inside the 286px bordered surface. At both mobile sizes, the five-field RESULT content and 44px Play Again control remained reachable without an internally trapped overlay or horizontal overflow.
+- DPR browser QA at 320px: DPR 1 produced a 284px Canvas backing store; DPR 2 produced 568px for the 284px CSS Canvas; DPR 3 also produced 568px, confirming the scale cap of 2. Temporary DevTools viewport/DPR/reduced-motion overrides were reset after QA.
+- accessibility QA: Canvas has an accessible name and linked direct instructions; keyboard entry focuses the Canvas; focus-visible uses a 3px focus outline; native Start/Play Again controls measured 44px high; countdown is a polite atomic status; RESULT exposes exactly five `dt/dd` pairs. Computed contrast ratios: primary text 13.91:1, secondary text 5.45:1, button text 6.16:1, focus indicator 3.65:1 against the tested adjacent surfaces. Existing barriers retain radial hatching as a non-color cue.
+- reduced-motion browser emulation was enabled on the local page and the match still reached RESULT at 320×700/DPR 3; the deterministic renderer regression test verified that reduced mode removes only trail strokes while keeping the player/center drawing, media-preference changes, capped DPR 3 backing size, and stable backing dimensions across renders. Rendered-output test verified the direct Canvas instructions.
+- browser console showed two duplicate local `GET /favicon.ico` 404 messages from the dev server and no game JavaScript/runtime exception. The favicon request is outside this presentation-only Orbit Slip stage and remains an explicitly noted repository QA issue, not silently treated as a clean console.
+- verification: temporary F tests passed 2/2; `git diff --check`: PASS; `npm run build`: PASS; exactly 61 pages generated. No dependencies, mechanics, route metadata, shared shell, or unrelated files changed. Temporary harness is outside the repository and will be removed before G.
+- maturity: `PLAYABLE`; site `RELEASE_READY: NO`.
+- status: `P3-G04-F PASS`.
+- next: `P3-G04-G — comprehensive final QA, audit first`.
