@@ -1215,6 +1215,6 @@
 - route/regression: built Orbit Slip, Pulse Junction, Mirror Drift, and Gravity Pact outputs matched their catalog titles, English document language, canonical route, H1, and VideoGame JSON-LD; Orbit Slip retained one Canvas, no Related Games or placeholder copy, and the expected catalog fields.
 - browser smoke: local Orbit Slip RESULT → Play Again countdown → RESULT completed twice with all five result metrics exposed. The previously recorded automatic local `GET /favicon.ico` 404 remains a site-level asset issue outside Orbit Slip scope; this run produced no separate game runtime failure. No production URL was accessed.
 - verification: temporary G harness passed 14/14 tests; `npm run build` PASS with 61 pages; `git diff --check` PASS; no dependency, catalog, shared-shell, redirect, or other source changes. Orbit Slip remains `PLAYABLE`; site remains `RELEASE_READY: NO`.
-- remote delivery: pre-push `git ls-remote` could not resolve `github.com`; no push retry or alternate DNS/remote path was used. The G QA commit is local until network DNS recovers and the exact remote branch can be revalidated.
-- status: `P3-G04-G QA PASS` locally; branch push blocked by GitHub DNS resolution.
+- remote delivery: the initial sandboxed pre-push check could not resolve `github.com`. After scoped network permission was granted, live remote `pivot/web-games-mvp` was confirmed at the expected parent `ad7ff083ee661058c3ea55df23f306c03d821ead`; the normal fast-forward push succeeded and post-push `git ls-remote` verified `61538e3a2a131dadca211a7b51866c1bfb56c9a9`. No force push or alternate DNS/remote path was used.
+- status: `P3-G04-G FINAL PASS`; branch push verified at `61538e3a2a131dadca211a7b51866c1bfb56c9a9`.
 - next: `P3-G05-A` — not started.
