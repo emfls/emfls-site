@@ -1050,3 +1050,20 @@
 - validation: `git diff --check` PASS; `npm run build` PASS — 60 pages; dependencies unchanged; no new route; final product diff is exactly the five D files. Pulse Junction, Mirror Drift, games catalog, shared shell, main, Cloudflare, DNS, and Production remain unchanged.
 - status: `P3-G03-D IMPLEMENTED; MATURITY REMAINS SHELL`.
 - next: `P3-G03-E — Gravity Pact scoring / simultaneous removal / win-draw / maxTurns / stalemate / match selection / SCORE_FEEDBACK / RESULT / Play Again`.
+
+## 2026-09-27 — P3-G03-E Gravity Pact Complete Match Loop
+
+- branch: `pivot/web-games-mvp`; previous HEAD: `0754342c575ce7f89db771f24c752aa1123bc971`.
+- implementation: `aad016c2a180d3b099d439cdc57fd2f336e35d53` (`feat: complete Gravity Pact match loop`).
+- changed product files: `src/games/gravity-pact/logic.ts`, `src/games/gravity-pact/types.ts`, and `src/games/gravity-pact/controller.ts` only. Temporary QA artifacts were removed before the history change.
+- maturity advanced from `SHELL` to `PLAYABLE` because an actual browser controller match started, committed moves, reached RESULT, and Play Again started a valid non-repeating rematch. `QA_PASS`, `RELEASE_READY`, and `COMPLETE` were not claimed.
+- scoring scans the complete post-movement snapshot, supports same-player multi-score and simultaneous A+B score, removes all scored tokens together after movement, rejects score overflow above 3, and exposes actual `+delta` feedback for `SCORE_FEEDBACK_MS = 400`.
+- terminal rules cover A3 win, B3 win, simultaneous A3/B3 draw, score comparison at `MAX_TURNS = 30`, 30th-turn three-point priority, and score-based stalemate without an extra turn.
+- match selection uses six-layout uniform initial selection, 50:50 initial starter, exact layout-then-starter random call order, finite `[0,1)` RNG validation, one-draw rematch selection from the other five layouts, and opposite rematch starter. No persistence was added.
+- RESULT exposes outcome, final A score, final B score, and turns used. Play Again resets the match, excludes the immediate previous layout, and alternates the starter.
+- lifecycle preserves TURN pause, commits hidden MOVING exactly once without replaying feedback, sends hidden SCORE_FEEDBACK directly to TURN on Resume, and commits resize/orientation MOVING scoring once. RESULT input is locked and stale timers are guarded.
+- pure QA passed scoring/removal, multi-token, simultaneous score, terminal, random-boundary, invalid-RNG, and six-layout terminal-path checks. Browser QA passed first match RESULT, raw result fields, actual scoring/token removal, feedback, Play Again, two rematches, RESULT input lock, hidden MOVING scoring, hidden MOVING terminal Resume, hidden SCORE_FEEDBACK, resize commit-once, and cleanup.
+- responsive smoke passed on the actual Gravity Pact route at `1440×900`, `390×844`, and `320×700`: controls remained present and document horizontal overflow was absent. Local browser console error/warning capture was empty; no page-caused 404/5xx was observed in the QA run.
+- validation: `git diff --check` PASS; `npm run build` PASS — 60 pages; dependencies unchanged; main, Cloudflare, DNS, and Production unchanged.
+- status: `P3-G03-E implemented`; Gravity Pact maturity: `PLAYABLE`.
+- next: `P3-G03-F — Gravity Pact responsive / reduced-motion / accessibility / visual polish only`.
