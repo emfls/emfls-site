@@ -69,6 +69,10 @@
   gap: var(--game-space-4);
 }
 
+.glass-bloom[data-state="RESULT"] .glass-bloom__play {
+  display: none;
+}
+
 .glass-bloom__crystal-scene {
   display: grid;
   width: 100%;
@@ -362,6 +366,10 @@
   min-width: 0;
 }
 
+.glass-bloom[data-state="RESULT"] .glass-bloom__panels {
+  order: 1;
+}
+
 .glass-bloom__panel {
   display: grid;
   justify-items: center;
@@ -395,6 +403,40 @@
   text-wrap: balance;
 }
 
+.glass-bloom[data-state="RESULT"] .glass-bloom__tagline {
+  order: 2;
+}
+
+.glass-bloom__result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: var(--game-space-2);
+  margin: 0;
+  text-align: left;
+}
+
+.glass-bloom__result-stats > div {
+  display: grid;
+  min-width: 0;
+  gap: var(--game-space-1);
+  padding: var(--game-space-2);
+  border-radius: var(--game-radius-small);
+  background: var(--game-color-surface-elevated);
+}
+
+.glass-bloom__result-stats dt {
+  color: var(--game-color-text-secondary);
+  font-size: var(--game-font-size-small);
+}
+
+.glass-bloom__result-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--game-font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
 .glass-bloom button:focus-visible {
   outline: 3px solid var(--game-color-focus);
   outline-offset: 3px;
@@ -412,6 +454,25 @@
 @media (max-width: 40rem) {
   .glass-bloom__hud {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .glass-bloom[data-state="RESULT"] .glass-bloom__hud {
+    display: none;
+  }
+
+  .glass-bloom__result-stats {
+    grid-template-columns: 1fr;
+    gap: var(--game-space-1);
+  }
+
+  .glass-bloom__result-stats > div {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding-block: 0;
+  }
+
+  .glass-bloom__result-stats dd {
+    text-align: right;
   }
 
   .glass-bloom__stat:nth-child(3) {
