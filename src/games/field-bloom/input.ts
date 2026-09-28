@@ -22,6 +22,14 @@ function readIntegerAttribute(element: HTMLElement, name: 'cellRow' | 'cellCol')
   return Number.isSafeInteger(value) ? value : null;
 }
 
+function readCellCoordinates(target: EventTarget | null): { row: number; col: number } | null {
+  const cellElement = closest(target, '[data-cell-row][data-cell-col]');
+  if (!cellElement) return null;
+  const row = readIntegerAttribute(cellElement, 'cellRow');
+  const col = readIntegerAttribute(cellElement, 'cellCol');
+  return row === null || col === null ? null : { row, col };
+}
+
 export function bindFieldBloomInput(root: InputRoot, handlers: FieldBloomInputHandlers): () => void {
   const onClick = (event: Event): void => {
     const actionElement = closest(event.target, '[data-action]');
@@ -45,20 +53,14 @@ export function bindFieldBloomInput(root: InputRoot, handlers: FieldBloomInputHa
       return;
     }
 
-    const cellElement = closest(event.target, '[data-cell-row][data-cell-col]');
-    if (!cellElement) return;
-    const row = readIntegerAttribute(cellElement, 'cellRow');
-    const col = readIntegerAttribute(cellElement, 'cellCol');
-    if (row !== null && col !== null) handlers.onCellActivate(row, col);
+    const cell = readCellCoordinates(event.target);
+    if (cell) handlers.onCellActivate(cell.row, cell.col);
   };
 
   const onPointerOver = (event: PointerEvent): void => {
     if (event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
-    const cellElement = closest(event.target, '[data-cell-row][data-cell-col]');
-    if (!cellElement) return;
-    const row = readIntegerAttribute(cellElement, 'cellRow');
-    const col = readIntegerAttribute(cellElement, 'cellCol');
-    if (row !== null && col !== null) handlers.onPreview(row, col);
+    const cell = readCellCoordinates(event.target);
+    if (cell) handlers.onPreview(cell.row, cell.col);
   };
 
   const onPointerOut = (event: PointerEvent): void => {
@@ -68,13 +70,29 @@ export function bindFieldBloomInput(root: InputRoot, handlers: FieldBloomInputHa
     handlers.onClearPreview();
   };
 
+  const onFocusIn = (event: FocusEvent): void => {
+    const cell = readCellCoordinates(event.target);
+    if (cell) handlers.onPreview(cell.row, cell.col);
+  };
+
+  const onFocusOut = (event: FocusEvent): void => {
+    const cellElement = closest(event.target, '[data-cell-row][data-cell-col]');
+    if (!cellElement) return;
+    if (event.relatedTarget && cellElement.contains(event.relatedTarget as Node)) return;
+    handlers.onClearPreview();
+  };
+
   root.addEventListener('click', onClick);
   root.addEventListener('pointerover', onPointerOver);
   root.addEventListener('pointerout', onPointerOut);
+  root.addEventListener('focusin', onFocusIn);
+  root.addEventListener('focusout', onFocusOut);
 
   return () => {
     root.removeEventListener('click', onClick);
     root.removeEventListener('pointerover', onPointerOver);
     root.removeEventListener('pointerout', onPointerOut);
+    root.removeEventListener('focusin', onFocusIn);
+    root.removeEventListener('focusout', onFocusOut);
   };
 }

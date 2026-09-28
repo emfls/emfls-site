@@ -4,6 +4,8 @@ import test from 'node:test';
 
 const routePath = new URL('../../src/pages/games/field-bloom.astro', import.meta.url);
 const componentPath = new URL('../../src/components/games/FieldBloomGame.astro', import.meta.url);
+const controllerPath = new URL('../../src/games/field-bloom/controller.ts', import.meta.url);
+const stylesPath = new URL('../../src/styles/games/field-bloom.css', import.meta.url);
 
 const readRequired = (path, label) => {
   assert.ok(existsSync(path), `${label} must be present for the Field Bloom shell`);
@@ -46,4 +48,24 @@ test('DOM shell exposes exactly the five frozen lifecycle state surfaces', () =>
   assert.match(component, /data-action="retry"/);
   assert.match(component, /data-action="level-select"/);
   assert.doesNotMatch(component, /src\/games\/field-bloom|setInterval|Math\.random|localStorage/);
+});
+
+test('presentation exposes requirement and piece type metadata without changing labels', () => {
+  const controller = readRequired(controllerPath, 'Field Bloom controller');
+
+  assert.match(controller, /element\.dataset\.requirement\s*=\s*cell\.requirement/);
+  assert.match(controller, /button\.dataset\.pieceType\s*=\s*piece\.pieceType/);
+  assert.match(controller, /button\.setAttribute\('aria-label', `\$\{piece\.pieceType\} energy piece/);
+});
+
+test('narrow Field Bloom boards let six columns fit without overlapping touch targets', () => {
+  const styles = readRequired(stylesPath, 'Field Bloom styles');
+  const narrowLayout = styles.match(/@media\s*\(max-width:\s*22rem\)[\s\S]*?(?=\n@media|$)/)?.[0] ?? '';
+  const mobileLayout = styles.match(/@media\s*\(max-width:\s*40rem\)[\s\S]*?(?=\n@media|$)/)?.[0] ?? '';
+
+  assert.match(narrowLayout, /\.field-bloom__board\s*\{[^}]*gap:\s*1px[^}]*padding:\s*0/);
+  assert.match(narrowLayout, /:root:has\(\.field-bloom\)\s*\{[^}]*min-width:\s*0/);
+  assert.match(narrowLayout, /\.field-bloom__levels\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(mobileLayout, /\.field-bloom__board\[aria-colcount='6'\]\s*\.field-bloom__cell\s*\{[^}]*aspect-ratio:\s*auto/);
+  assert.match(styles, /\.field-bloom__cell\s*\{[^}]*min-height:\s*var\(--game-control-min-size\)/);
 });

@@ -363,6 +363,7 @@ function markerFor(kind: string): string {
 function stateMark(status: string): string {
   if (status === 'satisfied') return '✓';
   if (status === 'overcharged' || status === 'violation') return '!';
+  if (status === 'under') return '○';
   return '';
 }
 
@@ -430,6 +431,7 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
       const requirement = element.querySelector<HTMLElement>('[data-cell-requirement]');
       const count = element.querySelector<HTMLElement>('[data-cell-count]');
       const mark = element.querySelector<HTMLElement>('[data-cell-mark]');
+      element.dataset.requirement = cell.requirement;
       element.dataset.status = cell.status;
       element.classList.toggle('field-bloom__cell--preview', previewIsLegal && previewCells.has(previewKey));
       element.classList.toggle('field-bloom__cell--preview-invalid', Boolean(invalidCenter));
@@ -450,6 +452,7 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
         button.type = 'button';
         button.className = 'field-bloom__piece';
         button.dataset.pieceId = piece.pieceInstanceId;
+        button.dataset.pieceType = piece.pieceType;
         const name = document.createElement('span');
         name.className = 'field-bloom__piece-type';
         name.dataset.pieceType = '';
@@ -492,8 +495,14 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
     root.querySelectorAll<HTMLButtonElement>('[data-puzzle-id]').forEach((button) => {
       const id = button.dataset.puzzleId ?? '';
       const isUnlocked = isPuzzleUnlocked(snapshot.progress, id);
+      const best = snapshot.progress.puzzles[id];
       button.disabled = snapshot.state !== 'LEVEL_SELECT' || !isUnlocked;
       button.setAttribute('aria-current', snapshot.puzzleId === id ? 'true' : 'false');
+      const puzzleNumber = FIELD_BLOOM_PUZZLE_IDS.findIndex((puzzleId) => puzzleId === id) + 1;
+      const progressLabel = best
+        ? `best ${best.bestStars ?? '—'} stars, best time ${best.bestTimeMs === null ? 'not recorded' : formatElapsedTime(best.bestTimeMs)}`
+        : 'not solved yet';
+      button.setAttribute('aria-label', `Puzzle ${puzzleNumber}, ${isUnlocked ? progressLabel : 'locked'}`);
       const puzzleText = button.querySelector<HTMLElement>('.field-bloom__level-title');
       if (puzzleText) {
         let bestLabel = puzzleText.querySelector<HTMLElement>('[data-level-best]');
@@ -502,10 +511,9 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
           bestLabel.dataset.levelBest = '';
           puzzleText.append(bestLabel);
         }
-        const best = snapshot.progress.puzzles[id];
         bestLabel.hidden = !best;
         bestLabel.textContent = best
-          ? ` · Best ${best.bestStars ?? '—'} ${best.bestStars === 1 ? 'star' : 'stars'} · ${best.bestTimeMs === null ? '—' : formatElapsedTime(best.bestTimeMs)}`
+          ? `★ ${best.bestStars ?? '—'} · ${best.bestTimeMs === null ? '—' : formatElapsedTime(best.bestTimeMs)}`
           : '';
       }
     });
@@ -556,7 +564,6 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
       ? 'You completed all 12 Field Bloom puzzles. You can revisit any unlocked puzzle.'
       : 'Every target is exact, and every forbidden cell stayed untouched.');
     const resultValues: Record<string, string> = {
-      stars: snapshot.result ? String(snapshot.result.stars) : '',
       'pieces-used': snapshot.result ? String(snapshot.result.piecesUsed) : '',
       'undo-count': snapshot.result ? String(snapshot.result.undoCount) : '',
       time: snapshot.result ? formatElapsedTime(snapshot.result.elapsedActiveMs) : '',
@@ -566,6 +573,12 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
         : '',
     };
     for (const [key, value] of Object.entries(resultValues)) setText(`[data-result="${key}"]`, value);
+    const stars = root.querySelector<HTMLElement>('[data-result="stars"]');
+    if (stars) {
+      stars.textContent = snapshot.result ? '★'.repeat(snapshot.result.stars) : '';
+      if (snapshot.result) stars.setAttribute('aria-label', `${snapshot.result.stars} stars`);
+      else stars.removeAttribute('aria-label');
+    }
     const results = root.querySelector<HTMLElement>('.field-bloom__results');
     if (results) results.hidden = snapshot.result === null;
 

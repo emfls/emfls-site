@@ -299,7 +299,7 @@ test('solve locks input synchronously, freezes time, and retry begins a fresh at
   assert.equal(session.getSnapshot().elapsedActiveMs, 0);
 });
 
-test('input delegation supports native click, mouse-only preview, and removes every listener', () => {
+test('input delegation supports native click, pointer and keyboard focus preview, and removes every listener', () => {
   assert.equal(typeof input.bindFieldBloomInput, 'function');
   const listeners = new Map();
   const root = {
@@ -325,8 +325,11 @@ test('input delegation supports native click, mouse-only preview, and removes ev
   listeners.get('pointerover')({ target: targetFor('[data-cell-row][data-cell-col]', { cellRow: '1', cellCol: '1' }), pointerType: 'touch' });
   listeners.get('pointerover')({ target: targetFor('[data-cell-row][data-cell-col]', { cellRow: '1', cellCol: '1' }), pointerType: 'mouse' });
   listeners.get('pointerout')({ target: targetFor('[data-cell-row][data-cell-col]', { cellRow: '1', cellCol: '1' }), relatedTarget: null });
+  listeners.get('focusin')({ target: targetFor('[data-cell-row][data-cell-col]', { cellRow: '2', cellCol: '1' }) });
+  listeners.get('focusout')({ target: targetFor('[data-cell-row][data-cell-col]', { cellRow: '2', cellCol: '1' }), relatedTarget: null });
   assert.deepEqual(actions, [
-    ['piece', 'piece-1'], ['cell', 2, 3], ['action', 'undo'], ['preview', 1, 1], ['clear'],
+    ['piece', 'piece-1'], ['cell', 2, 3], ['action', 'undo'],
+    ['preview', 1, 1], ['clear'], ['preview', 2, 1], ['clear'],
   ]);
   unbind();
   assert.equal(listeners.size, 0);
