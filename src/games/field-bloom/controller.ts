@@ -1,12 +1,14 @@
 import { evaluateBoard } from './evaluator.ts';
 import { bindFieldBloomInput } from './input.ts';
-import { checkPlacementLegality, getPieceCells } from './logic.ts';
+import { calculateStars, checkPlacementLegality, getPieceCells } from './logic.ts';
 import { FIELD_BLOOM_PUZZLES } from './puzzles.ts';
-import { createInitialProgress, isPuzzleUnlocked } from './progress.ts';
+import { isPuzzleUnlocked, recordPuzzleResult } from './progress.ts';
+import { loadProgress, saveProgress } from './storage.ts';
 import { createActiveTimer, formatElapsedTime } from './timer.ts';
 import { FIELD_BLOOM_PUZZLE_IDS } from './types.ts';
 import type { ActiveTimerClock } from './timer.ts';
-import type { BoardEvaluation, Coordinate, GameState, Placement, PuzzleDefinition, PuzzleId, StoredProgress } from './types.ts';
+import type { ProgressStorage } from './storage.ts';
+import type { BoardEvaluation, Coordinate, GameState, Placement, PuzzleDefinition, PuzzleId, PuzzleResult, StoredProgress } from './types.ts';
 
 export const FIELD_BLOOM_GAME_STATES: readonly GameState[] = Object.freeze([
   'LEVEL_SELECT', 'PUZZLE_INTRO', 'PLAYING', 'SOLVE_FEEDBACK', 'PAUSED',
@@ -26,12 +28,14 @@ export interface FieldBloomSnapshot {
   invalidFeedback: string;
   pauseReason: PauseReason | null;
   progress: StoredProgress;
-  result: null;
+  result: PuzzleResult | null;
+  allPuzzlesComplete: boolean;
 }
 
 export interface FieldBloomSessionOptions {
   readonly clock?: ActiveTimerClock;
   readonly initialProgress?: StoredProgress;
+  readonly storage?: ProgressStorage | null;
 }
 
 export interface FieldBloomSession {
@@ -81,7 +85,7 @@ function invalidMessage(reason: string | null): string {
 
 export function createFieldBloomSession(options: FieldBloomSessionOptions = {}): FieldBloomSession {
   const clock = options.clock ?? systemClock;
-  let progress = copyProgress(options.initialProgress ?? createInitialProgress());
+  let progress = copyProgress(options.initialProgress ?? loadProgress(options.storage));
   let state: GameState = 'LEVEL_SELECT';
   let puzzle: PuzzleDefinition | null = null;
   let placements: Placement[] = [];
@@ -90,6 +94,8 @@ export function createFieldBloomSession(options: FieldBloomSessionOptions = {}):
   let elapsedActiveMs = 0;
   let invalidFeedback = '';
   let pauseReason: PauseReason | null = null;
+  let result: PuzzleResult | null = null;
+  let allPuzzlesComplete = false;
   let activeTimer: ReturnType<typeof createActiveTimer> | null = null;
   let attemptGeneration = 0;
   let destroyed = false;
@@ -107,7 +113,8 @@ export function createFieldBloomSession(options: FieldBloomSessionOptions = {}):
     invalidFeedback,
     pauseReason,
     progress: copyProgress(progress),
-    result: null,
+    result: result ? { ...result } : null,
+    allPuzzlesComplete,
   });
 
   const publish = (): void => {
@@ -132,6 +139,8 @@ export function createFieldBloomSession(options: FieldBloomSessionOptions = {}):
     elapsedActiveMs = 0;
     invalidFeedback = '';
     pauseReason = null;
+    result = null;
+    allPuzzlesComplete = false;
   };
 
   const startTimer = (): void => {
@@ -223,6 +232,19 @@ export function createFieldBloomSession(options: FieldBloomSessionOptions = {}):
       invalidFeedback = '';
       if (evaluateBoard(puzzle, placements).solved) {
         elapsedActiveMs = stopTimer();
+        const stars = calculateStars(placements.length, undoCount, puzzle.parPieces);
+        progress = recordPuzzleResult(progress, puzzle.id, stars, elapsedActiveMs);
+        const best = progress.puzzles[puzzle.id];
+        result = {
+          stars,
+          piecesUsed: placements.length,
+          undoCount,
+          elapsedActiveMs,
+          bestStars: best.bestStars,
+          bestTimeMs: best.bestTimeMs,
+        };
+        allPuzzlesComplete = puzzle.id === FIELD_BLOOM_PUZZLE_IDS[FIELD_BLOOM_PUZZLE_IDS.length - 1];
+        saveProgress(progress, options.storage);
         state = 'SOLVE_FEEDBACK';
         pauseReason = null;
       }
@@ -472,6 +494,20 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
       const isUnlocked = isPuzzleUnlocked(snapshot.progress, id);
       button.disabled = snapshot.state !== 'LEVEL_SELECT' || !isUnlocked;
       button.setAttribute('aria-current', snapshot.puzzleId === id ? 'true' : 'false');
+      const puzzleText = button.querySelector<HTMLElement>('.field-bloom__level-title');
+      if (puzzleText) {
+        let bestLabel = puzzleText.querySelector<HTMLElement>('[data-level-best]');
+        if (!bestLabel) {
+          bestLabel = document.createElement('span');
+          bestLabel.dataset.levelBest = '';
+          puzzleText.append(bestLabel);
+        }
+        const best = snapshot.progress.puzzles[id];
+        bestLabel.hidden = !best;
+        bestLabel.textContent = best
+          ? ` · Best ${best.bestStars ?? '—'} ${best.bestStars === 1 ? 'star' : 'stars'} · ${best.bestTimeMs === null ? '—' : formatElapsedTime(best.bestTimeMs)}`
+          : '';
+      }
     });
 
     const puzzleNumber = snapshot.puzzle ? FIELD_BLOOM_PUZZLE_IDS.indexOf(snapshot.puzzle.id) + 1 : 0;
@@ -515,8 +551,21 @@ export function createFieldBloomController(root: HTMLElement, options: FieldBloo
     });
 
     const completionHeading = snapshot.puzzle ? `${title} solved` : 'Puzzle solved';
-    setText('[data-completion-heading]', completionHeading);
-    setText('[data-completion-message]', 'Every target is exact, and every forbidden cell stayed untouched.');
+    setText('[data-completion-heading]', snapshot.allPuzzlesComplete ? 'All puzzles complete' : completionHeading);
+    setText('[data-completion-message]', snapshot.allPuzzlesComplete
+      ? 'You completed all 12 Field Bloom puzzles. You can revisit any unlocked puzzle.'
+      : 'Every target is exact, and every forbidden cell stayed untouched.');
+    const resultValues: Record<string, string> = {
+      stars: snapshot.result ? String(snapshot.result.stars) : '',
+      'pieces-used': snapshot.result ? String(snapshot.result.piecesUsed) : '',
+      'undo-count': snapshot.result ? String(snapshot.result.undoCount) : '',
+      time: snapshot.result ? formatElapsedTime(snapshot.result.elapsedActiveMs) : '',
+      'best-stars': snapshot.result ? String(snapshot.result.bestStars ?? '—') : '',
+      'best-time': snapshot.result
+        ? snapshot.result.bestTimeMs === null ? '—' : formatElapsedTime(snapshot.result.bestTimeMs)
+        : '',
+    };
+    for (const [key, value] of Object.entries(resultValues)) setText(`[data-result="${key}"]`, value);
     const results = root.querySelector<HTMLElement>('.field-bloom__results');
     if (results) results.hidden = snapshot.result === null;
 
