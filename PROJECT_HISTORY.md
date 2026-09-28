@@ -1360,3 +1360,4 @@
 - remote: C's history commit was still locally ahead at D start after its push was rejected by DNS. No D push has yet been attempted at this history checkpoint; normal push and bounded remote verification remain due after the separate history commit.
 - status: `P3-G06-D PASS` locally; implementation commit is locally verified. Maturity remains `SHELL`.
 - next: `P3-G06-E` — scoring, streak, result, best-only storage, rematch, and full 15-round browser loop.
+- remote follow-up: after the separate D history commit, normal `git push origin pivot/web-games-mvp` returned a successful fast-forward `581d0ef..7f16ee1`. An independent `git ls-remote` verified `pivot/web-games-mvp` at `7f16ee1f9ebf74e40e684d1559540e1b54bedba5`.
