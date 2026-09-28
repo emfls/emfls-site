@@ -65,7 +65,8 @@ test('narrow Field Bloom boards let six columns fit without overlapping touch ta
 
   assert.match(narrowLayout, /\.field-bloom__board\s*\{[^}]*gap:\s*1px[^}]*padding:\s*0/);
   assert.match(narrowLayout, /:root:has\(\.field-bloom\)\s*\{[^}]*min-width:\s*0/);
+  assert.match(narrowLayout, /\.field-bloom\s*\{[^}]*width:\s*calc\(100%\s*\+\s*10px\)[^}]*margin-inline:\s*-5px/);
   assert.match(narrowLayout, /\.field-bloom__levels\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(mobileLayout, /\.field-bloom__board\[aria-colcount='6'\]\s*\.field-bloom__cell\s*\{[^}]*aspect-ratio:\s*auto/);
+  assert.match(mobileLayout, /\.field-bloom__board\[aria-colcount='6'\]\s*\.field-bloom__cell\s*\{[^}]*aspect-ratio:\s*auto[^}]*min-width:\s*44px/);
   assert.match(styles, /\.field-bloom__cell\s*\{[^}]*min-height:\s*var\(--game-control-min-size\)/);
 });

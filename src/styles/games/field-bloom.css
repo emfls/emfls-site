@@ -511,6 +511,7 @@
 
   .field-bloom__board[aria-colcount='6'] .field-bloom__cell {
     aspect-ratio: auto;
+    min-width: 44px;
   }
 }
 
@@ -520,6 +521,8 @@
   }
 
   .field-bloom {
+    width: calc(100% + 10px);
+    margin-inline: -5px;
     padding: 0;
   }
 
