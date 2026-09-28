@@ -3,6 +3,7 @@ import '../../styles/games/signal-sweep.css';
 ---
 <div class="signal-sweep" data-signal-sweep data-state="IDLE">
   <section class="signal-sweep__game" aria-label="Signal Sweep game">
+    <p class="signal-sweep__generation-error" data-generation-error role="alert" hidden></p>
     <header class="signal-sweep__hud" aria-label="Game status">
       <div class="signal-sweep__stat"><span>Round</span><strong data-round>— / 15</strong></div>
       <div class="signal-sweep__stat"><span>Time</span><strong data-timer>—</strong></div>
@@ -19,7 +20,6 @@ import '../../styles/games/signal-sweep.css';
         <p class="signal-sweep__eyebrow">Visual search · 15 rounds</p>
         <h2 id="signal-sweep-idle-heading">Scan. Match. Clear.</h2>
         <p>Read a short rule, then find every matching symbol before time runs out.</p>
-        <p class="signal-sweep__generation-error" data-generation-error role="alert" hidden></p>
         <button class="button" type="button" data-action="start">Start Game</button>
       </section>
 

@@ -5,6 +5,23 @@ import { symbolAccessibleName, symbolVisualDescriptor } from './symbols.ts';
 import { validateRoundPlan } from './validator.ts';
 import { inputBeatsDeadline } from './input.ts';
 import { createDeadlineTimer, type TimerClock } from './timer.ts';
+import {
+  averageAccuracy,
+  applyMistakePenalty,
+  awardCorrectTarget,
+  calculateRoundBonuses,
+  countCleanRounds,
+  formatAccuracy,
+  roundAccuracy,
+  streakAfterRound,
+} from './scoring.ts';
+import {
+  loadBestStats,
+  mergeBestStats,
+  saveBestStats,
+  type BestStats,
+  type BestStatsStorage,
+} from './storage.ts';
 import type { RoundPlan, SessionPlan, SymbolData } from './types.ts';
 
 export const SIGNAL_SWEEP_STATES = Object.freeze([
@@ -20,10 +37,24 @@ export type SignalSweepState = (typeof SIGNAL_SWEEP_STATES)[number];
 export type SignalSweepOutcome = 'CLEAR' | 'TIMEOUT';
 export type PauseReason = 'manual' | 'visibility' | 'orientation';
 
+export interface SignalSweepResult {
+  readonly score: number;
+  readonly correctTargets: number;
+  readonly mistakes: number;
+  readonly cleanRounds: number;
+  readonly averageAccuracy: string;
+  readonly bestScore: number;
+}
+
 export interface SignalSweepSnapshot {
   readonly state: SignalSweepState;
   readonly roundNumber: number;
   readonly score: number;
+  readonly correctTargets: number;
+  readonly totalMistakes: number;
+  readonly bestScore: number;
+  readonly bestCleanRounds: number;
+  readonly result: SignalSweepResult | null;
   readonly ruleText: string;
   readonly symbols: readonly SymbolData[];
   readonly targetIds: readonly string[];
@@ -46,6 +77,7 @@ export interface SignalSweepSession {
   activateSymbol(symbolId: string, eventTimestamp: number): boolean;
   pause(reason?: PauseReason): boolean;
   resume(): boolean;
+  playAgain(): boolean;
   destroy(): void;
 }
 
@@ -54,6 +86,7 @@ interface SessionOptions {
   readonly timeOrigin?: number;
   readonly getSeed?: () => number;
   readonly createPlan?: (seed: number) => SessionPlan;
+  readonly getStorage?: () => BestStatsStorage | null;
   readonly onChange?: (snapshot: SignalSweepSnapshot) => void;
 }
 
@@ -82,8 +115,17 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
   let plan: SessionPlan | null = null;
   let roundIndex = -1;
   let selectedIds = new Set<string>();
+  let score = 0;
+  let correctTargets = 0;
+  let totalMistakes = 0;
   let correctSelections = 0;
   let mistakes = 0;
+  let streak = 0;
+  let streakAtRoundStart = 0;
+  let roundAccuracies: number[] = [];
+  let roundOutcomes: { outcome: SignalSweepOutcome; mistakes: number }[] = [];
+  let bestStats: BestStats = Object.freeze({ bestScore: 0, bestCleanRounds: 0 });
+  let result: SignalSweepResult | null = null;
   let outcome: SignalSweepOutcome | null = null;
   let outcomeText = '';
   let resolutionRemainingMs: number | null = null;
@@ -118,7 +160,12 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
     return Object.freeze({
       state,
       roundNumber: round?.roundNumber ?? 0,
-      score: 0,
+      score,
+      correctTargets,
+      totalMistakes,
+      bestScore: bestStats.bestScore,
+      bestCleanRounds: bestStats.bestCleanRounds,
+      result,
       ruleText: round?.rule.text ?? '',
       symbols: round?.symbols ?? Object.freeze([]),
       targetIds: round?.targetIds ?? Object.freeze([]),
@@ -217,6 +264,7 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
     selectedIds = new Set();
     correctSelections = 0;
     mistakes = 0;
+    streakAtRoundStart = streak;
     outcome = null;
     outcomeText = '';
     resolutionRemainingMs = null;
@@ -228,10 +276,24 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
     if (state !== 'ROUND_FEEDBACK') return;
     const nextRound = roundIndex + 1;
     if (nextRound >= SESSION_ROUNDS) {
+      completeSession();
       transition('RESULT');
       return;
     }
     startRound(nextRound);
+  }
+
+  function completeSession(): void {
+    bestStats = mergeBestStats(bestStats, { bestScore: score, bestCleanRounds: countCleanRounds(roundOutcomes) });
+    saveBestStats(bestStats, options.getStorage);
+    result = Object.freeze({
+      score,
+      correctTargets,
+      mistakes: totalMistakes,
+      cleanRounds: countCleanRounds(roundOutcomes),
+      averageAccuracy: formatAccuracy(averageAccuracy(roundAccuracies)),
+      bestScore: bestStats.bestScore,
+    });
   }
 
   function beginFeedback(remainingMs: number, resolvedOutcome: SignalSweepOutcome): void {
@@ -245,6 +307,12 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
     const deadline = activeDeadline ?? clock.now();
     outcome = resolvedOutcome;
     resolutionRemainingMs = resolvedOutcome === 'CLEAR' ? Math.max(0, deadline - eventTimestamp) : 0;
+    if (resolvedOutcome === 'CLEAR') {
+      score += calculateRoundBonuses('CLEAR', resolutionRemainingMs, streakAtRoundStart).totalBonus;
+    }
+    roundAccuracies.push(roundAccuracy(correctSelections, mistakes));
+    roundOutcomes.push({ outcome: resolvedOutcome, mistakes });
+    streak = streakAfterRound(streakAtRoundStart, resolvedOutcome, mistakes);
     outcomeText = resolvedOutcome === 'CLEAR'
       ? `Round ${currentRound()?.roundNumber ?? ''} cleared.`
       : `Time is up. Round ${currentRound()?.roundNumber ?? ''} timed out.`;
@@ -252,16 +320,55 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
     schedulePresentation(ROUND_FEEDBACK_MS, finishFeedback);
   }
 
+  function createValidatedPlan(): SessionPlan {
+    const seed = getSeed();
+    const generated = createPlan(seed);
+    if (!generated || generated.seed !== seed || generated.rounds.length !== SESSION_ROUNDS
+      || generated.rounds.some((round, index) => !validateRoundPlan(round).valid || round.roundNumber !== index + 1)) {
+      throw new Error('The generated round plan did not pass validation.');
+    }
+    return generated;
+  }
+
+  function resetMatchTotals(): void {
+    score = 0;
+    correctTargets = 0;
+    totalMistakes = 0;
+    correctSelections = 0;
+    mistakes = 0;
+    streak = 0;
+    streakAtRoundStart = 0;
+    roundAccuracies = [];
+    roundOutcomes = [];
+    selectedIds = new Set();
+    outcome = null;
+    outcomeText = '';
+    resolutionRemainingMs = null;
+    generationError = '';
+    result = null;
+  }
+
   function start(): boolean {
     if (destroyed || state !== 'IDLE' || plan) return false;
     try {
-      const seed = getSeed();
-      const generated = createPlan(seed);
-      if (!generated || generated.seed !== seed || generated.rounds.length !== SESSION_ROUNDS
-        || generated.rounds.some((round, index) => !validateRoundPlan(round).valid || round.roundNumber !== index + 1)) {
-        throw new Error('The generated round plan did not pass validation.');
-      }
-      plan = generated;
+      plan = createValidatedPlan();
+      bestStats = loadBestStats(options.getStorage);
+      resetMatchTotals();
+      startRound(0);
+      return true;
+    } catch {
+      generationError = 'A new game could not be prepared. Please try again.';
+      publish();
+      return false;
+    }
+  }
+
+  function playAgain(): boolean {
+    if (destroyed || state !== 'RESULT') return false;
+    try {
+      const nextPlan = createValidatedPlan();
+      plan = nextPlan;
+      resetMatchTotals();
       startRound(0);
       return true;
     } catch {
@@ -286,12 +393,16 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
       if (selectedIds.has(symbolId)) return false;
       selectedIds.add(symbolId);
       correctSelections += 1;
+      correctTargets += 1;
+      score = awardCorrectTarget(score);
       if (correctSelections === round.targetIds.length) resolveRound('CLEAR', sample.timestamp);
       else publish();
       return true;
     }
 
     mistakes += 1;
+    totalMistakes += 1;
+    score = applyMistakePenalty(score);
     mistakeSymbolId = symbolId;
     mistakeMessage = 'Not a match.';
     mistakeNonce += 1;
@@ -353,7 +464,7 @@ export function createSignalSweepSession(options: SessionOptions = {}): SignalSw
     resumeContext = null;
   }
 
-  return Object.freeze({ getSnapshot, start, activateSymbol, pause, resume, destroy });
+  return Object.freeze({ getSnapshot, start, activateSymbol, pause, resume, playAgain, destroy });
 }
 
 export interface LifecycleTargets {
@@ -481,7 +592,16 @@ export function createSignalSweepController(root: HTMLElement): () => void {
   const outcomeOutput = root.querySelector<HTMLElement>('[data-outcome]');
   const mistakeOutput = root.querySelector<HTMLElement>('[data-mistake-feedback]');
   const generationErrorOutput = root.querySelector<HTMLElement>('[data-generation-error]');
-  if (!view || !board || !roundOutput || !timerOutput || !scoreOutput || !ruleOutput || !outcomeOutput || !mistakeOutput || !generationErrorOutput) {
+  const resultOutputs = {
+    score: root.querySelector<HTMLElement>('[data-result="score"]'),
+    correctTargets: root.querySelector<HTMLElement>('[data-result="correct-targets"]'),
+    mistakes: root.querySelector<HTMLElement>('[data-result="mistakes"]'),
+    cleanRounds: root.querySelector<HTMLElement>('[data-result="clean-rounds"]'),
+    averageAccuracy: root.querySelector<HTMLElement>('[data-result="average-accuracy"]'),
+    bestScore: root.querySelector<HTMLElement>('[data-result="best-score"]'),
+  };
+  if (!view || !board || !roundOutput || !timerOutput || !scoreOutput || !ruleOutput || !outcomeOutput || !mistakeOutput || !generationErrorOutput
+    || Object.values(resultOutputs).some((element) => !element)) {
     throw new Error('Signal Sweep is missing a required game surface.');
   }
 
@@ -499,6 +619,12 @@ export function createSignalSweepController(root: HTMLElement): () => void {
     mistakeOutput.textContent = snapshot.mistakeMessage;
     generationErrorOutput.textContent = snapshot.generationError;
     generationErrorOutput.hidden = !snapshot.generationError;
+    resultOutputs.score!.textContent = snapshot.result ? String(snapshot.result.score) : '—';
+    resultOutputs.correctTargets!.textContent = snapshot.result ? String(snapshot.result.correctTargets) : '—';
+    resultOutputs.mistakes!.textContent = snapshot.result ? String(snapshot.result.mistakes) : '—';
+    resultOutputs.cleanRounds!.textContent = snapshot.result ? String(snapshot.result.cleanRounds) : '—';
+    resultOutputs.averageAccuracy!.textContent = snapshot.result?.averageAccuracy ?? '—';
+    resultOutputs.bestScore!.textContent = snapshot.result ? String(snapshot.result.bestScore) : '—';
 
     const roundKey = `${snapshot.roundNumber}:${snapshot.symbols.map(({ id }) => id).join(',')}`;
     if (roundKey !== renderedRound) {
@@ -535,6 +661,7 @@ export function createSignalSweepController(root: HTMLElement): () => void {
       if (action === 'start') session.start();
       else if (action === 'resume') session.resume();
       else if (action === 'pause') session.pause('manual');
+      else if (action === 'play-again') session.playAgain();
       return;
     }
     const symbolButton = target.closest<HTMLButtonElement>('[data-symbol-id]');
