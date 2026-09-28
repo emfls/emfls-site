@@ -98,3 +98,29 @@ test('scoped styles support the shell without introducing outcome animation or p
   assert.match(styles, /@media\s*\(max-width:/);
   assert.doesNotMatch(styles, /Coming Soon|Under Construction|animation-name:\s*(?:shatter|grow-outcome)/i);
 });
+
+test('stage details grow progressively while crystal cracks use the exact displayed risk only', () => {
+  const component = readRequired(componentPath, 'Glass Bloom component');
+  const details = [...component.matchAll(/data-stage-detail="(\d+)"/g)].map((match) => Number(match[1]));
+
+  assert.deepEqual(details, [2, 3, 4, 5, 6, 7, 8]);
+  assert.match(component, /root\.dataset\.stage = String\(stage\)/);
+  assert.match(component, /root\.dataset\.displayedRisk = String\(risk\)/);
+  assert.match(component, /delete root\.dataset\.displayedRisk;/);
+  assert.match(component, /setValue\('break-risk', ''\)/);
+  assert.match(component, /setValue\('safe-pot', ''\)/);
+  assert.match(component, /getBreakRisk\(session\.stage, session\.crystalIndex\)/);
+  assert.match(component, /glass-bloom__cracks/);
+  assert.match(component, /getRiskBand\(risk\)/);
+});
+
+test('risk bands are title case and reduced motion suppresses only decorative transitions', () => {
+  const component = readRequired(componentPath, 'Glass Bloom component');
+  const styles = readRequired(stylesPath, 'Glass Bloom styles');
+
+  assert.match(component, /riskBand\[0\] \+ riskBand\.slice\(1\)\.toLowerCase\(\)/);
+  assert.match(styles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(styles, /\.glass-bloom__crystal[\s\S]*?transition:\s*none/);
+  assert.match(styles, /\.glass-bloom__stage-detail[\s\S]*?transition:\s*none/);
+  assert.match(styles, /\.glass-bloom__cracks[\s\S]*?transition:\s*none/);
+});

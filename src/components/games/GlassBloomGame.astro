@@ -33,6 +33,20 @@ import '../../styles/games/glass-bloom.css';
         <path class="glass-bloom__facet glass-bloom__facet--lower-left" d="m47 152 37 69 37 91-78-60z" />
         <path class="glass-bloom__facet glass-bloom__facet--lower-right" d="m195 152-38 69-36 91 78-60z" />
         <path class="glass-bloom__crystal-edge" d="m120 7 1 78m0 0 74 67m-74-67-74 67m74-67v227m-73-158 73 158m75-158-75 158" />
+        <g class="glass-bloom__stage-details" aria-hidden="true">
+          <path class="glass-bloom__stage-detail" data-stage-detail="2" d="m83 101 22 17-9 21 22 18" />
+          <path class="glass-bloom__stage-detail" data-stage-detail="3" d="m156 93-18 20 13 19-18 19" />
+          <path class="glass-bloom__stage-detail" data-stage-detail="4" d="m48 108 26 18-9 25" />
+          <path class="glass-bloom__stage-detail" data-stage-detail="5" d="m192 108-26 18 9 25" />
+          <path class="glass-bloom__stage-detail" data-stage-detail="6" d="m84 224 27 31 9 32" />
+          <path class="glass-bloom__stage-detail" data-stage-detail="7" d="m196 224-27 31-10 32" />
+          <path class="glass-bloom__stage-detail" data-stage-detail="8" d="m101 55 19 30 19-30" />
+        </g>
+        <g class="glass-bloom__cracks" aria-hidden="true">
+          <path class="glass-bloom__crack glass-bloom__crack--main" pathLength="100" d="m164 113-17 26 12 18-19 23 9 19-15 23" />
+          <path class="glass-bloom__crack glass-bloom__crack--branch" pathLength="100" d="m147 139-22 2-12 14" />
+          <path class="glass-bloom__crack glass-bloom__crack--branch" pathLength="100" d="m159 157 21 1 12 13" />
+        </g>
       </svg>
     </div>
 
@@ -128,7 +142,9 @@ import '../../styles/games/glass-bloom.css';
 
   const renderGlassBloom = (root: HTMLElement, session: GameSession | null, bestStats: BestStats): void => {
     const state: GameState = session?.state ?? 'IDLE';
+    const stage = session?.stage ?? 1;
     root.dataset.state = state;
+    root.dataset.stage = String(stage);
 
     const setValue = (name: string, value: string | number): void => {
       const element = root.querySelector<HTMLElement>(`[data-value="${name}"]`);
@@ -153,13 +169,44 @@ import '../../styles/games/glass-bloom.css';
     const riskRegion = root.querySelector<HTMLElement>('[data-risk-region]');
     const maximumCopy = root.querySelector<HTMLElement>('[data-stage-eight-copy]');
     const risk = session ? getBreakRisk(session.stage, session.crystalIndex) : null;
+    const crystal = root.querySelector<SVGSVGElement>('.glass-bloom__crystal');
     const nextPot = session && risk !== null ? STAGE_POTS[session.stage] : null;
     if (riskRegion) riskRegion.hidden = risk === null;
     if (maximumCopy) maximumCopy.hidden = !session || risk !== null;
+    crystal?.querySelectorAll<SVGElement>('[data-stage-detail]').forEach((detail) => {
+      if (Number(detail.dataset.stageDetail) <= stage) detail.dataset.active = 'true';
+      else delete detail.dataset.active;
+    });
+
+    if (risk === null) {
+      delete root.dataset.displayedRisk;
+      delete root.dataset.riskBand;
+      setValue('break-risk', '');
+      setValue('safe-pot', '');
+      setValue('risk-band', '');
+      if (crystal) {
+        delete crystal.dataset.displayedRisk;
+        crystal.style.removeProperty('--glass-bloom-crack-opacity');
+        crystal.style.removeProperty('--glass-bloom-crack-width');
+        crystal.style.removeProperty('--glass-bloom-crack-length');
+        crystal.style.removeProperty('--glass-bloom-crack-branch-length');
+      }
+    } else {
+      const riskBand = getRiskBand(risk);
+      const riskStrength = risk / 76;
+      root.dataset.displayedRisk = String(risk);
+      root.dataset.riskBand = riskBand.toLowerCase();
+      crystal?.style.setProperty('--glass-bloom-crack-opacity', (0.22 + riskStrength * 0.62).toFixed(3));
+      crystal?.style.setProperty('--glass-bloom-crack-width', `${(1 + riskStrength * 1.25).toFixed(2)}px`);
+      crystal?.style.setProperty('--glass-bloom-crack-length', (12 + riskStrength * 70).toFixed(1));
+      crystal?.style.setProperty('--glass-bloom-crack-branch-length', (riskStrength * 45).toFixed(1));
+    }
+
     if (risk !== null && nextPot !== null && session) {
       setValue('break-risk', `${risk}%`);
       setValue('safe-pot', nextPot);
-      setValue('risk-band', getRiskBand(risk).toLowerCase());
+      const riskBand = getRiskBand(risk);
+      setValue('risk-band', riskBand[0] + riskBand.slice(1).toLowerCase());
     }
 
     if (session) {

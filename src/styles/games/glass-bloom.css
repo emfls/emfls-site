@@ -41,7 +41,7 @@
 
 .glass-bloom__stat dt {
   color: var(--game-color-text-secondary);
-  font-size: clamp(0.72rem, 2.7vw, var(--game-font-size-body));
+  font-size: clamp(0.75rem, 2.7vw, var(--game-font-size-body));
   line-height: 1.25;
 }
 
@@ -85,6 +85,40 @@
   max-height: 18rem;
   overflow: visible;
   filter: drop-shadow(0 1rem 1.4rem color-mix(in srgb, var(--game-color-primary) 18%, transparent));
+  transform-origin: center;
+  transition: transform var(--game-motion-normal) var(--game-motion-ease);
+}
+
+.glass-bloom[data-stage="1"] .glass-bloom__crystal {
+  transform: scale(0.88);
+}
+
+.glass-bloom[data-stage="2"] .glass-bloom__crystal {
+  transform: scale(0.915);
+}
+
+.glass-bloom[data-stage="3"] .glass-bloom__crystal {
+  transform: scale(0.95);
+}
+
+.glass-bloom[data-stage="4"] .glass-bloom__crystal {
+  transform: scale(0.985);
+}
+
+.glass-bloom[data-stage="5"] .glass-bloom__crystal {
+  transform: scale(1.02);
+}
+
+.glass-bloom[data-stage="6"] .glass-bloom__crystal {
+  transform: scale(1.055);
+}
+
+.glass-bloom[data-stage="7"] .glass-bloom__crystal {
+  transform: scale(1.09);
+}
+
+.glass-bloom[data-stage="8"] .glass-bloom__crystal {
+  transform: scale(1.125);
 }
 
 .glass-bloom__crystal-outline {
@@ -124,6 +158,46 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2;
+}
+
+.glass-bloom__stage-detail {
+  fill: none;
+  stroke: color-mix(in srgb, var(--game-color-primary) 56%, var(--game-color-surface));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+  opacity: 0;
+  transition: opacity var(--game-motion-normal) var(--game-motion-ease);
+}
+
+.glass-bloom__stage-detail[data-active="true"] {
+  opacity: 0.9;
+}
+
+.glass-bloom__cracks {
+  fill: none;
+  opacity: 0;
+  stroke: var(--game-color-text);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: opacity var(--game-motion-normal) var(--game-motion-ease);
+}
+
+.glass-bloom[data-displayed-risk] .glass-bloom__cracks {
+  opacity: var(--glass-bloom-crack-opacity);
+}
+
+.glass-bloom__crack {
+  stroke-width: var(--glass-bloom-crack-width, 1px);
+  transition: stroke-dasharray var(--game-motion-normal) var(--game-motion-ease), stroke-width var(--game-motion-normal) var(--game-motion-ease);
+}
+
+.glass-bloom__crack--main {
+  stroke-dasharray: var(--glass-bloom-crack-length, 0) 100;
+}
+
+.glass-bloom__crack--branch {
+  stroke-dasharray: var(--glass-bloom-crack-branch-length, 0) 100;
 }
 
 .glass-bloom__decision {
@@ -190,6 +264,17 @@
 
 .glass-bloom__risk-level strong {
   font-weight: var(--game-font-weight-bold);
+}
+
+.glass-bloom[data-risk-band="moderate"] .glass-bloom__risk-level {
+  background: color-mix(in srgb, var(--game-color-warning) 12%, var(--game-color-surface));
+  color: var(--game-color-warning);
+}
+
+.glass-bloom[data-risk-band="high"] .glass-bloom__risk-level,
+.glass-bloom[data-risk-band="severe"] .glass-bloom__risk-level {
+  background: color-mix(in srgb, var(--game-color-danger) 12%, var(--game-color-surface));
+  color: var(--game-color-danger);
 }
 
 .glass-bloom__maximum {
@@ -313,6 +398,15 @@
 .glass-bloom button:focus-visible {
   outline: 3px solid var(--game-color-focus);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-bloom__crystal,
+  .glass-bloom__stage-detail,
+  .glass-bloom__cracks,
+  .glass-bloom__crack {
+    transition: none;
+  }
 }
 
 @media (max-width: 40rem) {
