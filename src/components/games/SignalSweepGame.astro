@@ -19,21 +19,26 @@ import '../../styles/games/signal-sweep.css';
         <p class="signal-sweep__eyebrow">Visual search · 15 rounds</p>
         <h2 id="signal-sweep-idle-heading">Scan. Match. Clear.</h2>
         <p>Read a short rule, then find every matching symbol before time runs out.</p>
+        <p class="signal-sweep__generation-error" data-generation-error role="alert" hidden></p>
         <button class="button" type="button" data-action="start">Start Game</button>
       </section>
 
       <section class="signal-sweep__panel signal-sweep__panel--preview" data-panel="RULE_PREVIEW" aria-labelledby="signal-sweep-preview-heading" hidden>
         <h2 id="signal-sweep-preview-heading">Read the rule</h2>
         <p>The board is shown after the rule preview.</p>
+        <button class="button button--secondary" type="button" data-action="pause">Pause</button>
       </section>
 
       <section class="signal-sweep__panel signal-sweep__panel--active" data-panel="ACTIVE" aria-label="Find every matching symbol" hidden>
-        <div class="signal-sweep__board" data-board aria-label="Symbol board"></div>
+        <p class="signal-sweep__mistake" data-mistake-feedback role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="signal-sweep__board" data-board role="group" aria-label="Symbol board"></div>
+        <button class="button button--secondary" type="button" data-action="pause">Pause</button>
       </section>
 
       <section class="signal-sweep__panel" data-panel="ROUND_FEEDBACK" aria-labelledby="signal-sweep-feedback-heading" hidden>
         <h2 id="signal-sweep-feedback-heading">Round complete</h2>
         <p data-outcome role="status" aria-live="polite" aria-atomic="true"></p>
+        <button class="button button--secondary" type="button" data-action="pause">Pause</button>
       </section>
 
       <section class="signal-sweep__panel" data-panel="PAUSED" aria-labelledby="signal-sweep-paused-heading" hidden>
@@ -61,16 +66,28 @@ import '../../styles/games/signal-sweep.css';
 <script>
   import { createSignalSweepController } from '../../games/signal-sweep/controller';
 
+  const signalSweepControllers = new WeakMap<HTMLElement, () => void>();
+
   const initializeSignalSweep = (): void => {
     document.querySelectorAll<HTMLElement>('[data-signal-sweep]').forEach((root) => {
-      if (!root.dataset.controllerReady) {
-        createSignalSweepController(root);
+      if (!signalSweepControllers.has(root)) {
+        signalSweepControllers.set(root, createSignalSweepController(root));
         root.dataset.controllerReady = 'true';
       }
     });
   };
 
+  const destroySignalSweep = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-signal-sweep]').forEach((root) => {
+      signalSweepControllers.get(root)?.();
+      signalSweepControllers.delete(root);
+      delete root.dataset.controllerReady;
+    });
+  };
+
   document.addEventListener('astro:page-load', initializeSignalSweep);
+  document.addEventListener('astro:before-swap', destroySignalSweep);
   window.addEventListener('pageshow', initializeSignalSweep);
+  window.addEventListener('pagehide', destroySignalSweep);
   initializeSignalSweep();
 </script>

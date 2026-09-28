@@ -100,6 +100,70 @@
   margin-inline: auto;
 }
 
+.signal-sweep__tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-width: var(--game-control-min-size);
+  min-height: var(--game-control-min-size);
+  aspect-ratio: 1;
+  padding: var(--game-space-2);
+  border: 2px solid var(--game-color-border);
+  border-radius: var(--game-radius-medium);
+  background: var(--game-color-surface-elevated);
+  cursor: pointer;
+}
+
+.signal-sweep__tile:disabled {
+  cursor: default;
+}
+
+.signal-sweep__tile:focus-visible {
+  outline: 3px solid var(--game-color-focus);
+  outline-offset: 2px;
+}
+
+.signal-sweep__tile svg {
+  display: block;
+  width: min(100%, 3rem);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.signal-sweep__tile--selected {
+  border-color: var(--game-color-success);
+  box-shadow: inset 0 0 0 2px var(--game-color-success);
+}
+
+.signal-sweep__selected-mark {
+  position: absolute;
+  inset-block-start: 0.1rem;
+  inset-inline-end: 0.3rem;
+  color: var(--game-color-success);
+  font-size: 1.1rem;
+  font-weight: var(--game-font-weight-bold);
+  line-height: 1;
+  opacity: 0;
+}
+
+.signal-sweep__tile--selected .signal-sweep__selected-mark {
+  opacity: 1;
+}
+
+.signal-sweep__tile--mistake {
+  border-color: var(--game-color-danger);
+  box-shadow: inset 0 0 0 2px var(--game-color-danger);
+}
+
+.signal-sweep__mistake,
+.signal-sweep__generation-error {
+  min-height: 1.5em;
+  margin: 0;
+  color: var(--game-color-danger);
+  font-weight: var(--game-font-weight-bold);
+}
+
 .signal-sweep__results {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
