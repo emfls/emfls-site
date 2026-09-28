@@ -1441,3 +1441,13 @@
 - verification: after recording the plan, `git diff --check`, `npm run check` (81/81), and `npm run build` (63 pages; Field Bloom route still absent) must pass; `git diff --name-only` must be exactly `PROJECT_HISTORY.md`. A normal push is attempted after the A commit; live remote SHA is reported only if actually verified.
 - status: `P3-G07-A PASS` after the above checks and its separate commit; Field Bloom remains unimplemented and site `RELEASE_READY = NO`.
 - next: `P3-G07-B — route / five-state DOM shell only`; do not implement data, masks, evaluator, placement, Undo/Reset logic, stars, unlock, storage, timer, or preview in B.
+
+## 2026-09-28 — P3-G07-B Field Bloom Static Shell
+
+- branch: `pivot/web-games-mvp`; B starting HEAD: `bd5217fc4c830d3c84530014bb456b6849039c43`; implementation commit: `c7adae2` (`feat: add Field Bloom game shell`).
+- scope: added only `src/pages/games/field-bloom.astro`, `src/components/games/FieldBloomGame.astro`, `src/styles/games/field-bloom.css`, and `tests/field-bloom/shell.test.mjs`. The route resolves the existing catalog item and `GameDetailFrame`; the component contains exactly the five frozen static panel surfaces. Selector labels are generic Puzzle 1–12, and gameplay controls remain disabled. No puzzle data, controller, timer, placement, persistence, random generation, catalog, shared-shell, dependency, legacy, redirect, or production changes.
+- content/metadata: retained the frozen English how-to-play, controls, and scoring guide. Static output has the exact `/games/field-bloom/` canonical, one Field Bloom H1, catalog-backed title and VideoGame JSON-LD, all five panels, and no related-games or placeholder block.
+- verification: focused shell checks PASS (3/3); full `npm run check` PASS (84/84); `npm run build` PASS (exactly 64 static pages); `git diff --check` and staged scope audit PASS. The local browser showed the title, guide, and selector. Its 938px capture showed the game panel continuing beyond the right edge; exact viewport and `scrollWidth` were unavailable, so this is recorded for measurement during F rather than claimed as a confirmed overflow defect. No browser console assertion is claimed.
+- status: `P3-G07-B PASS`; Field Bloom remains a static shell and site `RELEASE_READY = NO`.
+- remote: B implementation commit is local at this history checkpoint; normal push and independent remote SHA verification remain due after this history record.
+- next: `P3-G07-C — fixed puzzle data, masks, evaluator, validation, placement logic, and progress model only`.
