@@ -1,6 +1,6 @@
 ---
 import GameLayout from '../layouts/GameLayout.astro';
-import type { GameMeta } from '../data/games';
+import { getRelatedGames, type GameMeta } from '../data/games';
 import '../styles/game-detail.css';
 
 interface Props {
@@ -18,6 +18,7 @@ const {
 } = Astro.props;
 
 const title = `${game.name} — Play Free in Your Browser | EMFLS Games`;
+const relatedGames = getRelatedGames(game.slug);
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'VideoGame',
@@ -76,12 +77,20 @@ const schema = {
         )}
       </div>
 
-      {Astro.slots.has('related-games') && (
-        <section class="game-detail__related" aria-labelledby="related-games-heading">
-          <h2 id="related-games-heading">Related Games</h2>
-          <slot name="related-games" />
-        </section>
-      )}
+      <section class="game-detail__related" aria-labelledby="related-games-heading">
+        <h2 id="related-games-heading">Related Games</h2>
+        <ul class="game-detail__related-list">
+          {relatedGames.map((related) => (
+            <li>
+              <a class="game-detail__related-link" href={related.href}>
+                <strong>{related.name}</strong>
+                <span class="game-detail__related-description">{related.description}</span>
+                <span class="game-detail__related-meta">{related.primaryCategory} · {related.session}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <a class="game-detail__back" href="/games/">← Back to all games</a>
     </div>

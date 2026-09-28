@@ -95,3 +95,24 @@ export const games: GameMeta[] = [
     session: '1–2 min',
   },
 ];
+
+export function getRelatedGames(gameSlug: string, limit = 3): GameMeta[] {
+  const current = games.find((game) => game.slug === gameSlug);
+  if (!current || !Number.isInteger(limit) || limit <= 0) return [];
+
+  return games
+    .map((candidate, index) => ({
+      candidate,
+      index,
+      categoryOverlap: candidate.categories.filter((category) => current.categories.includes(category)).length,
+    }))
+    .filter(({ candidate }) => candidate.slug !== current.slug)
+    .sort((left, right) =>
+      right.categoryOverlap - left.categoryOverlap ||
+      Number(right.candidate.primaryCategory === current.primaryCategory) - Number(left.candidate.primaryCategory === current.primaryCategory) ||
+      Number(right.candidate.mode === current.mode) - Number(left.candidate.mode === current.mode) ||
+      left.index - right.index,
+    )
+    .slice(0, limit)
+    .map(({ candidate }) => candidate);
+}
