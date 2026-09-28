@@ -1374,3 +1374,4 @@
 - remote: E implementation commit is local at this history checkpoint; normal push and bounded independent SHA verification remain due after the separate E history commit. D's remote HEAD was independently verified at `6025f3ef1af66bb72007080c9387aac07ec02cdb`.
 - status: `P3-G06-E PASS` locally.
 - next: `P3-G06-F` — responsive/accessibility/reduced-motion/visual polish only; do not change game math.
+- remote follow-up: after the separate E history commit, normal push returned successful fast-forward `6025f3e..a1991c2`; independent `git ls-remote` verified `pivot/web-games-mvp` at `a1991c2f1ac09f33b960687f5cf08230f0d7744b`.
