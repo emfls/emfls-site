@@ -1389,3 +1389,4 @@
 - remote: F implementation commit is local at this history checkpoint; normal push and bounded independent SHA verification remain due after the separate F history commit. E's remote HEAD was independently verified at `fd736561782a3df4b6ebef0a2fc596a4bbf6e8fb`.
 - status: `P3-G06-F PASS` locally.
 - next: `P3-G06-G` — comprehensive QA-first audit; keep source read-only unless a reproducible Signal Sweep defect appears.
+- remote follow-up: after the separate F history commit, normal push returned successful fast-forward `fd73656..ac6d75b`; independent `git ls-remote` verified `pivot/web-games-mvp` at `ac6d75be7cb06392aed901a2f947fe6d9b42fe90`.
