@@ -572,6 +572,11 @@ function appendSvgSymbol(document: Document, button: HTMLButtonElement, symbol: 
   selectedMarker.setAttribute('aria-hidden', 'true');
   selectedMarker.textContent = '✓';
   button.append(selectedMarker);
+  const mistakeMarker = document.createElement('span');
+  mistakeMarker.className = 'signal-sweep__mistake-mark';
+  mistakeMarker.setAttribute('aria-hidden', 'true');
+  mistakeMarker.textContent = '×';
+  button.append(mistakeMarker);
 }
 
 export function createSignalSweepController(root: HTMLElement): () => void {
@@ -590,6 +595,7 @@ export function createSignalSweepController(root: HTMLElement): () => void {
   const scoreOutput = root.querySelector<HTMLElement>('[data-score]');
   const ruleOutput = root.querySelector<HTMLElement>('[data-rule]');
   const outcomeOutput = root.querySelector<HTMLElement>('[data-outcome]');
+  const feedbackPanel = root.querySelector<HTMLElement>('[data-panel="ROUND_FEEDBACK"]');
   const mistakeOutput = root.querySelector<HTMLElement>('[data-mistake-feedback]');
   const generationErrorOutput = root.querySelector<HTMLElement>('[data-generation-error]');
   const resultOutputs = {
@@ -600,7 +606,7 @@ export function createSignalSweepController(root: HTMLElement): () => void {
     averageAccuracy: root.querySelector<HTMLElement>('[data-result="average-accuracy"]'),
     bestScore: root.querySelector<HTMLElement>('[data-result="best-score"]'),
   };
-  if (!view || !board || !roundOutput || !timerOutput || !scoreOutput || !ruleOutput || !outcomeOutput || !mistakeOutput || !generationErrorOutput
+  if (!view || !board || !roundOutput || !timerOutput || !scoreOutput || !ruleOutput || !outcomeOutput || !feedbackPanel || !mistakeOutput || !generationErrorOutput
     || Object.values(resultOutputs).some((element) => !element)) {
     throw new Error('Signal Sweep is missing a required game surface.');
   }
@@ -613,9 +619,13 @@ export function createSignalSweepController(root: HTMLElement): () => void {
     for (const panel of panels) panel.hidden = panel.dataset.panel !== snapshot.state;
     roundOutput.textContent = snapshot.roundNumber ? `${snapshot.roundNumber} / ${SESSION_ROUNDS}` : `— / ${SESSION_ROUNDS}`;
     timerOutput.textContent = snapshot.remainingMs === null ? '—' : `${(snapshot.remainingMs / 1000).toFixed(1)}s`;
+    timerOutput.dataset.urgency = snapshot.state === 'ACTIVE' && snapshot.remainingMs !== null && snapshot.remainingMs <= 2000
+      ? 'urgent'
+      : 'normal';
     scoreOutput.textContent = String(snapshot.score);
     ruleOutput.textContent = snapshot.ruleText || "Look for every symbol that matches the round's rule.";
     outcomeOutput.textContent = snapshot.outcomeText;
+    feedbackPanel.dataset.outcome = snapshot.state === 'ROUND_FEEDBACK' ? snapshot.outcome ?? '' : '';
     mistakeOutput.textContent = snapshot.mistakeMessage;
     generationErrorOutput.textContent = snapshot.generationError;
     generationErrorOutput.hidden = !snapshot.generationError;

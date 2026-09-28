@@ -71,7 +71,19 @@ import '../../styles/games/signal-sweep.css';
   const initializeSignalSweep = (): void => {
     document.querySelectorAll<HTMLElement>('[data-signal-sweep]').forEach((root) => {
       if (!signalSweepControllers.has(root)) {
-        signalSweepControllers.set(root, createSignalSweepController(root));
+        const destroyController = createSignalSweepController(root);
+        const alignGameAfterAction = (event: MouseEvent): void => {
+          const target = event.target;
+          if (!(target instanceof Element) || !window.matchMedia('(max-width: 48rem)').matches) return;
+          const action = target.closest<HTMLElement>('[data-action]')?.dataset.action;
+          if (action !== 'start' && action !== 'resume' && action !== 'play-again') return;
+          requestAnimationFrame(() => root.scrollIntoView({ block: 'start', behavior: 'instant' }));
+        };
+        root.addEventListener('click', alignGameAfterAction);
+        signalSweepControllers.set(root, () => {
+          root.removeEventListener('click', alignGameAfterAction);
+          destroyController();
+        });
         root.dataset.controllerReady = 'true';
       }
     });

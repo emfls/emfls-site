@@ -3,6 +3,7 @@
   min-width: 0;
   padding: clamp(var(--game-space-4), 4vw, var(--game-space-8));
   color: var(--game-color-text);
+  scroll-margin-block-start: var(--game-space-4);
 }
 
 .signal-sweep__game {
@@ -41,6 +42,10 @@
 .signal-sweep__stat strong {
   font-size: 1.25rem;
   font-variant-numeric: tabular-nums;
+}
+
+.signal-sweep__stat strong[data-urgency="urgent"] {
+  color: var(--game-color-danger);
 }
 
 .signal-sweep__rule {
@@ -86,6 +91,24 @@
 .signal-sweep__panel h2 {
   font-size: var(--game-font-size-h3);
   line-height: var(--game-line-height-heading);
+}
+
+.signal-sweep__panel[data-panel="ROUND_FEEDBACK"][data-outcome="CLEAR"] {
+  border-inline-start: 0.35rem solid var(--game-color-success);
+}
+
+.signal-sweep__panel[data-panel="ROUND_FEEDBACK"][data-outcome="TIMEOUT"] {
+  border-inline-start: 0.35rem solid var(--game-color-danger);
+}
+
+.signal-sweep__panel[data-panel="ROUND_FEEDBACK"][data-outcome="CLEAR"] [data-outcome] {
+  color: var(--game-color-success);
+  font-weight: var(--game-font-weight-bold);
+}
+
+.signal-sweep__panel[data-panel="ROUND_FEEDBACK"][data-outcome="TIMEOUT"] [data-outcome] {
+  color: var(--game-color-danger);
+  font-weight: var(--game-font-weight-bold);
 }
 
 .signal-sweep__panel > p:not(.signal-sweep__eyebrow) {
@@ -147,7 +170,22 @@
   opacity: 0;
 }
 
+.signal-sweep__mistake-mark {
+  position: absolute;
+  inset-block-start: 0.1rem;
+  inset-inline-start: 0.3rem;
+  color: var(--game-color-danger);
+  font-size: 1.2rem;
+  font-weight: var(--game-font-weight-bold);
+  line-height: 1;
+  opacity: 0;
+}
+
 .signal-sweep__tile--selected .signal-sweep__selected-mark {
+  opacity: 1;
+}
+
+.signal-sweep__tile--mistake .signal-sweep__mistake-mark {
   opacity: 1;
 }
 
