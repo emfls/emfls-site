@@ -68,17 +68,35 @@
 }
 
 .field-bloom__levels li {
+  min-width: 0;
+}
+
+.field-bloom__level {
   display: flex;
   align-items: center;
-  min-width: 0;
+  width: 100%;
   min-height: var(--game-control-min-size);
   gap: var(--game-space-2);
   padding: var(--game-space-2) var(--game-space-3);
   border: 1px solid var(--game-color-border);
   border-radius: var(--game-radius-medium);
   background: var(--game-color-surface-elevated);
+  color: var(--game-color-text);
+  font: inherit;
   font-size: var(--game-font-size-small);
   font-weight: var(--game-font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+}
+
+.field-bloom__level:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.field-bloom__level:not(:disabled):hover,
+.field-bloom__piece:not(:disabled):hover {
+  border-color: var(--game-color-primary);
 }
 
 .field-bloom__level-number {
@@ -195,13 +213,74 @@
   display: grid;
   width: min(100%, 34rem);
   aspect-ratio: 1;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--field-bloom-board-columns, 6), minmax(0, 1fr));
   gap: var(--game-space-2);
   margin-inline: auto;
   padding: var(--game-space-2);
   border: 1px solid var(--game-color-border);
   border-radius: var(--game-radius-medium);
   background: var(--game-color-surface);
+}
+
+.field-bloom__cell {
+  display: grid;
+  grid-template-rows: 1fr auto 1fr;
+  min-width: 0;
+  min-height: var(--game-control-min-size);
+  aspect-ratio: 1;
+  place-items: center;
+  padding: var(--game-space-1);
+  border: 1px solid var(--game-color-border);
+  border-radius: var(--game-radius-small);
+  background: var(--game-color-surface-elevated);
+  color: var(--game-color-text);
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.field-bloom__cell[data-status='satisfied'] {
+  border-width: 2px;
+  border-color: var(--game-color-success);
+}
+
+.field-bloom__cell[data-status='overcharged'] {
+  border: 2px double var(--game-color-danger);
+  background: repeating-linear-gradient(135deg, transparent 0 7px, rgb(172 59 54 / 0.1) 7px 10px), var(--game-color-surface-elevated);
+}
+
+.field-bloom__cell[data-status='violation'] {
+  border: 2px dashed var(--game-color-danger);
+  background: repeating-linear-gradient(45deg, transparent 0 7px, rgb(172 59 54 / 0.13) 7px 10px), var(--game-color-surface-elevated);
+}
+
+.field-bloom__cell--preview {
+  outline: 3px dashed var(--game-color-primary);
+  outline-offset: -4px;
+}
+
+.field-bloom__cell--preview-invalid {
+  outline: 3px solid var(--game-color-danger);
+  outline-offset: -4px;
+}
+
+.field-bloom__cell-requirement {
+  align-self: end;
+  font-size: clamp(0.65rem, 2.3vw, 0.9rem);
+  font-weight: var(--game-font-weight-bold);
+}
+
+.field-bloom__cell-count {
+  font-size: var(--game-font-size-large);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--game-font-weight-bold);
+  line-height: 1;
+}
+
+.field-bloom__cell-mark {
+  align-self: start;
+  min-height: 0.9em;
+  font-weight: var(--game-font-weight-bold);
 }
 
 .field-bloom__inventory h3 {
@@ -215,6 +294,55 @@
   margin: var(--game-space-3) 0 0;
   padding: 0;
   list-style: none;
+}
+
+.field-bloom__piece {
+  display: grid;
+  min-width: 5rem;
+  min-height: var(--game-control-min-size);
+  gap: var(--game-space-1);
+  padding: var(--game-space-2) var(--game-space-3);
+  border: 1px solid var(--game-color-border);
+  border-radius: var(--game-radius-medium);
+  background: var(--game-color-surface);
+  color: var(--game-color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.field-bloom__piece--selected {
+  border: 3px double var(--game-color-primary);
+  background: var(--game-color-surface-elevated);
+}
+
+.field-bloom__piece--used,
+.field-bloom__piece:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.field-bloom__piece-type {
+  font-weight: var(--game-font-weight-bold);
+}
+
+.field-bloom__piece-state,
+.field-bloom__selected-piece,
+.field-bloom__undo-count {
+  color: var(--game-color-text-secondary);
+  font-size: var(--game-font-size-small);
+}
+
+.field-bloom__cell:focus-visible,
+.field-bloom__level:focus-visible,
+.field-bloom__piece:focus-visible,
+.field-bloom__button:focus-visible {
+  outline: 3px solid var(--game-color-focus);
+  outline-offset: 3px;
+}
+
+.field-bloom__results[hidden] {
+  display: none;
 }
 
 .field-bloom__completion-message {
