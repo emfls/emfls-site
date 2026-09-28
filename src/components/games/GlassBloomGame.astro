@@ -1,0 +1,105 @@
+---
+import '../../styles/games/glass-bloom.css';
+---
+<section class="glass-bloom" data-state="IDLE" aria-label="Glass Bloom game">
+  <dl class="glass-bloom__hud" aria-label="Session score and crystal">
+    <div class="glass-bloom__stat glass-bloom__stat--score">
+      <dt>Total Score</dt>
+      <dd>0</dd>
+    </div>
+    <div class="glass-bloom__stat">
+      <dt>Crystal</dt>
+      <dd>1 <span>/ 8</span></dd>
+    </div>
+    <div class="glass-bloom__stat">
+      <dt>Stage</dt>
+      <dd>1</dd>
+    </div>
+    <div class="glass-bloom__stat glass-bloom__stat--pot">
+      <dt>Unbanked</dt>
+      <dd>100</dd>
+    </div>
+  </dl>
+
+  <div class="glass-bloom__play">
+    <div class="glass-bloom__crystal-scene" aria-label="Crystal illustration">
+      <svg class="glass-bloom__crystal" viewBox="0 0 240 320" role="img" aria-labelledby="glass-bloom-crystal-title">
+        <title id="glass-bloom-crystal-title">A faceted glass crystal</title>
+        <path class="glass-bloom__crystal-outline" d="M120 7 204 70l31 91-37 91-78 60-78-60-37-91 31-91z" />
+        <path class="glass-bloom__facet glass-bloom__facet--crown" d="m120 7 84 63-83 15-85-15z" />
+        <path class="glass-bloom__facet glass-bloom__facet--left" d="m36 70 85 15-74 67-10 100-37-91z" />
+        <path class="glass-bloom__facet glass-bloom__facet--right" d="m204 70-83 15 74 67 3 100 37-91z" />
+        <path class="glass-bloom__facet glass-bloom__facet--center" d="m121 85 74 67-38 69-36 91-37-91-37-69z" />
+        <path class="glass-bloom__facet glass-bloom__facet--lower-left" d="m47 152 37 69 37 91-78-60z" />
+        <path class="glass-bloom__facet glass-bloom__facet--lower-right" d="m195 152-38 69-36 91 78-60z" />
+        <path class="glass-bloom__crystal-edge" d="m120 7 1 78m0 0 74 67m-74-67-74 67m74-67v227m-73-158 73 158m75-158-75 158" />
+      </svg>
+    </div>
+
+    <div class="glass-bloom__decision" aria-label="Grow or bank">
+      <dl class="glass-bloom__risk">
+        <div>
+          <dt>Break Risk</dt>
+          <dd>5%</dd>
+        </div>
+        <div>
+          <dt>If Safe</dt>
+          <dd>180</dd>
+        </div>
+      </dl>
+      <p class="glass-bloom__risk-level"><span>Risk level</span><strong>Low</strong></p>
+      <p class="glass-bloom__maximum" data-stage-eight-copy hidden>Maximum Stage · Bank to secure 2,800</p>
+
+      <div class="glass-bloom__actions">
+        <button class="glass-bloom__action glass-bloom__action--grow" type="button" data-action="grow" disabled>
+          <strong>Grow</strong>
+          <span>Take the risk for 180</span>
+        </button>
+        <button class="glass-bloom__action glass-bloom__action--bank" type="button" data-action="bank" disabled>
+          <strong>Bank</strong>
+          <span>Secure your 100</span>
+        </button>
+      </div>
+      <button class="glass-bloom__pause" type="button" data-action="pause" disabled>Pause</button>
+    </div>
+  </div>
+
+  <div class="glass-bloom__panels" aria-live="polite" aria-atomic="true">
+    <section class="glass-bloom__panel" data-panel="IDLE" role="status">
+      <h2>Ready to grow?</h2>
+      <p>Grow your crystal for a bigger reward, or bank your score before it shatters.</p>
+      <button class="glass-bloom__start" type="button" data-action="start" disabled>Start</button>
+    </section>
+    <section class="glass-bloom__panel" data-panel="CRYSTAL_INTRO" role="status" hidden>
+      <h2>A new crystal awaits</h2>
+      <p>Every crystal begins at Stage 1 with an unbanked pot of 100.</p>
+    </section>
+    <section class="glass-bloom__panel" data-panel="DECISION" role="status" hidden>
+      <h2>Your choice</h2>
+      <p>Grow to reach the next pot, or bank to secure this one.</p>
+    </section>
+    <section class="glass-bloom__panel" data-panel="GROW_RESOLVING" role="status" hidden>
+      <h2>Crystal growth</h2>
+      <p>The accepted Grow resolves once.</p>
+    </section>
+    <section class="glass-bloom__panel" data-panel="BANK_RESOLVING" role="status" hidden>
+      <h2>Banking your pot</h2>
+      <p>Your committed Bank is being presented.</p>
+    </section>
+    <section class="glass-bloom__panel" data-panel="ROUND_FEEDBACK" role="status" hidden>
+      <h2>Crystal complete</h2>
+      <p>Review the result before the next crystal.</p>
+    </section>
+    <section class="glass-bloom__panel" data-panel="PAUSED" role="status" hidden>
+      <h2>Paused</h2>
+      <p>Your current crystal and committed choices are preserved.</p>
+      <button class="glass-bloom__start" type="button" data-action="resume" disabled>Resume</button>
+    </section>
+    <section class="glass-bloom__panel" data-panel="RESULT" role="status" hidden>
+      <h2>Session Complete</h2>
+      <p>Your banked score and session records appear here.</p>
+      <button class="glass-bloom__start" type="button" data-action="play-again" disabled>Play Again</button>
+    </section>
+  </div>
+  <p class="glass-bloom__tagline">Bigger rewards come to those who know when to stop.</p>
+</section>
