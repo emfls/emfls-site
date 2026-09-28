@@ -6,6 +6,7 @@ import '../../styles/games-index.css';
 const description = 'Browse all original EMFLS browser games, including puzzle, reflex, arcade, and strategy games. Play instantly with no install or account.';
 const categories = ['All', 'Puzzle', 'Arcade', 'Reflex', 'Strategy'];
 const modes = ['All', 'Solo', 'Local 2 Player'];
+const quickPlayFilters = ['All', 'Quick Play'];
 
 const schema = {
   '@context': 'https://schema.org',
@@ -63,6 +64,14 @@ const schema = {
             ))}
           </div>
         </div>
+        <div class="games-filter-group" role="group" aria-labelledby="session-filter-label">
+          <span class="games-filter-label" id="session-filter-label">Session</span>
+          <div class="filter-buttons">
+            {quickPlayFilters.map((filter, index) => (
+              <button class:list={['filter-button', { 'is-active': index === 0 }]} type="button" data-filter-group="session" data-filter-value={filter} aria-pressed={index === 0 ? 'true' : 'false'}>{filter}</button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div class="games-toolbar">
@@ -72,7 +81,7 @@ const schema = {
 
       <div class="games-grid">
         {games.map((game) => (
-          <article class="games-card" data-game-card data-categories={game.categories.join(',')} data-mode={game.mode}>
+          <article class="games-card" data-game-card data-categories={game.categories.join(',')} data-mode={game.mode} data-quick-play={game.quickPlayOrder !== undefined}>
             <div class="games-card__meta"><span class="games-card__primary">{game.primaryCategory}</span><span>{game.session}</span></div>
             <h3>{game.name}</h3>
             <p>{game.description}</p>
@@ -92,7 +101,7 @@ const schema = {
   const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-game-card]'));
   const count = document.querySelector<HTMLElement>('[data-games-count]');
   const empty = document.querySelector<HTMLElement>('.games-empty');
-  const filters = { category: 'All', mode: 'All' };
+  const filters = { category: 'All', mode: 'All', session: 'All' };
 
   const updateGames = () => {
     let visibleCount = 0;
@@ -100,7 +109,8 @@ const schema = {
       const categories = card.dataset.categories?.split(',') ?? [];
       const categoryMatch = filters.category === 'All' || categories.includes(filters.category);
       const modeMatch = filters.mode === 'All' || card.dataset.mode === filters.mode;
-      const visible = categoryMatch && modeMatch;
+      const quickPlayMatch = filters.session === 'All' || card.dataset.quickPlay === 'true';
+      const visible = categoryMatch && modeMatch && quickPlayMatch;
       card.hidden = !visible;
       if (visible) visibleCount += 1;
     });
@@ -110,7 +120,7 @@ const schema = {
 
   document.querySelectorAll<HTMLButtonElement>('[data-filter-group]').forEach((button) => {
     button.addEventListener('click', () => {
-      const group = button.dataset.filterGroup as 'category' | 'mode';
+      const group = button.dataset.filterGroup as keyof typeof filters;
       filters[group] = button.dataset.filterValue ?? 'All';
       document.querySelectorAll<HTMLButtonElement>(`[data-filter-group="${group}"]`).forEach((peer) => {
         const active = peer === button;

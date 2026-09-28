@@ -1,22 +1,11 @@
 ---
 import GameLayout from '../layouts/GameLayout.astro';
+import { getFeaturedGames } from '../data/games';
+import { gameCategories } from '../data/gameCategories';
 import '../styles/home.css';
 
 const description = 'Play original puzzle, reflex, arcade, and strategy games in your browser. No install and no account required.';
-
-const featuredGames = [
-  { name: 'Pulse Junction', href: '/games/pulse-junction/', category: 'Reflex', mode: 'Solo', session: 'Under 1 min', mechanic: 'Time your input as an expanding pulse crosses the target ring.' },
-  { name: 'Mirror Drift', href: '/games/mirror-drift/', category: 'Puzzle', mode: 'Solo', session: '1–2 min', mechanic: 'Move one point while its mirrored partner moves in the opposite direction.' },
-  { name: 'Orbit Slip', href: '/games/orbit-slip/', category: 'Arcade', mode: 'Solo', session: '30–90 sec', mechanic: 'Adjust your orbit radius and slip through gaps without touching the barriers.' },
-  { name: 'Gravity Pact', href: '/games/gravity-pact/', category: 'Strategy', mode: 'Local 2 Player', session: '2–4 min', mechanic: 'Take turns choosing gravity and move every token on the shared board.' },
-];
-
-const categories = [
-  { name: 'Puzzle', href: '/categories/puzzle/', description: 'Think through spatial, number, and placement challenges.' },
-  { name: 'Arcade', href: '/categories/arcade/', description: 'Quick sessions built around movement, timing, and risk.' },
-  { name: 'Reflex', href: '/categories/reflex/', description: 'Test timing, recognition, and fast decisions.' },
-  { name: 'Strategy', href: '/categories/strategy/', description: 'Make short, meaningful choices with clear trade-offs.' },
-];
+const featuredGames = getFeaturedGames();
 
 const schema = {
   '@context': 'https://schema.org',
@@ -70,9 +59,9 @@ const schema = {
       <div class="featured-grid">
         {featuredGames.map((game) => (
           <article class="game-card">
-            <div class="game-card__topline"><span class="game-card__category">{game.category}</span><span>{game.session}</span></div>
+            <div class="game-card__topline"><span class="game-card__category">{game.primaryCategory}</span><span>{game.session}</span></div>
             <h3>{game.name}</h3>
-            <p>{game.mechanic}</p>
+            <p>{game.description}</p>
             <div class="game-card__footer"><span>{game.mode}</span><a class="game-card__link" href={game.href}>Play <span aria-hidden="true">→</span></a></div>
           </article>
         ))}
@@ -84,7 +73,7 @@ const schema = {
     <div class="container">
       <div class="section-heading"><div><p class="home-eyebrow">Find your next session</p><h2>Browse by Category</h2></div></div>
       <div class="category-grid">
-        {categories.map((category) => (
+        {gameCategories.map((category) => (
           <a class="category-card" href={category.href}>
             <h3>{category.name}</h3><p>{category.description}</p>
             <span class="category-card__link">Explore <span aria-hidden="true">→</span></span>

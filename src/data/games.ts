@@ -11,6 +11,8 @@ export type GameMeta = {
   categories: GameCategory[];
   mode: GameMode;
   session: string;
+  featuredOrder?: number;
+  quickPlayOrder?: number;
 };
 
 export const games: GameMeta[] = [
@@ -23,6 +25,8 @@ export const games: GameMeta[] = [
     categories: ['Reflex', 'Arcade'],
     mode: 'Solo',
     session: '30–60 sec',
+    featuredOrder: 1,
+    quickPlayOrder: 1,
   },
   {
     name: 'Mirror Drift',
@@ -33,6 +37,7 @@ export const games: GameMeta[] = [
     categories: ['Puzzle'],
     mode: 'Solo',
     session: '1–2 min',
+    featuredOrder: 2,
   },
   {
     name: 'Gravity Pact',
@@ -43,6 +48,7 @@ export const games: GameMeta[] = [
     categories: ['Strategy'],
     mode: 'Local 2 Player',
     session: '2–4 min',
+    featuredOrder: 4,
   },
   {
     name: 'Orbit Slip',
@@ -53,6 +59,8 @@ export const games: GameMeta[] = [
     categories: ['Arcade', 'Reflex'],
     mode: 'Solo',
     session: '30–90 sec',
+    featuredOrder: 3,
+    quickPlayOrder: 2,
   },
   {
     name: 'Twin Ledger',
@@ -73,6 +81,7 @@ export const games: GameMeta[] = [
     categories: ['Reflex'],
     mode: 'Solo',
     session: '45–90 sec',
+    quickPlayOrder: 3,
   },
   {
     name: 'Field Bloom',
@@ -115,4 +124,18 @@ export function getRelatedGames(gameSlug: string, limit = 3): GameMeta[] {
     )
     .slice(0, limit)
     .map(({ candidate }) => candidate);
+}
+
+function getDiscoveryGames(orderKey: 'featuredOrder' | 'quickPlayOrder'): GameMeta[] {
+  return games
+    .filter((game) => Number.isInteger(game[orderKey]))
+    .sort((left, right) => (left[orderKey] ?? 0) - (right[orderKey] ?? 0));
+}
+
+export function getFeaturedGames(): GameMeta[] {
+  return getDiscoveryGames('featuredOrder');
+}
+
+export function getQuickPlayGames(): GameMeta[] {
+  return getDiscoveryGames('quickPlayOrder');
 }
