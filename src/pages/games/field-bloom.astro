@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import FieldBloomGame from '../../components/games/FieldBloomGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'field-bloom');
+if (!game) throw new Error('Field Bloom is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <FieldBloomGame slot="game" />
+  <p slot="how-to-play">Place energy pieces on the grid. Every target must receive exactly its shown number of activations, and forbidden cells must stay untouched. Solve a fixed puzzle with any unused pieces left over.</p>
+  <p slot="controls">Tap or click an unused piece to select it, then tap or click a legal cell to place it. Select it again to deselect. Use Undo to remove the latest placement; Reset clears this attempt. Keyboard: Tab to a control, then press Enter or Space.</p>
+  <p slot="scoring">Earn 3 stars with no Undo and at most par pieces; earn 2 stars with at most par + 1 piece and no more than 2 Undos; every other solved attempt earns 1 star. Time does not affect stars.</p>
+</GameDetailFrame>
