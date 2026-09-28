@@ -441,3 +441,141 @@ test('native focused button activation is not duplicated by the Space game short
   assert.equal(fixture.controller.getSnapshot().rngState, 0x6d2b79f6);
   fixture.unbind();
 });
+
+test('Play Again click delegates once to the controller and starts a new session only from RESULT', () => {
+  const fixture = createInputFixture(1);
+  clickAction(fixture, 'play-again');
+  assert.equal(fixture.controller.getState(), 'IDLE');
+
+  clickAction(fixture, 'start');
+  fixture.clock.advance(350);
+  for (let crystal = 1; crystal <= 8; crystal += 1) {
+    clickAction(fixture, 'bank');
+    fixture.clock.advance(900);
+    if (crystal < 8) fixture.clock.advance(350);
+  }
+  assert.equal(fixture.controller.getState(), 'RESULT');
+  clickAction(fixture, 'play-again');
+  assert.equal(fixture.controller.getState(), 'CRYSTAL_INTRO');
+  assert.equal(fixture.controller.getSnapshot().crystalIndex, 1);
+  assert.equal(fixture.getSeedCalls(), 2);
+  clickAction(fixture, 'play-again');
+  assert.equal(fixture.getSeedCalls(), 2);
+  fixture.unbind();
+});
+
+function createBestStorage(initial = { bestScore: 0, highestStageReached: 0 }) {
+  const values = new Map([['emfls:glass-bloom:best:v1', JSON.stringify(initial)]]);
+  const writes = [];
+  return {
+    writes,
+    getItem(key) { return values.get(key) ?? null; },
+    setItem(key, value) { values.set(key, value); writes.push([key, value]); },
+    read() { return JSON.parse(values.get('emfls:glass-bloom:best:v1')); },
+  };
+}
+
+test('eight real controller Banks commit one six-stat result and rematch starts a fresh seeded session', () => {
+  const clock = new FakeClock();
+  const storage = createBestStorage();
+  const seeds = [1, 22];
+  let seedCalls = 0;
+  const controller = controllerModule.createGlassBloomController({
+    clock,
+    seedSource: () => seeds[seedCalls++],
+    storage: () => storage,
+  });
+  let resultNotifications = 0;
+  controller.subscribe((snapshot) => {
+    if (snapshot?.state === 'RESULT') resultNotifications += 1;
+  });
+
+  assert.equal(controller.start(), true);
+  clock.advance(350);
+  let finalFeedbackCallback;
+  for (let crystal = 1; crystal <= 8; crystal += 1) {
+    assert.equal(controller.getSnapshot().crystalIndex, crystal);
+    assert.equal(controller.bank(), true);
+    assert.equal(controller.bank(), false, 'a second Bank cannot duplicate a committed award');
+    assert.equal(storage.writes.length, 0, 'partial sessions are never persisted');
+    clock.advance(400);
+    assert.equal(controller.getState(), 'ROUND_FEEDBACK');
+    finalFeedbackCallback = [...clock.tasks.values()][0]?.callback;
+    clock.advance(500);
+    if (crystal < 8) clock.advance(350);
+  }
+
+  assert.equal(controller.getState(), 'RESULT');
+  assert.equal(controller.getSnapshot().crystalIndex, 8, 'there is no ninth Crystal');
+  assert.deepEqual({
+    totalScore: controller.getSnapshot().totalScore,
+    successfulBanks: controller.getSnapshot().successfulBanks,
+    breaks: controller.getSnapshot().breaks,
+    highestStage: controller.getSnapshot().highestStage,
+    bestBankStreak: controller.getSnapshot().bestBankStreak,
+  }, { totalScore: 910, successfulBanks: 8, breaks: 0, highestStage: 1, bestBankStreak: 8 });
+  assert.deepEqual(controller.getBestStats(), { bestScore: 910, highestStageReached: 1 });
+  assert.deepEqual(storage.read(), { bestScore: 910, highestStageReached: 1 });
+  assert.equal(storage.writes.length, 1);
+  assert.equal(resultNotifications, 1);
+  finalFeedbackCallback?.();
+  assert.equal(storage.writes.length, 1, 'a stale final callback cannot finalize twice');
+  assert.equal(resultNotifications, 1);
+  assert.equal(controller.grow(), false);
+  assert.equal(controller.bank(), false);
+
+  assert.equal(controller.playAgain(), true);
+  assert.equal(controller.getState(), 'CRYSTAL_INTRO');
+  assert.deepEqual(controller.getSnapshot(), {
+    state: 'CRYSTAL_INTRO', seed: 22, rngState: 22, crystalIndex: 1, stage: 1, pot: 100,
+    totalScore: 0, bankStreak: 0, bestBankStreak: 0, successfulBanks: 0, breaks: 0,
+    highestStage: 1, growOutcome: null, roundOutcome: null, bankAward: 0,
+  });
+  assert.deepEqual(controller.getBestStats(), { bestScore: 910, highestStageReached: 1 });
+  assert.equal(seedCalls, 2);
+  assert.equal(controller.playAgain(), false, 'duplicate rematch cannot replace the fresh session');
+  assert.equal(seedCalls, 2);
+  assert.equal(storage.writes.length, 1);
+  controller.destroy();
+});
+
+test('Crystal 8 Break finalizes once and preserves all previously banked score', () => {
+  const clock = new FakeClock();
+  const storage = createBestStorage();
+  const controller = controllerModule.createGlassBloomController({
+    clock,
+    seedSource: () => 0,
+    storage: () => storage,
+  });
+  controller.start();
+  clock.advance(350);
+
+  for (let crystal = 1; crystal <= 7; crystal += 1) {
+    assert.equal(controller.bank(), true);
+    clock.advance(900);
+    clock.advance(350);
+  }
+  assert.equal(controller.getSnapshot().crystalIndex, 8);
+  assert.equal(controller.getSnapshot().totalScore, 790);
+  while (controller.getState() === 'DECISION' && controller.getSnapshot().stage < 8) {
+    assert.equal(controller.grow(), true);
+    const outcome = controller.getSnapshot().growOutcome;
+    clock.advance(outcome === 'SAFE' ? 450 : 650);
+    if (outcome === 'SHATTERED') clock.advance(500);
+  }
+
+  assert.equal(controller.getState(), 'RESULT');
+  assert.equal(controller.getSnapshot().crystalIndex, 8);
+  assert.equal(controller.getSnapshot().totalScore, 790);
+  assert.equal(controller.getSnapshot().successfulBanks, 7);
+  assert.equal(controller.getSnapshot().breaks, 1);
+  assert.equal(controller.getBestStats().bestScore, 790);
+  assert.equal(controller.getBestStats().highestStageReached, 2);
+  assert.equal(storage.writes.length, 1);
+  assert.equal(controller.grow(), false);
+  assert.equal(controller.playAgain(), true);
+  assert.equal(controller.getSnapshot().crystalIndex, 1);
+  assert.equal(controller.getSnapshot().totalScore, 0);
+  assert.equal(controller.getBestStats().bestScore, 790);
+  controller.destroy();
+});

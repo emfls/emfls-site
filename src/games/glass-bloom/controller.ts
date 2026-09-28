@@ -7,13 +7,15 @@ import {
   completeGrow,
   createSession,
   enterDecision,
+  getSessionStats,
   resolveBank,
   resolveGrow,
 } from './logic.ts';
 import { createSessionSeed } from './rng.ts';
 import { getBreakRisk } from './risk.ts';
+import { loadBestStats, updateBestStats, type BestStorageProvider } from './storage.ts';
 import { createPresentationTimer, type PresentationClock } from './timer.ts';
-import type { GameSession, GameState } from './types.ts';
+import type { BestStats, GameSession, GameState } from './types.ts';
 
 export const PRESENTATION_DURATIONS_MS = Object.freeze({
   crystalIntro: 350,
@@ -54,20 +56,23 @@ export type GlassBloomController = ReturnType<typeof createGlassBloomController>
 export function createGlassBloomController(options: {
   clock?: PresentationClock;
   seedSource?: () => number;
+  storage?: BestStorageProvider;
 } = {}) {
   const clock = options.clock ?? defaultClock;
   const seedSource = options.seedSource ?? createSessionSeed;
   const timer = createPresentationTimer({ clock });
   const subscribers = new Set<(snapshot: GameSession | null) => void>();
   let session: GameSession | null = null;
+  let bestStats: BestStats = loadBestStats(options.storage);
   let pausedFromState: GameState | null = null;
   let sessionGeneration = 0;
+  let finalizedResultGeneration = -1;
   let destroyed = false;
 
   const getState = (): GameState => session?.state ?? 'IDLE';
 
   const publish = (): void => {
-    for (const subscriber of [...subscribers]) subscriber(session);
+    for (const subscriber of [...subscribers]) subscriber(session, bestStats);
   };
 
   const schedule = (durationMs: number, expectedState: GameState, callback: () => void): boolean => {
@@ -90,6 +95,10 @@ export function createGlassBloomController(options: {
     schedule(PRESENTATION_DURATIONS_MS.roundFeedback, 'ROUND_FEEDBACK', () => {
       if (!session) return;
       session = advanceCrystal(session);
+      if (session.state === 'RESULT' && finalizedResultGeneration !== sessionGeneration) {
+        finalizedResultGeneration = sessionGeneration;
+        bestStats = updateBestStats(getSessionStats(session), options.storage);
+      }
       publish();
       if (session.state === 'CRYSTAL_INTRO') scheduleIntro();
     });
@@ -121,7 +130,10 @@ export function createGlassBloomController(options: {
     getSnapshot(): GameSession | null {
       return session;
     },
-    subscribe(subscriber: (snapshot: GameSession | null) => void): () => void {
+    getBestStats(): BestStats {
+      return { ...bestStats };
+    },
+    subscribe(subscriber: (snapshot: GameSession | null, best: BestStats) => void): () => void {
       subscribers.add(subscriber);
       return () => subscribers.delete(subscriber);
     },
@@ -129,6 +141,7 @@ export function createGlassBloomController(options: {
       if (destroyed || session !== null) return false;
       session = createSession(seedSource());
       sessionGeneration += 1;
+      finalizedResultGeneration = -1;
       publish();
       scheduleIntro();
       return true;
@@ -149,6 +162,17 @@ export function createGlassBloomController(options: {
       session = resolved;
       publish();
       scheduleBankResolution();
+      return true;
+    },
+    playAgain(): boolean {
+      if (destroyed || session?.state !== 'RESULT') return false;
+      timer.cancel();
+      sessionGeneration += 1;
+      finalizedResultGeneration = -1;
+      pausedFromState = null;
+      session = createSession(seedSource());
+      publish();
+      scheduleIntro();
       return true;
     },
     pause(): boolean {

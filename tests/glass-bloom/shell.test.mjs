@@ -5,6 +5,8 @@ import test from 'node:test';
 const routePath = new URL('../../src/pages/games/glass-bloom.astro', import.meta.url);
 const componentPath = new URL('../../src/components/games/GlassBloomGame.astro', import.meta.url);
 const stylesPath = new URL('../../src/styles/games/glass-bloom.css', import.meta.url);
+const inputPath = new URL('../../src/games/glass-bloom/input.ts', import.meta.url);
+const controllerPath = new URL('../../src/games/glass-bloom/controller.ts', import.meta.url);
 
 const readRequired = (path, label) => {
   assert.ok(existsSync(path), `${label} must exist`);
@@ -53,8 +55,10 @@ test('hierarchy includes the frozen HUD, risk surfaces, and an in-project SVG cr
   assert.match(component, /Maximum Stage · Bank to secure 2,800/);
 });
 
-test('interactive controller hooks stay inside the existing shell while persistence remains deferred', () => {
+test('interactive controller hooks stay inside the existing shell with rematch and best-record handling delegated', () => {
   const component = readRequired(componentPath, 'Glass Bloom component');
+  const input = readRequired(inputPath, 'Glass Bloom input');
+  const controller = readRequired(controllerPath, 'Glass Bloom controller');
 
   for (const action of ['start', 'grow', 'bank', 'pause', 'resume', 'play-again']) {
     assert.match(component, new RegExp(`data-action="${action}"[^>]*\\bdisabled\\b`));
@@ -68,6 +72,22 @@ test('interactive controller hooks stay inside the existing shell while persiste
   assert.match(component, /astro:before-swap/);
   assert.match(component, /pagehide/);
   assert.doesNotMatch(component, /localStorage|emfls:glass-bloom:best:v1/);
+  assert.match(component, /setDisabled\('play-again',\s*state\s*!==\s*'RESULT'\)/);
+  assert.match(component, /controller\.getBestStats\(\)/);
+  assert.match(input, /case 'play-again':\s*options\.controller\.playAgain\(\)/);
+  assert.match(controller, /getBestStats\(\)/);
+});
+
+test('RESULT exposes exactly the six frozen public fields and no seventh lifetime metric', () => {
+  const component = readRequired(componentPath, 'Glass Bloom component');
+  const result = component.match(/<section class="glass-bloom__panel" data-panel="RESULT"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(result, 'the existing RESULT panel must remain the only result surface');
+  const labels = [...result.matchAll(/<dt>([^<]+)<\/dt>/g)].map((match) => match[1]);
+  assert.deepEqual(labels, ['Total Score', 'Successful Banks', 'Breaks', 'Highest Stage', 'Best Bank Streak', 'Best Score']);
+  assert.doesNotMatch(result, /Highest Stage Reached|Crystals Banked|Your banked total/);
+  for (const value of ['result-total-score', 'result-successful-banks', 'result-breaks', 'result-highest-stage', 'result-best-bank-streak', 'result-best-score']) {
+    assert.ok(result.includes(`data-value="${value}"`), `missing result value hook ${value}`);
+  }
 });
 
 test('scoped styles support the shell without introducing outcome animation or placeholders', () => {

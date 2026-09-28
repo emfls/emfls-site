@@ -39,7 +39,7 @@ export function bindGlassBloomInput(options: {
       case 'bank': options.controller.bank(); break;
       case 'pause': options.controller.pause(); break;
       case 'resume': options.controller.resume(); break;
-      case 'play-again': break;
+      case 'play-again': options.controller.playAgain(); break;
     }
   };
 

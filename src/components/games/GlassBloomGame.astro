@@ -99,7 +99,14 @@ import '../../styles/games/glass-bloom.css';
     </section>
     <section class="glass-bloom__panel" data-panel="RESULT" role="status" hidden>
       <h2>Session Complete</h2>
-      <p>Your banked total: <span data-value="final-score">0</span></p>
+      <dl class="glass-bloom__result-stats" aria-label="Session results">
+        <div><dt>Total Score</dt><dd data-value="result-total-score">0</dd></div>
+        <div><dt>Successful Banks</dt><dd data-value="result-successful-banks">0</dd></div>
+        <div><dt>Breaks</dt><dd data-value="result-breaks">0</dd></div>
+        <div><dt>Highest Stage</dt><dd data-value="result-highest-stage">1</dd></div>
+        <div><dt>Best Bank Streak</dt><dd data-value="result-best-bank-streak">0</dd></div>
+        <div><dt>Best Score</dt><dd data-value="result-best-score">0</dd></div>
+      </dl>
       <button class="glass-bloom__start" type="button" data-action="play-again" disabled>Play Again</button>
     </section>
   </div>
@@ -115,11 +122,11 @@ import '../../styles/games/glass-bloom.css';
   import { bindGlassBloomInput } from '../../games/glass-bloom/input.ts';
   import { STAGE_POTS } from '../../games/glass-bloom/constants.ts';
   import { getBreakRisk, getRiskBand } from '../../games/glass-bloom/risk.ts';
-  import type { GameSession, GameState } from '../../games/glass-bloom/types.ts';
+  import type { BestStats, GameSession, GameState } from '../../games/glass-bloom/types.ts';
 
   const mountedControllers = new WeakMap<HTMLElement, () => void>();
 
-  const renderGlassBloom = (root: HTMLElement, session: GameSession | null): void => {
+  const renderGlassBloom = (root: HTMLElement, session: GameSession | null, bestStats: BestStats): void => {
     const state: GameState = session?.state ?? 'IDLE';
     root.dataset.state = state;
 
@@ -132,7 +139,12 @@ import '../../styles/games/glass-bloom.css';
     setValue('crystal-index', session?.crystalIndex ?? 1);
     setValue('stage', session?.stage ?? 1);
     setValue('pot', session?.pot ?? 100);
-    setValue('final-score', session?.totalScore ?? 0);
+    setValue('result-total-score', session?.totalScore ?? 0);
+    setValue('result-successful-banks', session?.successfulBanks ?? 0);
+    setValue('result-breaks', session?.breaks ?? 0);
+    setValue('result-highest-stage', session?.highestStage ?? 1);
+    setValue('result-best-bank-streak', session?.bestBankStreak ?? 0);
+    setValue('result-best-score', bestStats.bestScore);
 
     root.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
       panel.hidden = panel.dataset.panel !== state;
@@ -193,7 +205,7 @@ import '../../styles/games/glass-bloom.css';
     setDisabled('bank', state !== 'DECISION');
     setDisabled('pause', !['CRYSTAL_INTRO', 'DECISION', 'GROW_RESOLVING', 'BANK_RESOLVING', 'ROUND_FEEDBACK'].includes(state));
     setDisabled('resume', state !== 'PAUSED');
-    setDisabled('play-again', true);
+    setDisabled('play-again', state !== 'RESULT');
   };
 
   const initializeGlassBloom = (): void => {
@@ -203,8 +215,8 @@ import '../../styles/games/glass-bloom.css';
       const controller = createGlassBloomController();
       const unbindInput = bindGlassBloomInput({ root, documentRef: document, controller });
       const unbindLifecycle = bindGlassBloomLifecycle({ controller, documentRef: document, windowRef: window });
-      const unsubscribe = controller.subscribe((session) => renderGlassBloom(root, session));
-      renderGlassBloom(root, controller.getSnapshot());
+      const unsubscribe = controller.subscribe((session, bestStats) => renderGlassBloom(root, session, bestStats));
+      renderGlassBloom(root, controller.getSnapshot(), controller.getBestStats());
 
       mountedControllers.set(root, () => {
         unsubscribe();
