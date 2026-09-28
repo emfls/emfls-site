@@ -1,30 +1,30 @@
 ---
 import '../../styles/games/glass-bloom.css';
 ---
-<section class="glass-bloom" data-state="IDLE" aria-label="Glass Bloom game">
+<section class="glass-bloom" data-glass-bloom data-state="IDLE" aria-label="Glass Bloom game">
   <dl class="glass-bloom__hud" aria-label="Session score and crystal">
     <div class="glass-bloom__stat glass-bloom__stat--score">
       <dt>Total Score</dt>
-      <dd>0</dd>
+      <dd data-value="total-score">0</dd>
     </div>
     <div class="glass-bloom__stat">
       <dt>Crystal</dt>
-      <dd>1 <span>/ 8</span></dd>
+      <dd><span data-value="crystal-index">1</span> <span>/ 8</span></dd>
     </div>
     <div class="glass-bloom__stat">
       <dt>Stage</dt>
-      <dd>1</dd>
+      <dd data-value="stage">1</dd>
     </div>
     <div class="glass-bloom__stat glass-bloom__stat--pot">
       <dt>Unbanked</dt>
-      <dd>100</dd>
+      <dd data-value="pot">100</dd>
     </div>
   </dl>
 
   <div class="glass-bloom__play">
     <div class="glass-bloom__crystal-scene" aria-label="Crystal illustration">
       <svg class="glass-bloom__crystal" viewBox="0 0 240 320" role="img" aria-labelledby="glass-bloom-crystal-title">
-        <title id="glass-bloom-crystal-title">A faceted glass crystal</title>
+        <title id="glass-bloom-crystal-title" data-value="crystal-description">A faceted glass crystal, Stage 1</title>
         <path class="glass-bloom__crystal-outline" d="M120 7 204 70l31 91-37 91-78 60-78-60-37-91 31-91z" />
         <path class="glass-bloom__facet glass-bloom__facet--crown" d="m120 7 84 63-83 15-85-15z" />
         <path class="glass-bloom__facet glass-bloom__facet--left" d="m36 70 85 15-74 67-10 100-37-91z" />
@@ -37,27 +37,29 @@ import '../../styles/games/glass-bloom.css';
     </div>
 
     <div class="glass-bloom__decision" aria-label="Grow or bank">
-      <dl class="glass-bloom__risk">
-        <div>
-          <dt>Break Risk</dt>
-          <dd>5%</dd>
-        </div>
-        <div>
-          <dt>If Safe</dt>
-          <dd>180</dd>
-        </div>
-      </dl>
-      <p class="glass-bloom__risk-level"><span>Risk level</span><strong>Low</strong></p>
+      <div data-risk-region aria-label="Next Grow risk and reward" hidden>
+        <dl class="glass-bloom__risk">
+          <div>
+            <dt>Break Risk</dt>
+            <dd data-value="break-risk">5%</dd>
+          </div>
+          <div>
+            <dt>If Safe</dt>
+            <dd data-value="safe-pot">180</dd>
+          </div>
+        </dl>
+        <p class="glass-bloom__risk-level"><span>Risk level</span><strong data-value="risk-band">Low</strong></p>
+      </div>
       <p class="glass-bloom__maximum" data-stage-eight-copy hidden>Maximum Stage · Bank to secure 2,800</p>
 
       <div class="glass-bloom__actions">
         <button class="glass-bloom__action glass-bloom__action--grow" type="button" data-action="grow" disabled>
           <strong>Grow</strong>
-          <span>Take the risk for 180</span>
+          <span data-value="grow-copy">Take the risk for 180</span>
         </button>
         <button class="glass-bloom__action glass-bloom__action--bank" type="button" data-action="bank" disabled>
           <strong>Bank</strong>
-          <span>Secure your 100</span>
+          <span data-value="bank-copy">Secure your 100</span>
         </button>
       </div>
       <button class="glass-bloom__pause" type="button" data-action="pause" disabled>Pause</button>
@@ -80,15 +82,15 @@ import '../../styles/games/glass-bloom.css';
     </section>
     <section class="glass-bloom__panel" data-panel="GROW_RESOLVING" role="status" hidden>
       <h2>Crystal growth</h2>
-      <p>The accepted Grow resolves once.</p>
+      <p data-feedback="grow">Grown — Stage 2 · Pot 180</p>
     </section>
     <section class="glass-bloom__panel" data-panel="BANK_RESOLVING" role="status" hidden>
       <h2>Banking your pot</h2>
-      <p>Your committed Bank is being presented.</p>
+      <p data-feedback="bank">Banked +100</p>
     </section>
     <section class="glass-bloom__panel" data-panel="ROUND_FEEDBACK" role="status" hidden>
       <h2>Crystal complete</h2>
-      <p>Review the result before the next crystal.</p>
+      <p data-feedback="round">Banked +100</p>
     </section>
     <section class="glass-bloom__panel" data-panel="PAUSED" role="status" hidden>
       <h2>Paused</h2>
@@ -97,9 +99,132 @@ import '../../styles/games/glass-bloom.css';
     </section>
     <section class="glass-bloom__panel" data-panel="RESULT" role="status" hidden>
       <h2>Session Complete</h2>
-      <p>Your banked score and session records appear here.</p>
+      <p>Your banked total: <span data-value="final-score">0</span></p>
       <button class="glass-bloom__start" type="button" data-action="play-again" disabled>Play Again</button>
     </section>
   </div>
   <p class="glass-bloom__tagline">Bigger rewards come to those who know when to stop.</p>
 </section>
+
+<script>
+  import {
+    bindGlassBloomLifecycle,
+    createGlassBloomController,
+    getGrowButtonCopy,
+  } from '../../games/glass-bloom/controller.ts';
+  import { bindGlassBloomInput } from '../../games/glass-bloom/input.ts';
+  import { STAGE_POTS } from '../../games/glass-bloom/constants.ts';
+  import { getBreakRisk, getRiskBand } from '../../games/glass-bloom/risk.ts';
+  import type { GameSession, GameState } from '../../games/glass-bloom/types.ts';
+
+  const mountedControllers = new WeakMap<HTMLElement, () => void>();
+
+  const renderGlassBloom = (root: HTMLElement, session: GameSession | null): void => {
+    const state: GameState = session?.state ?? 'IDLE';
+    root.dataset.state = state;
+
+    const setValue = (name: string, value: string | number): void => {
+      const element = root.querySelector<HTMLElement>(`[data-value="${name}"]`);
+      if (element) element.textContent = String(value);
+    };
+
+    setValue('total-score', session?.totalScore ?? 0);
+    setValue('crystal-index', session?.crystalIndex ?? 1);
+    setValue('stage', session?.stage ?? 1);
+    setValue('pot', session?.pot ?? 100);
+    setValue('final-score', session?.totalScore ?? 0);
+
+    root.querySelectorAll<HTMLElement>('[data-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.panel !== state;
+    });
+
+    const riskRegion = root.querySelector<HTMLElement>('[data-risk-region]');
+    const maximumCopy = root.querySelector<HTMLElement>('[data-stage-eight-copy]');
+    const risk = session ? getBreakRisk(session.stage, session.crystalIndex) : null;
+    const nextPot = session && risk !== null ? STAGE_POTS[session.stage] : null;
+    if (riskRegion) riskRegion.hidden = risk === null;
+    if (maximumCopy) maximumCopy.hidden = !session || risk !== null;
+    if (risk !== null && nextPot !== null && session) {
+      setValue('break-risk', `${risk}%`);
+      setValue('safe-pot', nextPot);
+      setValue('risk-band', getRiskBand(risk).toLowerCase());
+    }
+
+    if (session) {
+      const crystalDescription = root.querySelector<HTMLElement>('[data-value="crystal-description"]');
+      if (crystalDescription) {
+        crystalDescription.textContent = risk === null
+          ? `Glass Bloom crystal, Stage ${session.stage}`
+          : `Glass Bloom crystal, Stage ${session.stage}; next Grow break risk ${risk}%`;
+      }
+    }
+
+    const growCopy = getGrowButtonCopy(session);
+    const bankCopy = session?.roundOutcome === 'BANKED'
+      ? `Banked +${session.bankAward}`
+      : session?.roundOutcome === 'SHATTERED'
+        ? 'Unbanked lost'
+        : `Secure your ${session?.pot ?? 100}`;
+    setValue('grow-copy', growCopy);
+    setValue('bank-copy', bankCopy);
+
+    const growFeedback = root.querySelector<HTMLElement>('[data-feedback="grow"]');
+    const bankFeedback = root.querySelector<HTMLElement>('[data-feedback="bank"]');
+    const roundFeedback = root.querySelector<HTMLElement>('[data-feedback="round"]');
+    if (growFeedback && state === 'GROW_RESOLVING' && session) {
+      growFeedback.textContent = session.growOutcome === 'SAFE'
+        ? `Grown — Stage ${session.stage} · Pot ${session.pot}`
+        : 'Shattered — Pot lost';
+    }
+    if (bankFeedback && session?.roundOutcome === 'BANKED') bankFeedback.textContent = `Banked +${session.bankAward}`;
+    if (roundFeedback && session?.roundOutcome) {
+      roundFeedback.textContent = session.roundOutcome === 'BANKED'
+        ? `Banked +${session.bankAward}`
+        : 'Shattered — Pot lost';
+    }
+
+    const setDisabled = (action: string, disabled: boolean): void => {
+      root.querySelectorAll<HTMLButtonElement>(`[data-action="${action}"]`).forEach((button) => {
+        button.disabled = disabled;
+      });
+    };
+    setDisabled('start', state !== 'IDLE');
+    setDisabled('grow', state !== 'DECISION' || risk === null);
+    setDisabled('bank', state !== 'DECISION');
+    setDisabled('pause', !['CRYSTAL_INTRO', 'DECISION', 'GROW_RESOLVING', 'BANK_RESOLVING', 'ROUND_FEEDBACK'].includes(state));
+    setDisabled('resume', state !== 'PAUSED');
+    setDisabled('play-again', true);
+  };
+
+  const initializeGlassBloom = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-glass-bloom]').forEach((root) => {
+      if (mountedControllers.has(root)) return;
+
+      const controller = createGlassBloomController();
+      const unbindInput = bindGlassBloomInput({ root, documentRef: document, controller });
+      const unbindLifecycle = bindGlassBloomLifecycle({ controller, documentRef: document, windowRef: window });
+      const unsubscribe = controller.subscribe((session) => renderGlassBloom(root, session));
+      renderGlassBloom(root, controller.getSnapshot());
+
+      mountedControllers.set(root, () => {
+        unsubscribe();
+        unbindInput();
+        unbindLifecycle();
+        controller.destroy();
+        mountedControllers.delete(root);
+      });
+    });
+  };
+
+  const destroyGlassBloom = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-glass-bloom]').forEach((root) => {
+      mountedControllers.get(root)?.();
+    });
+  };
+
+  document.addEventListener('astro:page-load', initializeGlassBloom);
+  document.addEventListener('astro:before-swap', destroyGlassBloom);
+  window.addEventListener('pageshow', initializeGlassBloom);
+  window.addEventListener('pagehide', destroyGlassBloom);
+  initializeGlassBloom();
+</script>

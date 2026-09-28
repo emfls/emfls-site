@@ -53,13 +53,21 @@ test('hierarchy includes the frozen HUD, risk surfaces, and an in-project SVG cr
   assert.match(component, /Maximum Stage · Bank to secure 2,800/);
 });
 
-test('shell controls are present but inert until the later gameplay stages', () => {
+test('interactive controller hooks stay inside the existing shell while persistence remains deferred', () => {
   const component = readRequired(componentPath, 'Glass Bloom component');
 
   for (const action of ['start', 'grow', 'bank', 'pause', 'resume', 'play-again']) {
     assert.match(component, new RegExp(`data-action="${action}"[^>]*\\bdisabled\\b`));
   }
-  assert.doesNotMatch(component, /<script\b|Math\.random|localStorage|setTimeout|setInterval|src\/games\/glass-bloom/);
+  assert.match(component, /data-glass-bloom/);
+  for (const value of ['total-score', 'crystal-index', 'stage', 'pot', 'break-risk', 'safe-pot', 'risk-band']) {
+    assert.ok(component.includes(`data-value="${value}"`), `missing live value hook: ${value}`);
+  }
+  assert.match(component, /createGlassBloomController/);
+  assert.match(component, /bindGlassBloomInput/);
+  assert.match(component, /astro:before-swap/);
+  assert.match(component, /pagehide/);
+  assert.doesNotMatch(component, /localStorage|emfls:glass-bloom:best:v1/);
 });
 
 test('scoped styles support the shell without introducing outcome animation or placeholders', () => {
