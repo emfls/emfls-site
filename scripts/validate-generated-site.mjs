@@ -3,7 +3,7 @@ import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node
 import { fileURLToPath } from 'node:url';
 
 import { gameCategories } from '../src/data/gameCategories.ts';
-import { games } from '../src/data/games.ts';
+import { gameEditorial, games } from '../src/data/games.ts';
 
 const siteOrigin = 'https://emfls.com';
 const trustRoutes = ['/about/', '/contact/', '/privacy/', '/terms/'];
@@ -589,6 +589,121 @@ function auditRelatedGames(documents) {
   return { gamePages: games.length, linksChecked, failures };
 }
 
+function auditPublisherContent(documents) {
+  const failures = [];
+  const byRoute = new Map([...documents.values()].map((document) => [document.route, document]));
+  const add = (route, reason, details = {}) => failures.push({ route, reason, ...details });
+
+  for (const game of games) {
+    const document = byRoute.get(game.href);
+    if (!document) continue;
+    const guides = findClass(document.tree, 'game-detail__guides');
+    const guideTitles = guides.length === 1
+      ? findClass(guides[0], 'game-detail__guide').map((guide) => normalizedText(firstTag(guide, 'h2') ?? { children: [] }))
+      : [];
+    if (JSON.stringify(guideTitles) !== JSON.stringify(['How to Play', 'Controls', 'Scoring'])) {
+      add(game.href, 'existing-game-guides-missing-or-reordered', { actual: guideTitles });
+    }
+
+    const sections = findClass(document.tree, 'game-detail__editorial');
+    if (sections.length !== 1) {
+      add(game.href, 'game-editorial-section-count-mismatch', { expected: 1, actual: sections.length });
+      continue;
+    }
+    const cards = findClass(sections[0], 'game-detail__editorial-card').filter((node) => node.tag === 'article');
+    const expectedSections = Object.values(gameEditorial[game.slug]);
+    if (cards.length !== expectedSections.length) add(game.href, 'game-editorial-card-count-mismatch', { expected: expectedSections.length, actual: cards.length });
+    cards.forEach((card, index) => {
+      const expected = expectedSections[index];
+      const actual = {
+        title: normalizedText(firstTag(card, 'h3') ?? { children: [] }),
+        body: normalizedText(firstTag(card, 'p') ?? { children: [] }),
+      };
+      if (actual.title !== expected?.title || actual.body !== expected?.body) {
+        add(game.href, 'game-editorial-copy-drift', { index, expected, actual });
+      }
+      if (!actual.body || /\b(TODO|TBD|lorem ipsum|coming soon)\b/i.test(actual.body)) {
+        add(game.href, 'game-editorial-empty-or-placeholder', { index });
+      }
+    });
+  }
+
+  for (const category of gameCategories) {
+    const document = byRoute.get(category.href);
+    if (!document) continue;
+    const editorial = findClass(document.tree, 'game-category__editorial');
+    if (editorial.length !== 1) {
+      add(category.href, 'category-editorial-section-count-mismatch', { expected: 1, actual: editorial.length });
+    } else {
+      const editorialText = normalizedText(editorial[0]);
+      if (!editorialText.includes(category.editorial.playStyle) || !editorialText.includes(category.editorial.chooseIf)) {
+        add(category.href, 'category-editorial-copy-drift');
+      }
+    }
+
+    const cards = findClass(document.tree, 'game-category-card').filter((node) => node.tag === 'article');
+    for (const card of cards) {
+      const href = firstHref(card);
+      const game = games.find((candidate) => candidate.href === href);
+      const distinction = findClass(card, 'game-category-card__distinction')[0];
+      const actual = normalizedText(distinction ?? { children: [] });
+      if (!game || actual !== category.editorial.gameComparisons[game.slug]) {
+        add(category.href, 'category-game-comparison-mismatch', { href, actual });
+      }
+    }
+  }
+
+  const gamesIndex = byRoute.get('/games/');
+  if (gamesIndex) {
+    const cards = findClass(gamesIndex.tree, 'games-card').filter((node) => node.tag === 'article');
+    if (normalizedText(firstTag(gamesIndex.tree, 'h2') ?? { children: [] }) !== 'Compare all eight games') {
+      add('/games/', 'games-comparison-heading-missing');
+    }
+    if (cards.length !== games.length) add('/games/', 'games-comparison-count-mismatch', { expected: games.length, actual: cards.length });
+    cards.forEach((card, index) => {
+      const game = games[index];
+      if (!game) return;
+      const comparison = findClass(card, 'games-card__comparison')[0];
+      const actual = comparison ? descendants(comparison, (node) => node.tag === 'dd').map(normalizedText) : [];
+      const expected = [game.comparison.challenge, game.comparison.input, game.comparison.bestFor];
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        add('/games/', 'games-comparison-details-mismatch', { game: game.slug, expected, actual });
+      }
+    });
+  }
+
+  const home = byRoute.get('/');
+  if (home) {
+    const sections = findClass(home.tree, 'home-mechanics');
+    if (sections.length !== 1) {
+      add('/', 'home-mechanics-section-count-mismatch', { expected: 1, actual: sections.length });
+    } else {
+      const section = sections[0];
+      const anchors = descendants(section, (node) => node.tag === 'a');
+      const linkedGames = anchors.map((anchor) => anchor.attributes.href).filter((href) => games.some((game) => game.href === href));
+      const expectedGames = games.map(({ href }) => href);
+      if (JSON.stringify([...new Set(linkedGames)].sort()) !== JSON.stringify(expectedGames.slice().sort()) || linkedGames.length !== games.length) {
+        add('/', 'home-mechanics-game-link-set-mismatch', { expected: expectedGames, actual: linkedGames });
+      }
+      const groups = descendants(section, (node) => node.tag === 'article');
+      if (groups.length !== 4) add('/', 'home-mechanics-group-count-mismatch', { expected: 4, actual: groups.length });
+    }
+  }
+
+  const about = byRoute.get('/about/');
+  if (about) {
+    const sections = findClass(about.tree, 'about-mechanics');
+    const aboutText = normalizedText(sections[0] ?? { children: [] });
+    if (sections.length !== 1 || normalizedText(firstTag(sections[0] ?? { children: [] }, 'h2') ?? { children: [] }) !== 'How the mechanics differ') {
+      add('/about/', 'about-mechanics-section-missing');
+    }
+    const missingGames = games.filter(({ name }) => !aboutText.includes(name)).map(({ name }) => name);
+    if (missingGames.length) add('/about/', 'about-game-inventory-incomplete', { missingGames });
+  }
+
+  return failures;
+}
+
 function auditHtmlRouteSurface(documents) {
   const actualRoutes = [...documents.values()].map((document) => document.route);
   const actualSet = new Set(actualRoutes);
@@ -676,6 +791,7 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
   const htmlRoutes = auditHtmlRouteSurface(documents);
   const discoveryFailures = auditDiscovery(root, documents);
   const relatedGames = auditRelatedGames(documents);
+  const publisherContentFailures = auditPublisherContent(documents);
   const report = {
     generatedHtmlPages: htmlFiles.length,
     requiredDestinations: canonicalRoutes.length,
@@ -694,8 +810,9 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
     htmlRouteFailures: htmlRoutes.failures,
     relatedGames,
     discoveryFailures,
+    publisherContentFailures,
   };
-  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && htmlRoutes.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
+  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && htmlRoutes.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0 && publisherContentFailures.length === 0;
   return report;
 }
 

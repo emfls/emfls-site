@@ -1,6 +1,7 @@
 ---
 import GameLayout from '../layouts/GameLayout.astro';
 import { getRelatedGames, type GameMeta } from '../data/games';
+import { gameEditorial } from '../data/gameEditorial';
 import '../styles/game-detail.css';
 
 interface Props {
@@ -19,6 +20,7 @@ const {
 
 const title = `${game.name} — Play Free in Your Browser | EMFLS Games`;
 const relatedGames = getRelatedGames(game.slug);
+const editorial = gameEditorial[game.slug];
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'VideoGame',
@@ -76,6 +78,18 @@ const schema = {
           </section>
         )}
       </div>
+
+      <section class="game-detail__editorial" aria-labelledby="game-editorial-heading">
+        <h2 id="game-editorial-heading">A closer look at {game.name}</h2>
+        <div class="game-detail__editorial-grid">
+          {Object.values(editorial).map((section) => (
+            <article class="game-detail__editorial-card">
+              <h3>{section.title}</h3>
+              <p>{section.body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section class="game-detail__related" aria-labelledby="related-games-heading">
         <h2 id="related-games-heading">Related Games</h2>

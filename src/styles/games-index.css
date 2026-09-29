@@ -19,6 +19,10 @@
 .games-card__primary { color: var(--game-color-primary); font-weight: var(--game-font-weight-bold); }
 .games-card h3 { min-width: 0; margin: var(--game-space-6) 0 var(--game-space-3); font-size: var(--game-font-size-h3); line-height: var(--game-line-height-heading); overflow-wrap: anywhere; }
 .games-card p { min-width: 0; margin: 0; color: var(--game-color-text-secondary); overflow-wrap: anywhere; }
+.games-card__comparison { display: grid; gap: var(--game-space-3); margin: var(--game-space-5) 0 0; }
+.games-card__comparison div { min-width: 0; }
+.games-card__comparison dt { color: var(--game-color-primary); font-size: var(--game-font-size-small); font-weight: var(--game-font-weight-bold); }
+.games-card__comparison dd { margin: var(--game-space-1) 0 0; color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); overflow-wrap: anywhere; }
 .games-card__categories { display: flex; flex-wrap: wrap; gap: var(--game-space-2); margin-top: var(--game-space-5); }
 .games-card__categories span { padding: var(--game-space-1) var(--game-space-2); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-pill); color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
 .games-card__footer { margin-top: auto; padding-top: var(--game-space-6); }
