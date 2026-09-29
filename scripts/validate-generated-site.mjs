@@ -341,6 +341,102 @@ function auditCanonicalMetadata(documents) {
   return { canonicalMetadataPages, failures };
 }
 
+function parseSitemapXml(xml) {
+  let source = xml.trim();
+  if (source.startsWith('<?xml')) {
+    const declaration = source.match(/^<\?xml\s+version=["']1\.0["']\s+encoding=["'][^"']+["']\s*\?>\s*/i);
+    if (!declaration) return null;
+    source = source.slice(declaration[0].length);
+  }
+
+  const root = source.match(/^<urlset\b([^>]*)>([\s\S]*)<\/urlset>$/);
+  if (!root || !/\bxmlns=["']http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9["']/.test(root[1])) return null;
+
+  const entries = [];
+  let remainder = root[2];
+  while (remainder.trim()) {
+    const leadingWhitespace = remainder.match(/^\s*/)?.[0] ?? '';
+    remainder = remainder.slice(leadingWhitespace.length);
+    const url = remainder.match(/^<url>\s*<loc>([^<]*)<\/loc>\s*<\/url>/);
+    if (!url) return null;
+    const rawLocation = url[1];
+    if (/&(?!(?:amp|apos|gt|lt|quot|#\d+|#x[\da-f]+);)/i.test(rawLocation)) return null;
+    const location = rawLocation.replace(/&(#x[\da-f]+|#\d+|amp|apos|gt|lt|quot);/gi, (entity, code) => {
+      if (code[0] === '#') {
+        const number = code[1]?.toLowerCase() === 'x' ? Number.parseInt(code.slice(2), 16) : Number.parseInt(code.slice(1), 10);
+        return Number.isInteger(number) && number >= 0 && number <= 0x10ffff ? String.fromCodePoint(number) : entity;
+      }
+      return ({ amp: '&', apos: "'", gt: '>', lt: '<', quot: '"' })[code.toLowerCase()] ?? entity;
+    });
+    entries.push(location);
+    remainder = remainder.slice(url[0].length);
+  }
+
+  return entries;
+}
+
+function auditSitemap(root) {
+  const failures = [];
+  const sitemapPath = join(root, 'sitemap.xml');
+  if (!existsSync(sitemapPath) || !statSync(sitemapPath).isFile()) {
+    return { entries: 0, failures: [{ reason: 'sitemap-file-missing' }] };
+  }
+
+  const entries = parseSitemapXml(readFileSync(sitemapPath, 'utf8'));
+  if (!entries) return { entries: 0, failures: [{ reason: 'sitemap-xml-invalid' }] };
+
+  const expectedUrls = canonicalRoutes.map((route) => new URL(route, siteOrigin).href);
+  const expectedSet = new Set(expectedUrls);
+  const entrySet = new Set(entries);
+  const duplicates = entries.filter((url, index) => entries.indexOf(url) !== index);
+  if (duplicates.length) failures.push({ reason: 'sitemap-duplicate-url', urls: [...new Set(duplicates)] });
+
+  for (const url of entries) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      failures.push({ reason: 'sitemap-url-invalid', url });
+      continue;
+    }
+    if (parsed.origin !== siteOrigin) failures.push({ reason: 'sitemap-url-host-mismatch', url, expectedOrigin: siteOrigin });
+    const output = !parsed.search && !parsed.hash ? outputFileForPath(root, parsed.pathname) : null;
+    if (!output) failures.push({ reason: 'sitemap-destination-missing', url });
+  }
+
+  const missing = expectedUrls.filter((url) => !entrySet.has(url));
+  const unexpected = [...entrySet].filter((url) => !expectedSet.has(url));
+  if (missing.length || unexpected.length || entries.length !== expectedUrls.length) {
+    failures.push({ reason: 'sitemap-url-set-mismatch', expectedCount: expectedUrls.length, actualCount: entries.length, missing, unexpected });
+  }
+
+  return { entries: entries.length, failures };
+}
+
+function auditRobots(root) {
+  const failures = [];
+  const robotsPath = join(root, 'robots.txt');
+  if (!existsSync(robotsPath) || !statSync(robotsPath).isFile()) {
+    return [{ reason: 'robots-file-missing' }];
+  }
+
+  const directives = readFileSync(robotsPath, 'utf8')
+    .replace(/^\uFEFF/, '')
+    .split(/\r?\n/)
+    .map((line) => line.split('#', 1)[0].trim())
+    .filter(Boolean)
+    .map((line) => {
+      const separator = line.indexOf(':');
+      if (separator < 1) return line.toLowerCase();
+      return `${line.slice(0, separator).trim().toLowerCase()}:${line.slice(separator + 1).trim()}`;
+    });
+  const expected = ['user-agent:*', 'allow:/', `sitemap:${siteOrigin}/sitemap.xml`];
+  if (directives.length !== expected.length || expected.some((directive) => !directives.includes(directive))) {
+    failures.push({ reason: 'robots-directive-contract-mismatch', expected, actual: directives });
+  }
+  return failures;
+}
+
 function auditDiscovery(root, documents) {
   const failures = [];
   const byRoute = new Map([...documents.values()].map((document) => [document.route, document]));
@@ -557,6 +653,8 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
   }
   const orphanCanonicalDestinations = canonicalRoutes.filter((route) => !reachable.has(route));
   const canonicalMetadata = auditCanonicalMetadata(documents);
+  const sitemap = auditSitemap(root);
+  const robotsFailures = auditRobots(root);
   const discoveryFailures = auditDiscovery(root, documents);
   const relatedGames = auditRelatedGames(documents);
   const report = {
@@ -569,10 +667,13 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
     orphanCanonicalDestinations,
     canonicalMetadataPages: canonicalMetadata.canonicalMetadataPages,
     canonicalMetadataFailures: canonicalMetadata.failures,
+    sitemapEntries: sitemap.entries,
+    sitemapFailures: sitemap.failures,
+    robotsFailures,
     relatedGames,
     discoveryFailures,
   };
-  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
+  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
   return report;
 }
 

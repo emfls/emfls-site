@@ -50,6 +50,10 @@ function sharedShell(content, route, robots = 'index, follow') {
   return `<!doctype html><html><head><meta name="robots" content="${robots}">${canonical}${openGraphUrl}</head><body><a href="#main-content">Skip</a><header>${link('/', 'Home')}${link('/games/', 'Games')}${link('/about/', 'About')}</header><main id="main-content">${content}</main><footer>${footer}</footer></body></html>`;
 }
 
+function sitemapXml(urls) {
+  return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((url) => `<url><loc>${url}</loc></url>`).join('')}</urlset>`;
+}
+
 function fixturePages() {
   const bySlug = new Map(games.map((game) => [game.slug, game]));
   const pages = new Map();
@@ -96,6 +100,8 @@ function writeFixture(t) {
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, html);
   }
+  writeFileSync(join(root, 'sitemap.xml'), sitemapXml(canonicalRoutes.map((route) => `https://emfls.com${route}`)));
+  writeFileSync(join(root, 'robots.txt'), 'User-agent: *\nAllow: /\n\nSitemap: https://emfls.com/sitemap.xml\n');
   return root;
 }
 
@@ -128,6 +134,9 @@ test('fresh generated output validates all canonical pages, discovery surfaces, 
   assert.equal(report.requiredDestinations, 18);
   assert.equal(report.canonicalMetadataPages, 18);
   assert.deepEqual(report.canonicalMetadataFailures, []);
+  assert.equal(report.sitemapEntries, 18);
+  assert.deepEqual(report.sitemapFailures, []);
+  assert.deepEqual(report.robotsFailures, []);
   assert.equal(report.brokenLinks.length, 0);
   assert.equal(report.externalLinksIgnored, 3);
   assert.deepEqual(report.orphanCanonicalDestinations, []);
@@ -213,6 +222,42 @@ test('generated-output audit rejects soft canonical migration of legacy routes',
   const report = canonicalFailureReport(root);
   assertCanonicalFailure(report, '/articles/legacy/', 'legacy-canonical-soft-migration');
   assertCanonicalFailure(report, '/categories/domains-dns/', 'legacy-canonical-soft-migration');
+});
+
+test('generated-output audit rejects legacy, duplicate, or non-canonical sitemap locations', (t) => {
+  const root = writeFixture(t);
+  const sitemapFile = join(root, 'sitemap.xml');
+  const legacyUrl = '<url><loc>https://emfls.com/articles/legacy-guide/</loc></url>';
+  const duplicateUrl = '<url><loc>https://emfls.com/games/</loc></url>';
+  const wrongHostUrl = '<url><loc>https://preview.emfls.com/games/</loc></url>';
+  const original = readFileSync(sitemapFile, 'utf8');
+  writeFileSync(sitemapFile, original.replace('</urlset>', `${legacyUrl}${duplicateUrl}${wrongHostUrl}</urlset>`));
+
+  const report = canonicalFailureReport(root);
+  assert.ok(report.sitemapFailures.some((failure) => failure.reason === 'sitemap-url-set-mismatch'), JSON.stringify(report.sitemapFailures));
+  assert.ok(report.sitemapFailures.some((failure) => failure.reason === 'sitemap-duplicate-url'), JSON.stringify(report.sitemapFailures));
+  assert.ok(report.sitemapFailures.some((failure) => failure.reason === 'sitemap-url-host-mismatch'), JSON.stringify(report.sitemapFailures));
+});
+
+test('generated-output audit rejects malformed sitemap XML and missing canonical destinations', (t) => {
+  const malformedRoot = writeFixture(t);
+  writeFileSync(join(malformedRoot, 'sitemap.xml'), '<?xml version="1.0"?><urlset><url><loc>https://emfls.com/</url></urlset>');
+  const malformedReport = canonicalFailureReport(malformedRoot);
+  assert.ok(malformedReport.sitemapFailures.some((failure) => failure.reason === 'sitemap-xml-invalid'), JSON.stringify(malformedReport.sitemapFailures));
+
+  const missingDestinationRoot = writeFixture(t);
+  const termsFile = join(missingDestinationRoot, 'terms/index.html');
+  rmSync(termsFile);
+  const missingReport = canonicalFailureReport(missingDestinationRoot);
+  assert.ok(missingReport.sitemapFailures.some((failure) => failure.reason === 'sitemap-destination-missing' && failure.url === 'https://emfls.com/terms/'), JSON.stringify(missingReport.sitemapFailures));
+});
+
+test('generated-output audit enforces the production robots allow and sitemap contract', (t) => {
+  const root = writeFixture(t);
+  writeFileSync(join(root, 'robots.txt'), 'User-agent: *\nDisallow: /\nSitemap: https://preview.emfls.com/sitemap.xml\nSitemap: https://legacy.example/sitemap.xml\n');
+
+  const report = canonicalFailureReport(root);
+  assert.ok(report.robotsFailures.some((failure) => failure.reason === 'robots-directive-contract-mismatch'), JSON.stringify(report.robotsFailures));
 });
 
 test('generated-output audit rejects missing routes, invalid schemes, and missing fragments', (t) => {
