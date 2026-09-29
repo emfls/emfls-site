@@ -11,6 +11,11 @@ export type GameMeta = {
   categories: GameCategory[];
   mode: GameMode;
   session: string;
+  comparison: {
+    challenge: string;
+    input: string;
+    bestFor: string;
+  };
   featuredOrder?: number;
   quickPlayOrder?: number;
 };
@@ -25,6 +30,7 @@ export const games: GameMeta[] = [
     categories: ['Reflex', 'Arcade'],
     mode: 'Solo',
     session: '30–60 sec',
+    comparison: { challenge: 'Time a pulse crossing a marked radius', input: 'Tap, click, or Space', bestFor: 'Short timing rounds and combo building' },
     featuredOrder: 1,
     quickPlayOrder: 1,
   },
@@ -37,6 +43,7 @@ export const games: GameMeta[] = [
     categories: ['Puzzle'],
     mode: 'Solo',
     session: '1–2 min',
+    comparison: { challenge: 'Route two reflected points together', input: 'Drag one point', bestFor: 'Paired spatial planning' },
     featuredOrder: 2,
   },
   {
@@ -48,6 +55,7 @@ export const games: GameMeta[] = [
     categories: ['Strategy'],
     mode: 'Local 2 Player',
     session: '2–4 min',
+    comparison: { challenge: 'Plan one-cell moves on a shared board', input: 'Direction pad or Arrow Keys', bestFor: 'Taking turns and reading an opponent' },
     featuredOrder: 4,
   },
   {
@@ -59,6 +67,7 @@ export const games: GameMeta[] = [
     categories: ['Arcade', 'Reflex'],
     mode: 'Solo',
     session: '30–90 sec',
+    comparison: { challenge: 'Fit an orbiting point through moving gaps', input: 'Drag radius or use direction keys', bestFor: 'Continuous movement with a narrow control axis' },
     featuredOrder: 3,
     quickPlayOrder: 2,
   },
@@ -71,6 +80,7 @@ export const games: GameMeta[] = [
     categories: ['Strategy', 'Puzzle'],
     mode: 'Solo',
     session: '1–3 min',
+    comparison: { challenge: 'Place signed values while limiting the gap', input: 'Choose Left or Right ledger', bestFor: 'Balancing a changing total' },
   },
   {
     name: 'Signal Sweep',
@@ -81,6 +91,7 @@ export const games: GameMeta[] = [
     categories: ['Reflex'],
     mode: 'Solo',
     session: '45–90 sec',
+    comparison: { challenge: 'Find every symbol matching a visual rule', input: 'Tap, click, Enter, or Space', bestFor: 'Scanning multiple symbol attributes' },
     quickPlayOrder: 3,
   },
   {
@@ -92,6 +103,7 @@ export const games: GameMeta[] = [
     categories: ['Puzzle', 'Strategy'],
     mode: 'Solo',
     session: '30 sec–2 min',
+    comparison: { challenge: 'Meet exact activation counts without forbidden cells', input: 'Select a piece, then place it', bestFor: 'Planning overlapping piece footprints' },
   },
   {
     name: 'Glass Bloom',
@@ -102,6 +114,7 @@ export const games: GameMeta[] = [
     categories: ['Arcade', 'Strategy'],
     mode: 'Solo',
     session: '1–2 min',
+    comparison: { challenge: 'Choose between growing a pot and banking it', input: 'Grow/Bank buttons, Space, or Enter', bestFor: 'Stopping under escalating risk' },
   },
 ];
 
@@ -139,3 +152,5 @@ export function getFeaturedGames(): GameMeta[] {
 export function getQuickPlayGames(): GameMeta[] {
   return getDiscoveryGames('quickPlayOrder');
 }
+
+export { gameEditorial } from './gameEditorial.ts';

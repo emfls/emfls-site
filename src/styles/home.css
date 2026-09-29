@@ -33,6 +33,12 @@
 .category-card { min-height: 12rem; display: flex; flex-direction: column; padding: var(--game-space-6); text-decoration: none; }
 .category-card h3 { margin-top: 0; color: var(--game-color-text); }
 .category-card__link { margin-top: auto; padding-top: var(--game-space-5); }
+.home-mechanics__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--game-space-5); }
+.home-mechanics__grid article { min-width: 0; padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); }
+.home-mechanics__grid h3 { margin: 0 0 var(--game-space-3); font-size: var(--game-font-size-h3); line-height: var(--game-line-height-heading); }
+.home-mechanics__grid p { margin: 0; color: var(--game-color-text-secondary); }
+.home-mechanics__grid a, .home-mechanics__more a { font-weight: var(--game-font-weight-bold); }
+.home-mechanics__more { margin: var(--game-space-6) 0 0; text-align: right; }
 .home-steps__inner { display: grid; grid-template-columns: minmax(12rem, 0.75fr) minmax(0, 1.25fr); align-items: center; gap: var(--game-space-12); }
 .home-steps__list { display: grid; gap: var(--game-space-3); padding: 0; margin: 0; list-style: none; }
 .home-steps__list li { display: flex; align-items: center; gap: var(--game-space-4); min-height: var(--game-control-min-size); padding: var(--game-space-3) 0; border-bottom: 1px solid var(--game-color-border); }
@@ -47,7 +53,7 @@
   .home-hero h1 { max-width: 14ch; }
   .home-hero__signal { width: min(100%, 14rem); }
   .home-hero__signal-dot { transform: translate(2.5rem, -2.5rem); }
-  .promise-list, .featured-grid, .category-grid, .home-steps__inner { grid-template-columns: 1fr; }
+  .promise-list, .featured-grid, .category-grid, .home-steps__inner, .home-mechanics__grid { grid-template-columns: 1fr; }
   .promise-list { justify-items: start; }
   .promise-item { justify-content: flex-start; }
   .home-section { padding-block: var(--game-space-12); }

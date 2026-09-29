@@ -43,7 +43,7 @@ const schema = {
     <section class="games-intro container">
       <p class="games-eyebrow">All games</p>
       <h1>Pick a game and start playing.</h1>
-      <p>Browse eight original browser games built for quick sessions on phone and desktop.</p>
+      <p>Browse eight original browser games built for quick sessions on phone and desktop. Compare the main challenge, input, and kind of decision before choosing.</p>
     </section>
 
     <section class="games-directory container" aria-labelledby="games-list-heading">
@@ -75,7 +75,7 @@ const schema = {
       </div>
 
       <div class="games-toolbar">
-        <h2 id="games-list-heading">All games</h2>
+        <h2 id="games-list-heading">Compare all eight games</h2>
         <p class="games-count" aria-live="polite"><span data-games-count>{games.length}</span> games</p>
       </div>
 
@@ -85,6 +85,11 @@ const schema = {
             <div class="games-card__meta"><span class="games-card__primary">{game.primaryCategory}</span><span>{game.session}</span></div>
             <h3>{game.name}</h3>
             <p>{game.description}</p>
+            <dl class="games-card__comparison" aria-label={`${game.name} play style`}>
+              <div><dt>Main challenge</dt><dd>{game.comparison.challenge}</dd></div>
+              <div><dt>Input</dt><dd>{game.comparison.input}</dd></div>
+              <div><dt>Best if you like</dt><dd>{game.comparison.bestFor}</dd></div>
+            </dl>
             <div class="games-card__categories" aria-label={`Categories: ${game.categories.join(', ')}`}>
               {game.categories.map((category) => <span>{category}</span>)}
             </div>

@@ -15,6 +15,12 @@
 .game-detail__guide, .game-detail__related { padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); }
 .game-detail__guide h2, .game-detail__related h2 { margin: 0 0 var(--game-space-4); font-size: var(--game-font-size-h3); line-height: var(--game-line-height-heading); }
 .game-detail__guide p, .game-detail__related p { margin: 0; color: var(--game-color-text-secondary); }
+.game-detail__editorial { max-width: var(--game-frame-max-width); margin: var(--game-space-10) auto 0; }
+.game-detail__editorial > h2 { margin: 0 0 var(--game-space-5); font-size: var(--game-font-size-h2); line-height: var(--game-line-height-heading); }
+.game-detail__editorial-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--game-space-5); }
+.game-detail__editorial-card { min-width: 0; padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); }
+.game-detail__editorial-card h3 { margin: 0 0 var(--game-space-4); font-size: var(--game-font-size-h3); line-height: var(--game-line-height-heading); }
+.game-detail__editorial-card p { margin: 0; color: var(--game-color-text-secondary); }
 .game-detail__related { max-width: var(--game-frame-max-width); margin: var(--game-space-5) auto 0; }
 .game-detail__related-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--game-space-4); margin: 0; padding: 0; list-style: none; }
 .game-detail__related-list li { min-width: 0; }
@@ -25,7 +31,7 @@
 .game-detail__related-meta { margin-top: auto; color: var(--game-color-primary); font-size: var(--game-font-size-small); font-weight: var(--game-font-weight-bold); }
 .game-detail__back { min-height: var(--game-control-min-size); display: inline-flex; align-items: center; margin-top: var(--game-space-10); font-weight: var(--game-font-weight-bold); }
 
-@media (max-width: 56rem) { .game-detail__guides { grid-template-columns: 1fr; } }
+@media (max-width: 56rem) { .game-detail__guides, .game-detail__editorial-grid { grid-template-columns: 1fr; } }
 @media (max-width: 40rem) {
   .game-detail { padding-top: var(--game-space-4); }
   .game-detail__header { padding-block: var(--game-space-8) var(--game-space-6); }

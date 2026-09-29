@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 import { gameCategories } from '../src/data/gameCategories.ts';
-import { games } from '../src/data/games.ts';
+import { gameEditorial, games } from '../src/data/games.ts';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const validatorPath = join(repoRoot, 'scripts/validate-generated-site.mjs');
@@ -58,22 +58,29 @@ function fixturePages() {
   const bySlug = new Map(games.map((game) => [game.slug, game]));
   const pages = new Map();
   const featured = featuredSlugs.map((slug) => bySlug.get(slug));
-  const homeContent = `<section class="featured-grid">${featured.map((game) => `<article class="game-card"><div class="game-card__topline"><span class="game-card__category">${game.primaryCategory}</span><span>${game.session}</span></div><h3>${game.name}</h3><p>${game.description}</p><div class="game-card__footer"><span>${game.mode}</span><a href="${game.href}">Play</a></div></article>`).join('')}</section><section class="category-grid">${gameCategories.map((category) => `<a class="category-card" href="${category.href}"><h3>${category.name}</h3></a>`).join('')}</section>`;
+  const mechanicGroups = [['pulse-junction', 'signal-sweep'], ['mirror-drift', 'orbit-slip'], ['gravity-pact', 'field-bloom'], ['twin-ledger', 'glass-bloom']];
+  const mechanics = mechanicGroups.map((group) => `<article>${group.map((slug) => {
+    const game = bySlug.get(slug);
+    return `<a href="${game.href}">${game.name}</a>`;
+  }).join('')}</article>`).join('');
+  const homeContent = `<section class="featured-grid">${featured.map((game) => `<article class="game-card"><div class="game-card__topline"><span class="game-card__category">${game.primaryCategory}</span><span>${game.session}</span></div><h3>${game.name}</h3><p>${game.description}</p><div class="game-card__footer"><span>${game.mode}</span><a href="${game.href}">Play</a></div></article>`).join('')}</section><section class="home-mechanics"><h2>Choose by the kind of decision</h2>${mechanics}<a href="/games/">Compare all eight games</a></section><section class="category-grid">${gameCategories.map((category) => `<a class="category-card" href="${category.href}"><h3>${category.name}</h3></a>`).join('')}</section>`;
   pages.set('/', sharedShell(homeContent, '/'));
 
-  const gameCards = games.map((game) => `<article class="games-card" data-game-card data-categories="${game.categories.join(',')}" data-mode="${game.mode}" data-quick-play="${quickPlaySlugs.includes(game.slug)}"><h3>${game.name}</h3><a href="${game.href}">Play</a></article>`).join('');
-  pages.set('/games/', sharedShell(`<div class="games-filters"><button type="button" data-filter-group="category" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="mode" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="Quick Play" aria-pressed="false">Quick Play</button></div><section class="games-grid">${gameCards}</section>`, '/games/'));
+  const gameCards = games.map((game) => `<article class="games-card" data-game-card data-categories="${game.categories.join(',')}" data-mode="${game.mode}" data-quick-play="${quickPlaySlugs.includes(game.slug)}"><h3>${game.name}</h3><a href="${game.href}">Play</a><dl class="games-card__comparison"><div><dt>Main challenge</dt><dd>${game.comparison.challenge}</dd></div><div><dt>Input</dt><dd>${game.comparison.input}</dd></div><div><dt>Best if you like</dt><dd>${game.comparison.bestFor}</dd></div></dl></article>`).join('');
+  pages.set('/games/', sharedShell(`<div class="games-filters"><button type="button" data-filter-group="category" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="mode" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="Quick Play" aria-pressed="false">Quick Play</button></div><h2>Compare all eight games</h2><section class="games-grid">${gameCards}</section>`, '/games/'));
 
   for (const category of gameCategories) {
     const members = games.filter((game) => game.categories.includes(category.name));
-    const cards = members.map((game) => `<article class="game-category-card"><h3>${game.name}</h3><a href="${game.href}">Play</a></article>`).join('');
-    pages.set(category.href, sharedShell(`<h1>${category.title}</h1><section class="game-category__grid">${cards}</section>`, category.href));
+    const cards = members.map((game) => `<article class="game-category-card"><h3>${game.name}</h3><a href="${game.href}">Play</a><p class="game-category-card__distinction">${category.editorial.gameComparisons[game.slug]}</p></article>`).join('');
+    pages.set(category.href, sharedShell(`<h1>${category.title}</h1><section class="game-category__editorial"><h2>How these games differ</h2><p>${category.editorial.playStyle}</p><p class="game-category__choose"><strong>Choose this category if:</strong> ${category.editorial.chooseIf}</p></section><section class="game-category__grid">${cards}</section>`, category.href));
   }
 
   for (const game of games) {
     const related = relatedSlugs[game.slug].map((slug) => bySlug.get(slug));
     const relatedHtml = related.map((item) => `<li><a class="game-detail__related-link" href="${item.href}"><strong>${item.name}</strong><span class="game-detail__related-description">${item.description}</span><span>${item.primaryCategory} · ${item.session}</span></a></li>`).join('');
-    const content = `<nav class="game-breadcrumb">${link('/', 'Home')}${link('/games/', 'Games')}${link(`/categories/${game.primaryCategory.toLowerCase()}/`, game.primaryCategory)}</nav><h1>${game.name}</h1><p class="game-detail__description">${game.description}</p><div class="game-detail__meta"><span>Mode ${game.mode}</span><span>Session ${game.session}</span></div><section class="game-detail__related"><h2>Related Games</h2><ul>${relatedHtml}</ul></section><a href="/games/">Back to all games</a>`;
+    const guideHtml = ['How to Play', 'Controls', 'Scoring'].map((title) => `<article class="game-detail__guide"><h2>${title}</h2><p>${title} for ${game.name}.</p></article>`).join('');
+    const editorialHtml = Object.values(gameEditorial[game.slug]).map((section) => `<article class="game-detail__editorial-card"><h3>${section.title}</h3><p>${section.body}</p></article>`).join('');
+    const content = `<nav class="game-breadcrumb">${link('/', 'Home')}${link('/games/', 'Games')}${link(`/categories/${game.primaryCategory.toLowerCase()}/`, game.primaryCategory)}</nav><h1>${game.name}</h1><p class="game-detail__description">${game.description}</p><section class="game-detail__stage-section">Play ${game.name}</section><div class="game-detail__guides">${guideHtml}</div><section class="game-detail__editorial"><h2>A closer look at ${game.name}</h2>${editorialHtml}</section><section class="game-detail__related"><h2>Related Games</h2><ul>${relatedHtml}</ul></section><a href="/games/">Back to all games</a>`;
     pages.set(game.href, sharedShell(content, game.href));
   }
 
@@ -81,7 +88,8 @@ function fixturePages() {
     const links = route === '/contact/'
       ? '<a href="mailto:hello@example.com">Email</a><a href="tel:+821012345678">Phone</a><a href="https://example.org/reference">External</a>'
       : '';
-    pages.set(route, sharedShell(`<h1>${route.split('/')[1]}</h1>${links}`, route));
+    const about = route === '/about/' ? `<section class="about-mechanics"><h2>How the mechanics differ</h2>${games.map(({ name }) => `<p>${name}</p>`).join('')}</section>` : '';
+    pages.set(route, sharedShell(`<h1>${route.split('/')[1]}</h1>${about}${links}`, route));
   }
   pages.set('/site-map/', sharedShell(`<nav>${canonicalRoutes.map((route) => link(route, route)).join('')}</nav>`, '/site-map/', 'noindex, follow'));
   pages.set('/404.html', sharedShell(`<h1>Page not found</h1>${link('/', 'Back to Home')}${link('/games/', 'Browse Games')}`, '/404.html', 'noindex, follow'));
@@ -146,7 +154,37 @@ test('fresh generated output validates all canonical pages, discovery surfaces, 
   assert.deepEqual(report.orphanCanonicalDestinations, []);
   assert.deepEqual(report.relatedGames, { gamePages: 8, linksChecked: 24, failures: [] });
   assert.equal(report.discoveryFailures.length, 0);
+  assert.deepEqual(report.publisherContentFailures, []);
   assert.ok(report.linksInspected > 0);
+});
+
+test('generated-output audit requires the publisher-value content to render across all discovery routes', (t) => {
+  const root = writeFixture(t);
+  const pulseFile = join(root, 'games/pulse-junction/index.html');
+  const pulseHtml = readFileSync(pulseFile, 'utf8');
+  writeFileSync(pulseFile, pulseHtml.replace(/<section class="game-detail__editorial">[\s\S]*?<\/section>/, ''));
+
+  const puzzleFile = join(root, 'categories/puzzle/index.html');
+  const puzzleHtml = readFileSync(puzzleFile, 'utf8');
+  writeFileSync(puzzleFile, puzzleHtml.replace(/<section class="game-category__editorial">[\s\S]*?<\/section>/, ''));
+
+  const gamesFile = join(root, 'games/index.html');
+  writeFileSync(gamesFile, readFileSync(gamesFile, 'utf8').replace('Time a pulse crossing a marked radius', 'Generic game description'));
+
+  const homeFile = join(root, 'index.html');
+  writeFileSync(homeFile, readFileSync(homeFile, 'utf8').replace('href="/games/field-bloom/"', 'href="/games/not-a-game/"'));
+
+  const aboutFile = join(root, 'about/index.html');
+  writeFileSync(aboutFile, readFileSync(aboutFile, 'utf8').replace('class="about-mechanics"', 'class="trust-section"'));
+
+  const result = runValidator(root);
+  assert.equal(result.status, 1, result.stdout);
+  const report = JSON.parse(result.stdout);
+  assert.ok(report.publisherContentFailures.some(({ route, reason }) => route === '/games/pulse-junction/' && reason === 'game-editorial-section-count-mismatch'));
+  assert.ok(report.publisherContentFailures.some(({ route, reason }) => route === '/categories/puzzle/' && reason === 'category-editorial-section-count-mismatch'));
+  assert.ok(report.publisherContentFailures.some(({ route, reason }) => route === '/games/' && reason === 'games-comparison-details-mismatch'));
+  assert.ok(report.publisherContentFailures.some(({ route, reason }) => route === '/' && reason === 'home-mechanics-game-link-set-mismatch'));
+  assert.ok(report.publisherContentFailures.some(({ route, reason }) => route === '/about/' && reason === 'about-mechanics-section-missing'));
 });
 
 test('generated-output audit requires the exact final HTML route surface', (t) => {

@@ -51,6 +51,14 @@ const schema = {
         <span class="game-category__count">{categoryGames.length} games</span>
       </header>
 
+      <section class="game-category__editorial" aria-labelledby="category-play-style-heading">
+        <div>
+          <h2 id="category-play-style-heading">How these games differ</h2>
+          <p>{category.editorial.playStyle}</p>
+        </div>
+        <p class="game-category__choose"><strong>Choose this category if:</strong> {category.editorial.chooseIf}</p>
+      </section>
+
       <section class="game-category__section" aria-labelledby="category-games-heading">
         <h2 id="category-games-heading">Games in {category.name}</h2>
         <div class="game-category__grid">
@@ -59,6 +67,7 @@ const schema = {
               <div class="game-category-card__meta"><span>{game.primaryCategory}</span><span>{game.session}</span></div>
               <h3>{game.name}</h3>
               <p>{game.description}</p>
+              <p class="game-category-card__distinction">{category.editorial.gameComparisons[game.slug]}</p>
               <div class="game-category-card__badges" aria-label={`Categories: ${game.categories.join(', ')}`}>
                 {game.categories.map((gameCategory) => <span>{gameCategory}</span>)}
               </div>
