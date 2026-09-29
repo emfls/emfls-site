@@ -1,0 +1,76 @@
+---
+import '../../styles/games/orbit-slip.css';
+---
+<div class="orbit-slip" data-orbit-slip data-state="IDLE">
+  <section class="orbit-slip__stage" aria-label="Orbit Slip game">
+    <div class="orbit-slip__panel orbit-slip__panel--overlay" data-panel="IDLE">
+      <div class="orbit-slip__card">
+        <h3>Ready to orbit?</h3>
+        <p>Adjust your orbit radius to slip through each gate without touching a barrier.</p>
+        <button class="button" type="button" data-action="start">Start Game</button>
+      </div>
+    </div>
+
+    <div class="orbit-slip__panel orbit-slip__panel--overlay" data-panel="COUNTDOWN" hidden>
+      <p class="orbit-slip__countdown" role="status" aria-live="polite" aria-atomic="true"><span data-countdown>3</span></p>
+    </div>
+
+    <div class="orbit-slip__panel orbit-slip__active" data-panel="ACTIVE" hidden>
+      <div class="orbit-slip__hud" aria-label="Game status">
+        <div class="orbit-slip__hud-item"><span>Score</span><strong data-hud-score>0</strong></div>
+        <div class="orbit-slip__hud-item"><span>Time</span><strong data-hud-time>0.0 s</strong></div>
+        <div class="orbit-slip__hud-item"><span>Gates</span><strong data-hud-gates>0</strong></div>
+      </div>
+      <div class="orbit-slip__surface">
+        <canvas
+          class="orbit-slip__canvas"
+          data-canvas
+          width="600"
+          height="600"
+          tabindex="0"
+          role="img"
+          aria-label="Orbit Slip play area"
+          aria-describedby="orbit-slip-canvas-instructions"
+        ></canvas>
+      </div>
+      <p class="orbit-slip__canvas-instructions" id="orbit-slip-canvas-instructions">Your point moves around automatically. Drag inward or outward relative to the center, or hold Up or W to move outward, or hold Down or S to move inward. Avoid barriers.</p>
+    </div>
+
+    <div class="orbit-slip__panel orbit-slip__panel--overlay" data-panel="PAUSED" hidden>
+      <div class="orbit-slip__card">
+        <h3>Paused</h3>
+        <p>Resume when you are ready.</p>
+        <button class="button" type="button" data-action="resume">Resume</button>
+      </div>
+    </div>
+
+    <div class="orbit-slip__panel orbit-slip__panel--overlay" data-panel="HIT_FEEDBACK" hidden>
+      <p class="orbit-slip__feedback" role="status">Barrier hit.</p>
+    </div>
+
+    <div class="orbit-slip__panel orbit-slip__panel--overlay" data-panel="RESULT" hidden>
+      <div class="orbit-slip__card">
+        <h3>Run complete</h3>
+        <dl class="orbit-slip__result-grid">
+          <div><dt>Score</dt><dd data-result="score">0</dd></div>
+          <div><dt>Survival Time</dt><dd data-result="survival-time">0.0 s</dd></div>
+          <div><dt>Gates Passed</dt><dd data-result="gates-passed">0</dd></div>
+          <div><dt>Best Score</dt><dd data-result="best-score">0</dd></div>
+          <div><dt>Best Time</dt><dd data-result="best-time">0.0 s</dd></div>
+        </dl>
+        <button class="button" type="button" data-action="play-again">Play Again</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { createOrbitSlipController } from '../../games/orbit-slip/controller';
+
+  document.querySelectorAll<HTMLElement>('[data-orbit-slip]').forEach((root) => {
+    if (!root.dataset.controllerReady) {
+      createOrbitSlipController(root);
+      root.dataset.controllerReady = 'true';
+    }
+  });
+</script>

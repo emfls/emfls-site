@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import GlassBloomGame from '../../components/games/GlassBloomGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'glass-bloom');
+if (!game) throw new Error('Glass Bloom is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <GlassBloomGame slot="game" />
+  <p slot="how-to-play">Grow your crystal to raise its pot, but each growth carries a break risk. Bank at any time to add the current pot to your score. If the crystal shatters, its unbanked pot is lost.</p>
+  <p slot="controls">Select Grow or Bank, or use Space to Grow and Enter to Bank. Pause and resume whenever needed. You can take as long as you want to decide.</p>
+  <p slot="scoring">Banked points are added to your total with a bonus that grows after consecutive banks, up to 20%. A break resets that streak. Finish all 8 crystals to record the session.</p>
+</GameDetailFrame>

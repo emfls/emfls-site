@@ -1,0 +1,8 @@
+---
+import GameCategoryPage from '../../components/GameCategoryPage.astro';
+import { gameCategories } from '../../data/gameCategories';
+
+const category = gameCategories.find((entry) => entry.slug === 'arcade');
+if (!category) throw new Error('Arcade category is not configured.');
+---
+<GameCategoryPage category={category} />

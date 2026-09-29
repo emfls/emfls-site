@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import MirrorDriftGame from '../../components/games/MirrorDriftGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'mirror-drift');
+if (!game) throw new Error('Mirror Drift is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <MirrorDriftGame slot="game" />
+  <p slot="how-to-play">Drag the solid point. Its ring partner mirrors your movement across the center. Guide both points around obstacles and hold both inside their matching targets to clear the stage.</p>
+  <p slot="controls">Mobile: press and drag the solid point with one finger. Desktop: click and drag the solid point with the mouse.</p>
+  <p slot="scoring">Each cleared stage starts at 500 points, adds a bonus for time remaining, and loses 100 points for each strike on that stage. Clear all 12 stages for your final score.</p>
+</GameDetailFrame>

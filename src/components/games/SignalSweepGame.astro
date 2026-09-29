@@ -1,0 +1,105 @@
+---
+import '../../styles/games/signal-sweep.css';
+---
+<div class="signal-sweep" data-signal-sweep data-state="IDLE">
+  <section class="signal-sweep__game" aria-label="Signal Sweep game">
+    <p class="signal-sweep__generation-error" data-generation-error role="alert" hidden></p>
+    <header class="signal-sweep__hud" aria-label="Game status">
+      <div class="signal-sweep__stat"><span>Round</span><strong data-round>— / 15</strong></div>
+      <div class="signal-sweep__stat"><span>Time</span><strong data-timer>—</strong></div>
+      <div class="signal-sweep__stat"><span>Score</span><strong data-score>0</strong></div>
+    </header>
+
+    <section class="signal-sweep__rule" aria-labelledby="signal-sweep-rule-heading">
+      <p class="signal-sweep__eyebrow" id="signal-sweep-rule-heading">Current rule</p>
+      <p class="signal-sweep__rule-text" data-rule>Look for every symbol that matches the round's rule.</p>
+    </section>
+
+    <div class="signal-sweep__panels">
+      <section class="signal-sweep__panel" data-panel="IDLE" aria-labelledby="signal-sweep-idle-heading">
+        <p class="signal-sweep__eyebrow">Visual search · 15 rounds</p>
+        <h2 id="signal-sweep-idle-heading">Scan. Match. Clear.</h2>
+        <p>Read a short rule, then find every matching symbol before time runs out.</p>
+        <button class="button" type="button" data-action="start">Start Game</button>
+      </section>
+
+      <section class="signal-sweep__panel signal-sweep__panel--preview" data-panel="RULE_PREVIEW" aria-labelledby="signal-sweep-preview-heading" hidden>
+        <h2 id="signal-sweep-preview-heading">Read the rule</h2>
+        <p>The board is shown after the rule preview.</p>
+        <button class="button button--secondary" type="button" data-action="pause">Pause</button>
+      </section>
+
+      <section class="signal-sweep__panel signal-sweep__panel--active" data-panel="ACTIVE" aria-label="Find every matching symbol" hidden>
+        <p class="signal-sweep__mistake" data-mistake-feedback role="status" aria-live="polite" aria-atomic="true"></p>
+        <div class="signal-sweep__board" data-board role="group" aria-label="Symbol board"></div>
+        <button class="button button--secondary" type="button" data-action="pause">Pause</button>
+      </section>
+
+      <section class="signal-sweep__panel" data-panel="ROUND_FEEDBACK" aria-labelledby="signal-sweep-feedback-heading" hidden>
+        <h2 id="signal-sweep-feedback-heading">Round complete</h2>
+        <p data-outcome role="status" aria-live="polite" aria-atomic="true"></p>
+        <button class="button button--secondary" type="button" data-action="pause">Pause</button>
+      </section>
+
+      <section class="signal-sweep__panel" data-panel="PAUSED" aria-labelledby="signal-sweep-paused-heading" hidden>
+        <h2 id="signal-sweep-paused-heading">Paused</h2>
+        <p>Your round is waiting for you.</p>
+        <button class="button" type="button" data-action="resume">Resume</button>
+      </section>
+
+      <section class="signal-sweep__panel signal-sweep__panel--result" data-panel="RESULT" aria-labelledby="signal-sweep-result-heading" hidden>
+        <h2 id="signal-sweep-result-heading">Session result</h2>
+        <dl class="signal-sweep__results">
+          <div><dt>Score</dt><dd data-result="score">—</dd></div>
+          <div><dt>Correct Targets</dt><dd data-result="correct-targets">—</dd></div>
+          <div><dt>Mistakes</dt><dd data-result="mistakes">—</dd></div>
+          <div><dt>Clean Rounds</dt><dd data-result="clean-rounds">—</dd></div>
+          <div><dt>Average Accuracy</dt><dd data-result="average-accuracy">—</dd></div>
+          <div><dt>Best Score</dt><dd data-result="best-score">—</dd></div>
+        </dl>
+        <button class="button" type="button" data-action="play-again">Play Again</button>
+      </section>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { createSignalSweepController } from '../../games/signal-sweep/controller';
+
+  const signalSweepControllers = new WeakMap<HTMLElement, () => void>();
+
+  const initializeSignalSweep = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-signal-sweep]').forEach((root) => {
+      if (!signalSweepControllers.has(root)) {
+        const destroyController = createSignalSweepController(root);
+        const alignGameAfterAction = (event: MouseEvent): void => {
+          const target = event.target;
+          if (!(target instanceof Element) || !window.matchMedia('(max-width: 48rem)').matches) return;
+          const action = target.closest<HTMLElement>('[data-action]')?.dataset.action;
+          if (action !== 'start' && action !== 'resume' && action !== 'play-again') return;
+          requestAnimationFrame(() => root.scrollIntoView({ block: 'start', behavior: 'instant' }));
+        };
+        root.addEventListener('click', alignGameAfterAction);
+        signalSweepControllers.set(root, () => {
+          root.removeEventListener('click', alignGameAfterAction);
+          destroyController();
+        });
+        root.dataset.controllerReady = 'true';
+      }
+    });
+  };
+
+  const destroySignalSweep = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-signal-sweep]').forEach((root) => {
+      signalSweepControllers.get(root)?.();
+      signalSweepControllers.delete(root);
+      delete root.dataset.controllerReady;
+    });
+  };
+
+  document.addEventListener('astro:page-load', initializeSignalSweep);
+  document.addEventListener('astro:before-swap', destroySignalSweep);
+  window.addEventListener('pageshow', initializeSignalSweep);
+  window.addEventListener('pagehide', destroySignalSweep);
+  initializeSignalSweep();
+</script>

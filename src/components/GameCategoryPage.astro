@@ -1,0 +1,72 @@
+---
+import GameLayout from '../layouts/GameLayout.astro';
+import { games } from '../data/games';
+import type { GameCategoryDefinition } from '../data/gameCategories';
+import '../styles/game-category.css';
+
+interface Props {
+  category: GameCategoryDefinition;
+}
+
+const { category } = Astro.props;
+const categoryGames = games.filter((game) => game.categories.includes(category.name));
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: category.title,
+  url: `https://emfls.com${category.href}`,
+  description: category.description,
+  inLanguage: 'en',
+  mainEntity: {
+    '@type': 'ItemList',
+    numberOfItems: categoryGames.length,
+    itemListElement: categoryGames.map((game, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'VideoGame',
+        name: game.name,
+        url: `https://emfls.com${game.href}`,
+        description: game.description,
+      },
+    })),
+  },
+};
+---
+<GameLayout title={`${category.title} | EMFLS Games`} description={category.description} canonical={category.href} robots="index, follow" ogType="website" schema={schema}>
+  <div class="game-category">
+    <div class="container">
+      <nav class="game-category__breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">→</span>
+        <a href="/games/">Games</a>
+        <span aria-hidden="true">→</span>
+        <span aria-current="page">{category.name}</span>
+      </nav>
+
+      <header class="game-category__header">
+        <p class="game-category__eyebrow">{category.eyebrow}</p>
+        <h1>{category.title}</h1>
+        <p>{category.description}</p>
+        <span class="game-category__count">{categoryGames.length} games</span>
+      </header>
+
+      <section class="game-category__section" aria-labelledby="category-games-heading">
+        <h2 id="category-games-heading">Games in {category.name}</h2>
+        <div class="game-category__grid">
+          {categoryGames.map((game) => (
+            <article class="game-category-card">
+              <div class="game-category-card__meta"><span>{game.primaryCategory}</span><span>{game.session}</span></div>
+              <h3>{game.name}</h3>
+              <p>{game.description}</p>
+              <div class="game-category-card__badges" aria-label={`Categories: ${game.categories.join(', ')}`}>
+                {game.categories.map((gameCategory) => <span>{gameCategory}</span>)}
+              </div>
+              <div class="game-category-card__footer"><span>{game.mode}</span><a class="game-category-card__play" href={game.href}>Play <span aria-hidden="true">→</span></a></div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  </div>
+</GameLayout>

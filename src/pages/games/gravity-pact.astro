@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import GravityPactGame from '../../components/games/GravityPactGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'gravity-pact');
+if (!game) throw new Error('Gravity Pact is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <GravityPactGame slot="game" />
+  <p slot="how-to-play">Players take turns choosing a direction. Every active token — yours and your opponent's — tries to move one cell in that screen direction. Guide all three of your tokens into your goal cells before your opponent does.</p>
+  <p slot="controls">Mobile: use the shared arrow pad below the board. Desktop: use the arrow pad or the Arrow Keys. Directions are always relative to the screen.</p>
+  <p slot="scoring">Each token that reaches its matching goal scores 1 point and leaves the board. The first player to 3 points wins. If both players reach 3 on the same move, the match is a draw. After 30 legal moves or a stalemate, the higher score wins; a tie is a draw.</p>
+</GameDetailFrame>

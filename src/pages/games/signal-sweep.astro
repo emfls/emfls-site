@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import SignalSweepGame from '../../components/games/SignalSweepGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'signal-sweep');
+if (!game) throw new Error('Signal Sweep is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <SignalSweepGame slot="game" />
+  <p slot="how-to-play">Read the rule, then tap every matching symbol before time runs out. Correct picks stay selected; wrong picks cost points but do not end the round. Clear all 15 rounds to finish.</p>
+  <p slot="controls">Tap or click each matching tile. Keyboard: Tab to a tile, then press Enter or Space.</p>
+  <p slot="scoring">Each correct tile: +100. CLEAR bonus: +200, multiplied by the clean streak at round start (×1.00 at streak 0–1, ×1.10 at 2–3, ×1.20 at 4–5, ×1.30 at 6+), plus floor(time left in 100ms units) ×2 (maximum +160). Wrong tile: −50; score never drops below 0. TIMEOUT adds no extra penalty. The streak multiplier affects only a CLEAR bonus.</p>
+</GameDetailFrame>

@@ -1,0 +1,119 @@
+---
+import '../../styles/games/field-bloom.css';
+---
+<div class="field-bloom" data-field-bloom data-state="LEVEL_SELECT">
+  <section class="field-bloom__game" aria-label="Field Bloom game">
+    <div class="field-bloom__panels">
+      <section class="field-bloom__panel field-bloom__panel--levels" data-panel="LEVEL_SELECT" aria-labelledby="field-bloom-levels-heading">
+        <p class="field-bloom__eyebrow">A spatial energy puzzle</p>
+        <h2 id="field-bloom-levels-heading">Choose a puzzle</h2>
+        <p class="field-bloom__intro">Place each energy piece with care. Every target has an exact number to reach.</p>
+        <ol class="field-bloom__levels" data-level-list aria-label="Puzzle selector">
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-01"><span class="field-bloom__level-number">01</span><span class="field-bloom__level-title">Puzzle 1</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-02" disabled><span class="field-bloom__level-number">02</span><span class="field-bloom__level-title">Puzzle 2</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-03" disabled><span class="field-bloom__level-number">03</span><span class="field-bloom__level-title">Puzzle 3</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-04" disabled><span class="field-bloom__level-number">04</span><span class="field-bloom__level-title">Puzzle 4</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-05" disabled><span class="field-bloom__level-number">05</span><span class="field-bloom__level-title">Puzzle 5</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-06" disabled><span class="field-bloom__level-number">06</span><span class="field-bloom__level-title">Puzzle 6</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-07" disabled><span class="field-bloom__level-number">07</span><span class="field-bloom__level-title">Puzzle 7</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-08" disabled><span class="field-bloom__level-number">08</span><span class="field-bloom__level-title">Puzzle 8</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-09" disabled><span class="field-bloom__level-number">09</span><span class="field-bloom__level-title">Puzzle 9</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-10" disabled><span class="field-bloom__level-number">10</span><span class="field-bloom__level-title">Puzzle 10</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-11" disabled><span class="field-bloom__level-number">11</span><span class="field-bloom__level-title">Puzzle 11</span></button></li>
+          <li><button class="field-bloom__level" type="button" data-puzzle-id="fb-12" disabled><span class="field-bloom__level-number">12</span><span class="field-bloom__level-title">Puzzle 12</span></button></li>
+        </ol>
+      </section>
+
+      <section class="field-bloom__panel" data-panel="PUZZLE_INTRO" aria-labelledby="field-bloom-intro-heading" hidden>
+        <p class="field-bloom__eyebrow">Puzzle briefing</p>
+        <h2 id="field-bloom-intro-heading" data-puzzle-title></h2>
+        <dl class="field-bloom__briefing">
+          <div><dt>Board</dt><dd data-board-size></dd></div>
+          <div><dt>Targets</dt><dd data-requirement-summary></dd></div>
+          <div><dt>Energy pieces</dt><dd data-inventory-summary></dd></div>
+        </dl>
+        <button class="field-bloom__button" type="button" data-action="start" disabled>Start Puzzle</button>
+        <button class="field-bloom__button field-bloom__button--quiet" type="button" data-action="back-to-levels" disabled>Back to Puzzles</button>
+      </section>
+
+      <section class="field-bloom__panel field-bloom__panel--play" data-panel="PLAYING" aria-labelledby="field-bloom-playing-heading" hidden>
+        <header class="field-bloom__play-header">
+          <div>
+            <p class="field-bloom__eyebrow">Field Bloom</p>
+            <h2 id="field-bloom-playing-heading" data-playing-title></h2>
+          </div>
+          <p class="field-bloom__timer"><span>Time</span><strong data-timer></strong></p>
+        </header>
+        <p class="field-bloom__status" data-status role="status" aria-live="polite" aria-atomic="true" hidden></p>
+        <p class="field-bloom__selected-piece" data-selected-piece hidden>No energy piece selected</p>
+        <div class="field-bloom__board-wrap">
+          <div class="field-bloom__board" data-board role="grid" aria-label="Puzzle board"></div>
+        </div>
+        <section class="field-bloom__inventory" aria-labelledby="field-bloom-inventory-heading">
+          <h3 id="field-bloom-inventory-heading">Energy pieces</h3>
+          <ul class="field-bloom__pieces" data-inventory aria-label="Available energy pieces"></ul>
+        </section>
+        <p class="field-bloom__undo-count" data-undo-count>Undos this attempt: 0</p>
+        <div class="field-bloom__actions" data-playing-actions aria-label="Puzzle controls">
+          <button class="field-bloom__button field-bloom__button--quiet" type="button" data-action="undo" disabled>Undo</button>
+          <button class="field-bloom__button field-bloom__button--quiet" type="button" data-action="reset" disabled>Reset</button>
+          <button class="field-bloom__button field-bloom__button--quiet" type="button" data-action="pause" disabled>Pause</button>
+        </div>
+      </section>
+
+      <section class="field-bloom__panel field-bloom__panel--feedback" data-panel="SOLVE_FEEDBACK" aria-labelledby="field-bloom-feedback-heading" hidden>
+        <p class="field-bloom__eyebrow">Puzzle solved</p>
+        <h2 id="field-bloom-feedback-heading" data-completion-heading></h2>
+        <p class="field-bloom__completion-message" data-completion-message role="status" aria-live="polite" aria-atomic="true"></p>
+        <dl class="field-bloom__results" hidden>
+          <div><dt>Stars</dt><dd data-result="stars"></dd></div>
+          <div><dt>Pieces Used</dt><dd data-result="pieces-used"></dd></div>
+          <div><dt>Undo Count</dt><dd data-result="undo-count"></dd></div>
+          <div><dt>Time</dt><dd data-result="time"></dd></div>
+          <div><dt>Best Stars</dt><dd data-result="best-stars"></dd></div>
+          <div><dt>Best Time</dt><dd data-result="best-time"></dd></div>
+        </dl>
+        <div class="field-bloom__actions">
+          <button class="field-bloom__button" type="button" data-action="next" disabled>Next Puzzle</button>
+          <button class="field-bloom__button field-bloom__button--quiet" type="button" data-action="retry" disabled>Retry Puzzle</button>
+          <button class="field-bloom__button field-bloom__button--quiet" type="button" data-action="level-select" disabled>Level Select</button>
+        </div>
+      </section>
+
+      <section class="field-bloom__panel field-bloom__panel--paused" data-panel="PAUSED" aria-labelledby="field-bloom-paused-heading" hidden>
+        <p class="field-bloom__eyebrow">Take your time</p>
+        <h2 id="field-bloom-paused-heading">Puzzle paused</h2>
+        <p>Your board and selected piece are waiting.</p>
+        <p>Elapsed time: <strong data-paused-timer>0:00</strong></p>
+        <button class="field-bloom__button" type="button" data-action="resume" disabled>Resume</button>
+      </section>
+    </div>
+  </section>
+</div>
+
+<script>
+  import { createFieldBloomController } from '../../games/field-bloom/controller.ts';
+
+  const fieldBloomControllers = new WeakMap<HTMLElement, () => void>();
+
+  const initializeFieldBloom = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-field-bloom]').forEach((root) => {
+      if (fieldBloomControllers.has(root)) return;
+      fieldBloomControllers.set(root, createFieldBloomController(root));
+    });
+  };
+
+  const destroyFieldBloom = (): void => {
+    document.querySelectorAll<HTMLElement>('[data-field-bloom]').forEach((root) => {
+      fieldBloomControllers.get(root)?.();
+      fieldBloomControllers.delete(root);
+      delete root.dataset.controllerReady;
+    });
+  };
+
+  document.addEventListener('astro:page-load', initializeFieldBloom);
+  document.addEventListener('astro:before-swap', destroyFieldBloom);
+  window.addEventListener('pageshow', initializeFieldBloom);
+  window.addEventListener('pagehide', destroyFieldBloom);
+  initializeFieldBloom();
+</script>

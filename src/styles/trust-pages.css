@@ -1,0 +1,19 @@
+.trust-page { min-height: 100%; padding-block: var(--game-space-8) var(--game-space-16); background: var(--game-color-background); }
+.trust-page__inner { max-width: var(--game-readable-max-width); }
+.trust-page__header { padding-block: var(--game-space-8) var(--game-space-10); }
+.trust-page__eyebrow { margin: 0 0 var(--game-space-3); color: var(--game-color-primary); font-size: var(--game-font-size-small); font-weight: var(--game-font-weight-bold); letter-spacing: 0.08em; text-transform: uppercase; }
+.trust-page__header h1 { margin: 0; font-size: var(--game-font-size-h1); line-height: var(--game-line-height-heading); letter-spacing: -0.04em; }
+.trust-page__lead { margin: var(--game-space-5) 0 0; color: var(--game-color-text-secondary); font-size: var(--game-font-size-large); }
+.trust-meta { margin: var(--game-space-5) 0 0; color: var(--game-color-text-secondary); font-size: var(--game-font-size-small); }
+.trust-page__content { display: grid; gap: var(--game-space-8); }
+.trust-section h2, .trust-panel h2, .contact-card h2 { margin: 0 0 var(--game-space-3); font-size: var(--game-font-size-h2); line-height: var(--game-line-height-heading); }
+.trust-section p, .trust-panel p, .contact-card p { margin: 0; color: var(--game-color-text-secondary); }
+.trust-section p + p { margin-top: var(--game-space-4); }
+.trust-panel, .contact-card { padding: var(--game-space-6); border: 1px solid var(--game-color-border); border-radius: var(--game-radius-medium); background: var(--game-color-surface); box-shadow: var(--game-shadow); }
+.trust-list { display: grid; gap: var(--game-space-3); padding-left: var(--game-space-5); margin: 0; color: var(--game-color-text-secondary); }
+.trust-list li::marker { color: var(--game-color-primary); }
+.contact-card .trust-page__eyebrow { margin-bottom: var(--game-space-2); }
+.contact-email { display: inline-flex; min-height: var(--game-control-min-size); align-items: center; margin: var(--game-space-2) 0 var(--game-space-4); font-size: var(--game-font-size-large); font-weight: var(--game-font-weight-bold); overflow-wrap: anywhere; }
+.contact-note { font-size: var(--game-font-size-small); }
+.trust-actions { display: flex; flex-wrap: wrap; gap: var(--game-space-3); margin-top: var(--game-space-5); }
+@media (max-width: 40rem) { .trust-page { padding-block: var(--game-space-4) var(--game-space-12); } .trust-page__header { padding-block: var(--game-space-8) var(--game-space-8); } .trust-panel, .contact-card { padding: var(--game-space-5); } }

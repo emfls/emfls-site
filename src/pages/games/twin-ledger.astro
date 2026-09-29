@@ -1,0 +1,14 @@
+---
+import GameDetailFrame from '../../components/GameDetailFrame.astro';
+import TwinLedgerGame from '../../components/games/TwinLedgerGame.astro';
+import { games } from '../../data/games';
+
+const game = games.find((entry) => entry.slug === 'twin-ledger');
+if (!game) throw new Error('Twin Ledger is not configured in games.ts.');
+---
+<GameDetailFrame game={game} scoringLabel="Scoring">
+  <TwinLedgerGame slot="game" />
+  <p slot="how-to-play">Place each signed number into the Left or Right Ledger. Keep the absolute difference between the ledger totals within the turn's hard limit through all 18 turns. Earn points for balance; a Breach scores no turn points but does not end the session.</p>
+  <p slot="controls">Tap Left Ledger or Right Ledger to place the current tile. On desktop, press Left Arrow or A for Left, or Right Arrow or D for Right.</p>
+  <p slot="scoring">Exact (0): 120 points; Stable (1–2): 90; Tense (3–4): 55; Danger (5 through the turn's hard limit): 20; Breach (above the hard limit): 0. Exact and Stable build the combo; Tense, Danger, and Breach reset it. The combo multiplier applies to that turn's points, up to ×1.50. Complete all 18 turns for the breach-count and final-difference bonuses.</p>
+</GameDetailFrame>
