@@ -36,15 +36,18 @@ function link(href, text) {
   return `<a href="${href}">${text}</a>`;
 }
 
-function sharedShell(content) {
+function sharedShell(content, route, robots = 'index, follow') {
   const footer = [
     link('/games/', 'Games'),
     ...gameCategories.map((category) => link(category.href, category.name)),
     ...trustRoutes.map((route) => link(route, route.split('/')[1])),
     link('/site-map/', 'Site Map'),
   ].join('');
+  const canonicalUrl = route === '/404.html' ? null : `https://emfls.com${route}`;
+  const canonical = canonicalUrl ? `<link rel="canonical" href="${canonicalUrl}">` : '';
+  const openGraphUrl = canonicalUrl ? `<meta property="og:url" content="${canonicalUrl}">` : '';
 
-  return `<!doctype html><html><body><a href="#main-content">Skip</a><header>${link('/', 'Home')}${link('/games/', 'Games')}${link('/about/', 'About')}</header><main id="main-content">${content}</main><footer>${footer}</footer></body></html>`;
+  return `<!doctype html><html><head><meta name="robots" content="${robots}">${canonical}${openGraphUrl}</head><body><a href="#main-content">Skip</a><header>${link('/', 'Home')}${link('/games/', 'Games')}${link('/about/', 'About')}</header><main id="main-content">${content}</main><footer>${footer}</footer></body></html>`;
 }
 
 function fixturePages() {
@@ -52,32 +55,32 @@ function fixturePages() {
   const pages = new Map();
   const featured = featuredSlugs.map((slug) => bySlug.get(slug));
   const homeContent = `<section class="featured-grid">${featured.map((game) => `<article class="game-card"><div class="game-card__topline"><span class="game-card__category">${game.primaryCategory}</span><span>${game.session}</span></div><h3>${game.name}</h3><p>${game.description}</p><div class="game-card__footer"><span>${game.mode}</span><a href="${game.href}">Play</a></div></article>`).join('')}</section><section class="category-grid">${gameCategories.map((category) => `<a class="category-card" href="${category.href}"><h3>${category.name}</h3></a>`).join('')}</section>`;
-  pages.set('/', sharedShell(homeContent));
+  pages.set('/', sharedShell(homeContent, '/'));
 
   const gameCards = games.map((game) => `<article class="games-card" data-game-card data-categories="${game.categories.join(',')}" data-mode="${game.mode}" data-quick-play="${quickPlaySlugs.includes(game.slug)}"><h3>${game.name}</h3><a href="${game.href}">Play</a></article>`).join('');
-  pages.set('/games/', sharedShell(`<div class="games-filters"><button type="button" data-filter-group="category" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="mode" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="Quick Play" aria-pressed="false">Quick Play</button></div><section class="games-grid">${gameCards}</section>`));
+  pages.set('/games/', sharedShell(`<div class="games-filters"><button type="button" data-filter-group="category" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="mode" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="All" aria-pressed="true">All</button><button type="button" data-filter-group="session" data-filter-value="Quick Play" aria-pressed="false">Quick Play</button></div><section class="games-grid">${gameCards}</section>`, '/games/'));
 
   for (const category of gameCategories) {
     const members = games.filter((game) => game.categories.includes(category.name));
     const cards = members.map((game) => `<article class="game-category-card"><h3>${game.name}</h3><a href="${game.href}">Play</a></article>`).join('');
-    pages.set(category.href, sharedShell(`<h1>${category.title}</h1><section class="game-category__grid">${cards}</section>`));
+    pages.set(category.href, sharedShell(`<h1>${category.title}</h1><section class="game-category__grid">${cards}</section>`, category.href));
   }
 
   for (const game of games) {
     const related = relatedSlugs[game.slug].map((slug) => bySlug.get(slug));
     const relatedHtml = related.map((item) => `<li><a class="game-detail__related-link" href="${item.href}"><strong>${item.name}</strong><span class="game-detail__related-description">${item.description}</span><span>${item.primaryCategory} · ${item.session}</span></a></li>`).join('');
     const content = `<nav class="game-breadcrumb">${link('/', 'Home')}${link('/games/', 'Games')}${link(`/categories/${game.primaryCategory.toLowerCase()}/`, game.primaryCategory)}</nav><h1>${game.name}</h1><p class="game-detail__description">${game.description}</p><div class="game-detail__meta"><span>Mode ${game.mode}</span><span>Session ${game.session}</span></div><section class="game-detail__related"><h2>Related Games</h2><ul>${relatedHtml}</ul></section><a href="/games/">Back to all games</a>`;
-    pages.set(game.href, sharedShell(content));
+    pages.set(game.href, sharedShell(content, game.href));
   }
 
   for (const route of trustRoutes) {
     const links = route === '/contact/'
       ? '<a href="mailto:hello@example.com">Email</a><a href="tel:+821012345678">Phone</a><a href="https://example.org/reference">External</a>'
       : '';
-    pages.set(route, sharedShell(`<h1>${route.split('/')[1]}</h1>${links}`));
+    pages.set(route, sharedShell(`<h1>${route.split('/')[1]}</h1>${links}`, route));
   }
-  pages.set('/site-map/', sharedShell(`<nav>${canonicalRoutes.map((route) => link(route, route)).join('')}</nav>`));
-  pages.set('/404.html', sharedShell(`<h1>Page not found</h1>${link('/', 'Back to Home')}${link('/games/', 'Browse Games')}`));
+  pages.set('/site-map/', sharedShell(`<nav>${canonicalRoutes.map((route) => link(route, route)).join('')}</nav>`, '/site-map/', 'noindex, follow'));
+  pages.set('/404.html', sharedShell(`<h1>Page not found</h1>${link('/', 'Back to Home')}${link('/games/', 'Browse Games')}`, '/404.html', 'noindex, follow'));
   return pages;
 }
 
@@ -108,17 +111,108 @@ function jsonReport(result) {
   return JSON.parse(result.stdout);
 }
 
+function canonicalFailureReport(root) {
+  const result = runValidator(root);
+  assert.equal(result.status, 1, result.stdout);
+  return JSON.parse(result.stdout);
+}
+
+function assertCanonicalFailure(report, route, reason) {
+  assert.ok(report.canonicalMetadataFailures.some((failure) => failure.route === route && failure.reason === reason), JSON.stringify(report.canonicalMetadataFailures));
+}
+
 test('fresh generated output validates all canonical pages, discovery surfaces, and related HTML', (t) => {
   const root = writeFixture(t);
   const report = jsonReport(runValidator(root));
 
   assert.equal(report.requiredDestinations, 18);
+  assert.equal(report.canonicalMetadataPages, 18);
+  assert.deepEqual(report.canonicalMetadataFailures, []);
   assert.equal(report.brokenLinks.length, 0);
   assert.equal(report.externalLinksIgnored, 3);
   assert.deepEqual(report.orphanCanonicalDestinations, []);
   assert.deepEqual(report.relatedGames, { gamePages: 8, linksChecked: 24, failures: [] });
   assert.equal(report.discoveryFailures.length, 0);
   assert.ok(report.linksInspected > 0);
+});
+
+test('generated-output audit rejects a canonical on the wrong host', (t) => {
+  const root = writeFixture(t);
+  const aboutFile = join(root, 'about/index.html');
+  const original = readFileSync(aboutFile, 'utf8');
+  const changed = original.replace('href="https://emfls.com/about/"', 'href="https://www.emfls.com/about/"');
+  assert.notEqual(changed, original);
+  writeFileSync(aboutFile, changed);
+
+  assertCanonicalFailure(canonicalFailureReport(root), '/about/', 'canonical-url-mismatch');
+});
+
+test('generated-output audit rejects duplicate canonical tags', (t) => {
+  const root = writeFixture(t);
+  const aboutFile = join(root, 'about/index.html');
+  const original = readFileSync(aboutFile, 'utf8');
+  writeFileSync(aboutFile, original.replace('</head>', '<link rel="canonical" href="https://emfls.com/about/"></head>'));
+
+  assertCanonicalFailure(canonicalFailureReport(root), '/about/', 'canonical-count-mismatch');
+});
+
+test('generated-output audit requires indexable routes to permit indexing', (t) => {
+  const root = writeFixture(t);
+  const aboutFile = join(root, 'about/index.html');
+  const original = readFileSync(aboutFile, 'utf8');
+  writeFileSync(aboutFile, original.replace('content="index, follow"', 'content="noindex, follow"'));
+
+  assertCanonicalFailure(canonicalFailureReport(root), '/about/', 'indexable-route-noindex');
+});
+
+test('generated-output audit keeps Open Graph URL aligned with canonical', (t) => {
+  const root = writeFixture(t);
+  const aboutFile = join(root, 'about/index.html');
+  const original = readFileSync(aboutFile, 'utf8');
+  writeFileSync(aboutFile, original.replace('<meta property="og:url" content="https://emfls.com/about/">', '<meta property="og:url" content="https://www.emfls.com/about/">'));
+
+  assertCanonicalFailure(canonicalFailureReport(root), '/about/', 'og-url-canonical-mismatch');
+});
+
+test('generated-output audit requires the human site map to be noindex follow', (t) => {
+  const root = writeFixture(t);
+  const siteMapFile = join(root, 'site-map/index.html');
+  const original = readFileSync(siteMapFile, 'utf8');
+  writeFileSync(siteMapFile, original.replace('content="noindex, follow"', 'content="index, follow"'));
+
+  assertCanonicalFailure(canonicalFailureReport(root), '/site-map/', 'site-map-indexability-mismatch');
+});
+
+test('generated-output audit requires a noindex 404 with no canonical', (t) => {
+  const root = writeFixture(t);
+  const notFoundFile = join(root, '404.html');
+  const original = readFileSync(notFoundFile, 'utf8');
+  const changed = original
+    .replace('content="noindex, follow"', 'content="index, follow"')
+    .replace('</head>', '<link rel="canonical" href="https://emfls.com/"></head>');
+  writeFileSync(notFoundFile, changed);
+
+  const report = canonicalFailureReport(root);
+  assertCanonicalFailure(report, '/404.html', 'custom-404-has-canonical');
+  assertCanonicalFailure(report, '/404.html', 'custom-404-indexable');
+});
+
+test('generated-output audit rejects soft canonical migration of legacy routes', (t) => {
+  const root = writeFixture(t);
+  const legacyDirectory = join(root, 'articles/legacy');
+  mkdirSync(legacyDirectory, { recursive: true });
+  const legacyHtml = sharedShell('<h1>Legacy route</h1>', '/articles/legacy/')
+    .replace('href="https://emfls.com/articles/legacy/"', 'href="https://emfls.com/games/"');
+  writeFileSync(join(legacyDirectory, 'index.html'), legacyHtml);
+  const legacyCategoryDirectory = join(root, 'categories/domains-dns');
+  mkdirSync(legacyCategoryDirectory, { recursive: true });
+  const legacyCategoryHtml = sharedShell('<h1>Legacy category</h1>', '/categories/domains-dns/')
+    .replace('href="https://emfls.com/categories/domains-dns/"', 'href="https://emfls.com/"');
+  writeFileSync(join(legacyCategoryDirectory, 'index.html'), legacyCategoryHtml);
+
+  const report = canonicalFailureReport(root);
+  assertCanonicalFailure(report, '/articles/legacy/', 'legacy-canonical-soft-migration');
+  assertCanonicalFailure(report, '/categories/domains-dns/', 'legacy-canonical-soft-migration');
 });
 
 test('generated-output audit rejects missing routes, invalid schemes, and missing fragments', (t) => {

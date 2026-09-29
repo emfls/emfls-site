@@ -255,6 +255,92 @@ function addDiscoveryFailure(failures, route, reason, details = {}) {
   failures.push({ route, reason, ...details });
 }
 
+function auditCanonicalMetadata(documents) {
+  const failures = [];
+  const byRoute = new Map([...documents.values()].map((document) => [document.route, document]));
+  const metadata = (document, predicate) => descendants(document.tree, predicate);
+  const canonicalLinks = (document) => metadata(document, (node) =>
+    node.tag === 'link' && (node.attributes.rel ?? '').toLowerCase().split(/\s+/).includes('canonical'),
+  );
+  const robotsTags = (document) => metadata(document, (node) =>
+    node.tag === 'meta' && (node.attributes.name ?? '').toLowerCase() === 'robots',
+  );
+  const openGraphUrls = (document) => metadata(document, (node) =>
+    node.tag === 'meta' && (node.attributes.property ?? '').toLowerCase() === 'og:url',
+  );
+  const hasDirective = (content, directive) => content.split(',').some((value) => value.trim().toLowerCase() === directive);
+  const blocksIndexing = (content) => hasDirective(content, 'noindex') || hasDirective(content, 'none');
+  let canonicalMetadataPages = 0;
+
+  for (const route of canonicalRoutes) {
+    const document = byRoute.get(route);
+    if (!document) continue;
+    canonicalMetadataPages += 1;
+    const canonicals = canonicalLinks(document);
+    const expected = new URL(route, siteOrigin).href;
+    if (canonicals.length !== 1) {
+      failures.push({ route, reason: 'canonical-count-mismatch', expected: 1, actual: canonicals.length });
+    } else if (canonicals[0].attributes.href !== expected) {
+      failures.push({ route, reason: 'canonical-url-mismatch', expected, actual: canonicals[0].attributes.href ?? null });
+    }
+
+    const robots = robotsTags(document);
+    if (robots.length > 1) failures.push({ route, reason: 'indexable-route-robots-count-mismatch', expected: 1, actual: robots.length });
+    if (robots.some((tag) => blocksIndexing(tag.attributes.content ?? ''))) {
+      failures.push({ route, reason: 'indexable-route-noindex' });
+    }
+
+    const canonicalUrl = canonicals.length === 1 ? canonicals[0].attributes.href : null;
+    for (const tag of openGraphUrls(document)) {
+      if (tag.attributes.content !== canonicalUrl) {
+        failures.push({ route, reason: 'og-url-canonical-mismatch', canonical: canonicalUrl, actual: tag.attributes.content ?? null });
+      }
+    }
+  }
+
+  const siteMap = byRoute.get('/site-map/');
+  if (!siteMap) {
+    failures.push({ route: '/site-map/', reason: 'missing-site-map-html' });
+  } else {
+    const robots = robotsTags(siteMap);
+    const validRobots = robots.length === 1
+      && hasDirective(robots[0].attributes.content ?? '', 'noindex')
+      && hasDirective(robots[0].attributes.content ?? '', 'follow');
+    if (!validRobots || canonicalRoutes.includes('/site-map/')) {
+      failures.push({ route: '/site-map/', reason: 'site-map-indexability-mismatch', robotsCount: robots.length });
+    }
+  }
+
+  const custom404 = byRoute.get('/404.html');
+  if (!custom404) {
+    failures.push({ route: '/404.html', reason: 'missing-custom-404-html' });
+  } else {
+    if (canonicalLinks(custom404).length) failures.push({ route: '/404.html', reason: 'custom-404-has-canonical' });
+    const robots = robotsTags(custom404);
+    if (robots.length !== 1 || !robots.some((tag) => blocksIndexing(tag.attributes.content ?? ''))) {
+      failures.push({ route: '/404.html', reason: 'custom-404-indexable', robotsCount: robots.length });
+    }
+  }
+
+  const canonicalRouteSet = new Set(canonicalRoutes);
+  for (const document of documents.values()) {
+    if (canonicalRouteSet.has(document.route) || ['/site-map/', '/404.html'].includes(document.route)) continue;
+    for (const canonical of canonicalLinks(document)) {
+      let url;
+      try {
+        url = new URL(canonical.attributes.href);
+      } catch {
+        continue;
+      }
+      if (url.origin === siteOrigin && ['/', '/games/'].includes(url.pathname)) {
+        failures.push({ route: document.route, reason: 'legacy-canonical-soft-migration', actual: url.href });
+      }
+    }
+  }
+
+  return { canonicalMetadataPages, failures };
+}
+
 function auditDiscovery(root, documents) {
   const failures = [];
   const byRoute = new Map([...documents.values()].map((document) => [document.route, document]));
@@ -470,6 +556,7 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
     for (const destination of graph.get(route) ?? []) if (!reachable.has(destination)) queue.push(destination);
   }
   const orphanCanonicalDestinations = canonicalRoutes.filter((route) => !reachable.has(route));
+  const canonicalMetadata = auditCanonicalMetadata(documents);
   const discoveryFailures = auditDiscovery(root, documents);
   const relatedGames = auditRelatedGames(documents);
   const report = {
@@ -480,10 +567,12 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
     externalLinksIgnored,
     brokenLinks,
     orphanCanonicalDestinations,
+    canonicalMetadataPages: canonicalMetadata.canonicalMetadataPages,
+    canonicalMetadataFailures: canonicalMetadata.failures,
     relatedGames,
     discoveryFailures,
   };
-  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
+  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
   return report;
 }
 
