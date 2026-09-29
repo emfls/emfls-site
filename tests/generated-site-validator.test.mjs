@@ -132,6 +132,10 @@ test('fresh generated output validates all canonical pages, discovery surfaces, 
   const report = jsonReport(runValidator(root));
 
   assert.equal(report.requiredDestinations, 18);
+  assert.equal(report.generatedHtmlPages, 20);
+  assert.equal(report.expectedHtmlPages, 20);
+  assert.deepEqual(report.htmlRouteFailures, []);
+  assert.equal(report.generatedLegacyRoutes, 0);
   assert.equal(report.canonicalMetadataPages, 18);
   assert.deepEqual(report.canonicalMetadataFailures, []);
   assert.equal(report.sitemapEntries, 18);
@@ -143,6 +147,17 @@ test('fresh generated output validates all canonical pages, discovery surfaces, 
   assert.deepEqual(report.relatedGames, { gamePages: 8, linksChecked: 24, failures: [] });
   assert.equal(report.discoveryFailures.length, 0);
   assert.ok(report.linksInspected > 0);
+});
+
+test('generated-output audit requires the exact final HTML route surface', (t) => {
+  const root = writeFixture(t);
+  const legacyDirectory = join(root, 'articles/legacy-guide');
+  mkdirSync(legacyDirectory, { recursive: true });
+  writeFileSync(join(legacyDirectory, 'index.html'), sharedShell('<h1>Legacy guide</h1>', '/articles/legacy-guide/'));
+
+  const report = canonicalFailureReport(root);
+  assert.equal(report.generatedLegacyRoutes, 1);
+  assert.ok(report.htmlRouteFailures.some((failure) => failure.reason === 'generated-html-route-surface-mismatch' && failure.unexpectedRoutes.includes('/articles/legacy-guide/')), JSON.stringify(report.htmlRouteFailures));
 });
 
 test('generated-output audit rejects a canonical on the wrong host', (t) => {

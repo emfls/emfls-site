@@ -14,6 +14,7 @@ const canonicalRoutes = [
   ...gameCategories.map(({ href }) => href),
   ...trustRoutes,
 ];
+const expectedHtmlRoutes = new Set([...canonicalRoutes, '/site-map/', '/404.html']);
 const featuredSlugs = ['pulse-junction', 'mirror-drift', 'orbit-slip', 'gravity-pact'];
 const quickPlaySlugs = ['pulse-junction', 'orbit-slip', 'signal-sweep'];
 const expectedRelatedSlugs = {
@@ -588,6 +589,23 @@ function auditRelatedGames(documents) {
   return { gamePages: games.length, linksChecked, failures };
 }
 
+function auditHtmlRouteSurface(documents) {
+  const actualRoutes = [...documents.values()].map((document) => document.route);
+  const actualSet = new Set(actualRoutes);
+  const missingRoutes = [...expectedHtmlRoutes].filter((route) => !actualSet.has(route));
+  const unexpectedRoutes = actualRoutes.filter((route) => !expectedHtmlRoutes.has(route));
+  const duplicateRoutes = actualRoutes.filter((route, index) => actualRoutes.indexOf(route) !== index);
+  const legacyCategoryRoutes = actualRoutes.filter((route) => route.startsWith('/categories/') && !canonicalRoutes.includes(route));
+  const generatedLegacyRoutes = actualRoutes.filter((route) =>
+    isLegacyGuidePath(route) || route === '/disclaimer/' || legacyCategoryRoutes.includes(route),
+  ).length;
+  const failures = [];
+  if (missingRoutes.length || unexpectedRoutes.length || duplicateRoutes.length || actualRoutes.length !== expectedHtmlRoutes.size) {
+    failures.push({ reason: 'generated-html-route-surface-mismatch', expectedCount: expectedHtmlRoutes.size, actualCount: actualRoutes.length, missingRoutes, unexpectedRoutes, duplicateRoutes: [...new Set(duplicateRoutes)] });
+  }
+  return { expectedHtmlPages: expectedHtmlRoutes.size, generatedLegacyRoutes, failures };
+}
+
 export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../dist')) {
   const root = resolve(outputDirectory);
   const htmlFiles = walkHtml(root);
@@ -655,6 +673,7 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
   const canonicalMetadata = auditCanonicalMetadata(documents);
   const sitemap = auditSitemap(root);
   const robotsFailures = auditRobots(root);
+  const htmlRoutes = auditHtmlRouteSurface(documents);
   const discoveryFailures = auditDiscovery(root, documents);
   const relatedGames = auditRelatedGames(documents);
   const report = {
@@ -670,10 +689,13 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
     sitemapEntries: sitemap.entries,
     sitemapFailures: sitemap.failures,
     robotsFailures,
+    expectedHtmlPages: htmlRoutes.expectedHtmlPages,
+    generatedLegacyRoutes: htmlRoutes.generatedLegacyRoutes,
+    htmlRouteFailures: htmlRoutes.failures,
     relatedGames,
     discoveryFailures,
   };
-  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
+  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && htmlRoutes.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0;
   return report;
 }
 
