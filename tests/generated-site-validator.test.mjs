@@ -89,7 +89,10 @@ function fixturePages() {
       ? '<a href="mailto:hello@example.com">Email</a><a href="tel:+821012345678">Phone</a><a href="https://example.org/reference">External</a>'
       : '';
     const about = route === '/about/' ? `<section class="about-mechanics"><h2>How the mechanics differ</h2>${games.map(({ name }) => `<p>${name}</p>`).join('')}</section>` : '';
-    pages.set(route, sharedShell(`<h1>${route.split('/')[1]}</h1>${about}${links}`, route));
+    const privacy = route === '/privacy/'
+      ? '<section><h2>Analytics and advertising</h2><p>Cloudflare Web Analytics is enabled on this site and reports page-load performance metrics to Cloudflare using browser timing APIs. <a href="https://developers.cloudflare.com/web-analytics/about/">Cloudflare states that Web Analytics does not collect or use visitors’ personal data.</a> See <a href="https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/">data collection details</a>. EMFLS Games does not currently use Google Analytics or display Google AdSense ads on its game pages.</p></section>'
+      : '';
+    pages.set(route, sharedShell(`<h1>${route.split('/')[1]}</h1>${about}${links}${privacy}`, route));
   }
   pages.set('/site-map/', sharedShell(`<nav>${canonicalRoutes.map((route) => link(route, route)).join('')}</nav>`, '/site-map/', 'noindex, follow'));
   pages.set('/404.html', sharedShell(`<h1>Page not found</h1>${link('/', 'Back to Home')}${link('/games/', 'Browse Games')}`, '/404.html', 'noindex, follow'));
@@ -150,12 +153,23 @@ test('fresh generated output validates all canonical pages, discovery surfaces, 
   assert.deepEqual(report.sitemapFailures, []);
   assert.deepEqual(report.robotsFailures, []);
   assert.equal(report.brokenLinks.length, 0);
-  assert.equal(report.externalLinksIgnored, 3);
+  assert.equal(report.externalLinksIgnored, 5);
   assert.deepEqual(report.orphanCanonicalDestinations, []);
   assert.deepEqual(report.relatedGames, { gamePages: 8, linksChecked: 24, failures: [] });
   assert.equal(report.discoveryFailures.length, 0);
   assert.deepEqual(report.publisherContentFailures, []);
+  assert.deepEqual(report.privacyDisclosureFailures, []);
   assert.ok(report.linksInspected > 0);
+});
+
+test('generated privacy output fails validation if its active Cloudflare analytics disclosure is removed', (t) => {
+  const root = writeFixture(t);
+  const privacyFile = join(root, 'privacy/index.html');
+  const privacyHtml = readFileSync(privacyFile, 'utf8');
+  writeFileSync(privacyFile, privacyHtml.replace('Cloudflare Web Analytics is enabled on this site', ''));
+
+  const report = canonicalFailureReport(root);
+  assert.ok(report.privacyDisclosureFailures.some(({ route, reason }) => route === '/privacy/' && reason === 'active-cloudflare-analytics-disclosure-missing'));
 });
 
 test('generated-output audit requires the publisher-value content to render across all discovery routes', (t) => {
