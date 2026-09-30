@@ -704,6 +704,25 @@ function auditPublisherContent(documents) {
   return failures;
 }
 
+function auditPrivacyDisclosure(documents) {
+  const document = [...documents.values()].find((item) => item.route === '/privacy/');
+  if (!document) return [{ route: '/privacy/', reason: 'privacy-page-missing' }];
+
+  const text = normalizedText(document.tree);
+  const links = new Set(descendants(document.tree, (node) => node.tag === 'a' && node.attributes.href).map((node) => node.attributes.href));
+  const activeAnalyticsDisclosed = text.includes('Cloudflare Web Analytics is enabled on this site')
+    && text.includes('reports page-load performance metrics to Cloudflare using browser timing APIs')
+    && text.includes('Cloudflare states that Web Analytics does not collect or use visitors’ personal data')
+    && links.has('https://developers.cloudflare.com/web-analytics/about/')
+    && links.has('https://developers.cloudflare.com/web-analytics/data-metrics/data-origin-and-collection/');
+  const googleServicesStatusDisclosed = text.includes('does not currently use Google Analytics')
+    && text.includes('display Google AdSense ads on its game pages');
+  const failures = [];
+  if (!activeAnalyticsDisclosed) failures.push({ route: '/privacy/', reason: 'active-cloudflare-analytics-disclosure-missing' });
+  if (!googleServicesStatusDisclosed) failures.push({ route: '/privacy/', reason: 'google-analytics-or-adsense-status-missing' });
+  return failures;
+}
+
 function auditHtmlRouteSurface(documents) {
   const actualRoutes = [...documents.values()].map((document) => document.route);
   const actualSet = new Set(actualRoutes);
@@ -792,6 +811,7 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
   const discoveryFailures = auditDiscovery(root, documents);
   const relatedGames = auditRelatedGames(documents);
   const publisherContentFailures = auditPublisherContent(documents);
+  const privacyDisclosureFailures = auditPrivacyDisclosure(documents);
   const report = {
     generatedHtmlPages: htmlFiles.length,
     requiredDestinations: canonicalRoutes.length,
@@ -811,8 +831,9 @@ export function validateGeneratedSite(outputDirectory = resolve(dirname(fileURLT
     relatedGames,
     discoveryFailures,
     publisherContentFailures,
+    privacyDisclosureFailures,
   };
-  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && htmlRoutes.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0 && publisherContentFailures.length === 0;
+  report.passed = brokenLinks.length === 0 && orphanCanonicalDestinations.length === 0 && canonicalMetadata.failures.length === 0 && sitemap.failures.length === 0 && robotsFailures.length === 0 && htmlRoutes.failures.length === 0 && relatedGames.failures.length === 0 && discoveryFailures.length === 0 && publisherContentFailures.length === 0 && privacyDisclosureFailures.length === 0;
   return report;
 }
 
